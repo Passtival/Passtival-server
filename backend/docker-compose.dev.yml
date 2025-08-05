@@ -1,6 +1,7 @@
 # docker-compose.dev.yml
 services:
   backend:
+    image: junseonpark/passtival-spring
     build:
       context: .
       dockerfile: Dockerfile
