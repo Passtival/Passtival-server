@@ -44,8 +44,6 @@ jobs:
           source: "backend/docker-compose.prod.yml" # GitHub 저장소 내 경로
           target: "~/deploy" # EC2 서버의 목적지 주소
 
-
-
       - name: SSH를 통해 서버에 배포
         uses: appleboy/ssh-action@master
         with:
@@ -55,5 +53,6 @@ jobs:
           script: |
             cd ~/deploy/backend
             docker compose -f docker-compose.prod.yml down
+            docker image prune -a -f 
             docker pull ${{ secrets.DOCKER_USERNAME }}/passtival-spring:latest
             docker compose -f docker-compose.prod.yml up -d
