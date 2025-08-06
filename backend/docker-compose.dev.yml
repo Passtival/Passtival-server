@@ -1,8 +1,10 @@
 # docker-compose.dev.yml
 services:
   backend:
+    image: junseonpark/passtival-spring
     build:
       context: .
+      dockerfile: Dockerfile
     container_name: passtival-spring-app
     ports:
       - "8080:8080"

@@ -7,11 +7,11 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update # 개발 중에는 update, 배포 시엔 validate or none
-    show-sql: true
+      ddl-auto: none
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         dialect: org.hibernate.dialect.MySQL8Dialect
 
   data:
@@ -20,18 +20,14 @@ spring:
       port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}
   thymeleaf:
-    cache: false
+    cache: true
 
 logging:
   level:
-    root: info
-    org.hibernate.sql: debug
-    org.hibernate.type.descriptor.sql.BasicBinder: trace
-    com.passtival.backend: debug
+    root: error
+    com.passtival.backend: info
 
 jwt:
   secret: ${JWT_SECRET_KEY}
   access-token-expiration: ${JWT_ACCESS_EXPIRATION}
   refresh-token-expiration: ${JWT_REFRESH_EXPIRATION}
-
-
