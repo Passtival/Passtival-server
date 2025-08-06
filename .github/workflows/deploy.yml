@@ -2,7 +2,7 @@ name: Pasttival-Backend of Deploy to Production
 on:
   push:
     branches:
-      - 12/refactor/CI-CD-settings-deploy.yml  # main에 푸시될 때 실행
+      - main  # main에 푸시될 때 실행
 
 jobs:
   build-and-deploy:
