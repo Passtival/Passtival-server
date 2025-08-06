@@ -2,7 +2,7 @@ name: Pasttival-Backend of Deploy to Production
 on:
   push:
     branches:
-      - main  # main에 푸시될 때 실행
+      - 12/refactor/CI-CD-settings-deploy.yml  # main에 푸시될 때 실행
 
 jobs:
   build-and-deploy:
@@ -32,7 +32,7 @@ jobs:
 
       - name: 빌드 및 Docker 이미지 푸시
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/passtival-spring:latest .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/passtival-spring:latest ./backend
           docker push ${{ secrets.DOCKER_USERNAME }}/passtival-spring:latest
 
       - name: SSH를 통해 서버에 배포
