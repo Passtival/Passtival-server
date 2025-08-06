@@ -53,7 +53,7 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd ~/deploy
+            cd ~/deploy/backend
             docker compose -f docker-compose.prod.yml down
             docker pull ${{ secrets.DOCKER_USERNAME }}/passtival-spring:latest
             docker compose -f docker-compose.prod.yml up -d
