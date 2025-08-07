@@ -17,7 +17,7 @@ public enum BaseResponseStatus {
 
 	// 500: 서버 오류
 	INTERNAL_SERVER_ERROR(false, 500, "서버에서 오류가 발생하였습니다."),
-	DATABASES_ERROR(false, 500, "데이터베이스 오류가 발생했습니다."),
+	DATABASE_ERROR(false, 500, "데이터베이스 오류가 발생했습니다."),
 	IO_ERROR(false, 500, "입출력 처리 중 오류가 발생했습니다.");
 
 	private final boolean isSuccess; // 요청 성공 여부
