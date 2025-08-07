@@ -24,7 +24,7 @@ public class BaseResponse<T> {
 	private T result;
 
 	// 요청에 성공한 경우
-	public BaseResponse(T result) {
+	private BaseResponse(T result) {
 		this.isSuccess = BaseResponseStatus.OK.isSuccess();
 		this.code = BaseResponseStatus.OK.getCode();
 		this.message = BaseResponseStatus.OK.getMessage();
@@ -32,14 +32,14 @@ public class BaseResponse<T> {
 	}
 
 	// 요청에 실패한 경우
-	public BaseResponse(BaseResponseStatus status) {
+	private BaseResponse(BaseResponseStatus status) {
 		this.isSuccess = status.isSuccess();
 		this.code = status.getCode();
 		this.message = status.getMessage();
 	}
 
 	// 요청에 실패한 경우 + response 담을 값이 있는 경우
-	public BaseResponse(BaseResponseStatus status, T result) {
+	private BaseResponse(BaseResponseStatus status, T result) {
 		this.isSuccess = status.isSuccess();
 		this.code = status.getCode();
 		this.message = status.getMessage();
@@ -47,9 +47,35 @@ public class BaseResponse<T> {
 	}
 
 	// 커스텀 메세지 입력
-	public BaseResponse(BaseResponseStatus status, String customMessage) {
+	private BaseResponse(BaseResponseStatus status, String customMessage) {
 		this.isSuccess = status.isSuccess();
 		this.code = status.getCode();
 		this.message = customMessage;
 	}
+
+	/**
+	 * 정적 헬퍼 메서드 추가
+ 	 */
+
+	// 성공 응답
+	public static <T> BaseResponse<T> success(T result) {
+		return new BaseResponse<>(result);
+	}
+
+	// 실패 응답
+	public static <T> BaseResponse<T> fial(BaseResponseStatus status){
+		return new BaseResponse<>(status);
+	}
+
+	// 실패 응답 + 데이터
+	public static <T> BaseResponse<T> fial(BaseResponseStatus status, T result){
+		return new BaseResponse<>(status, result);
+	}
+
+	// 실패 응답 + 커스텀 메세지
+	public static <T> BaseResponse<T> fail(BaseResponseStatus status, String customMessage) {
+		return new BaseResponse<>(status, customMessage);
+	}
+
+
 }
