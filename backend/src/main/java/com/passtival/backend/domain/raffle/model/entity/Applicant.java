@@ -1,5 +1,7 @@
 package com.passtival.backend.domain.raffle.model.entity;
 
+import com.passtival.backend.global.common.model.BaseEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,7 +12,7 @@ import lombok.Getter;
 @Entity
 @Table(name = "applicant")
 @Getter
-public class Applicant {
+public class Applicant extends BaseEntity {
 
 	@Id
 	@GeneratedValue

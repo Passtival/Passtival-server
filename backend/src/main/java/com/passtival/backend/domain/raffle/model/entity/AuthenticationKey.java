@@ -1,5 +1,7 @@
 package com.passtival.backend.domain.raffle.model.entity;
 
+import com.passtival.backend.global.common.model.BaseEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,7 +13,7 @@ import lombok.Getter;
 @Entity
 @Getter
 @Table(name = "authentication_key")
-public class AuthenticationKey {
+public class AuthenticationKey extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
