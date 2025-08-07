@@ -63,12 +63,12 @@ public class BaseResponse<T> {
 	}
 
 	// 실패 응답
-	public static <T> BaseResponse<T> fial(BaseResponseStatus status){
+	public static <T> BaseResponse<T> fail(BaseResponseStatus status){
 		return new BaseResponse<>(status);
 	}
 
 	// 실패 응답 + 데이터
-	public static <T> BaseResponse<T> fial(BaseResponseStatus status, T result){
+	public static <T> BaseResponse<T> fail(BaseResponseStatus status, T result){
 		return new BaseResponse<>(status, result);
 	}
 
