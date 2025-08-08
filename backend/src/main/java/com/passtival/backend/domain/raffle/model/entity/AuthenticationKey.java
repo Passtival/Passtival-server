@@ -9,10 +9,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @Table(name = "authentication_key")
+@NoArgsConstructor
 public class AuthenticationKey extends BaseEntity {
 
 	@Id
@@ -21,4 +23,9 @@ public class AuthenticationKey extends BaseEntity {
 
 	@Column(name = "authentication_key", nullable = false, unique = true)
 	private String key; // 인증 키 값
+
+	public AuthenticationKey(String key) {
+		this.key = key;
+	}
+
 }

@@ -7,11 +7,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "applicant")
 @Getter
+@Builder
+@NoArgsConstructor // 기본 생성자 (JPA에서 필요)
+@AllArgsConstructor // 모든 필드를 받는 생성자 (Builder 패턴용)
 public class Applicant extends BaseEntity {
 
 	@Id
