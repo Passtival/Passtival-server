@@ -74,10 +74,7 @@ public class RaffleService {
 	private boolean isValidAuthenticationKey(String requestKey) {
 		try {
 			// DB에서 유일한 인증키 조회
-			AuthenticationKey authKey = authenticationKeyRepository.findAll()
-				.stream()
-				.findFirst()
-				.orElse(null);
+			AuthenticationKey authKey = authenticationKeyRepository.findFirstByOrderByIdAsc();
 
 			if (authKey == null) {
 				log.warn("DB에 등록된 인증키가 없습니다.");
@@ -100,10 +97,7 @@ public class RaffleService {
 	public void updateAuthenticationKey(String newKey, String oldKey) {
 		try {
 			// 1. DB에서 현재 인증키 조회
-			AuthenticationKey currentAuthKey = authenticationKeyRepository.findAll()
-				.stream()
-				.findFirst()
-				.orElse(null);
+			AuthenticationKey currentAuthKey = authenticationKeyRepository.findFirstByOrderByIdAsc();
 
 			// 2. DB에 인증키가 없는 경우
 			if (currentAuthKey == null) {

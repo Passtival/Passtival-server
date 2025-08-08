@@ -7,4 +7,10 @@ import com.passtival.backend.domain.raffle.model.entity.AuthenticationKey;
 
 @Repository
 public interface AuthenticationKeyRepository extends JpaRepository<AuthenticationKey, Long> {
+	/**
+	 * 인증 키를 ID 순으로 오름차순 정렬하여 첫 번째 항목을 반환합니다.
+	 * @return 첫 번째 인증 키
+	 */
+	AuthenticationKey findFirstByOrderByIdAsc();
+
 }
