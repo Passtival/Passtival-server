@@ -95,9 +95,12 @@ public class SecurityConfig {
         //경로별 권한 인가
         http
                 .authorizeHttpRequests((auth)->auth
+                        .requestMatchers("/api/matching/signup").permitAll()
+                        .requestMatchers("/api/matching/apply").authenticated()
+
                         .requestMatchers("/login", "/join").permitAll()          // 로그인/회원가입 허용
-                        .requestMatchers("/api/test/**").permitAll()             // 테스트 API 허용
-                        .requestMatchers("/api/matching/**").authenticated()     // 매칭 API 인증 필요
+                        .requestMatchers("/api/auth/refresh").permitAll()
+                        .requestMatchers("/api/test/**").authenticated()              // 테스트 API 허용
                         .requestMatchers("/admin").hasAnyRole("ADMIN")           // 관리자 전용
                         .anyRequest().authenticated());//authenticated를 통해 나머지는 로그인한 회원들을 기준으로 사용 가능
         //jwt인증하고 토큰을 발급하는 필터 등록

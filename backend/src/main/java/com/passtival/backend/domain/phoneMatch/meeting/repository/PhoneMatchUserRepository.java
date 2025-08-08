@@ -13,6 +13,9 @@ public interface PhoneMatchUserRepository extends JpaRepository<PhoneMatchUser, 
     // 로그인용
     Optional<PhoneMatchUser> findByPhoneNumber(String phoneNumber);
 
+    // 회원가입용 전화번호 중복 검사
+    boolean existsByPhoneNumber(String phoneNumber);
+
     // 매칭 알고리즘용 (성별별 선착순)
     List<PhoneMatchUser> findByIsApplyTrueAndGenderOrderByApplicationTimeAsc(Gender gender);
 
