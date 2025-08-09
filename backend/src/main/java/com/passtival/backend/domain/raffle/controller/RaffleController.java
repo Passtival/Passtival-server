@@ -20,6 +20,7 @@ import com.passtival.backend.domain.raffle.service.RaffleService;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -104,7 +105,7 @@ public class RaffleController {
 	 * @return 변경 완료 응답
 	 */
 	@PutMapping("/authentication-key")
-	public BaseResponse<Void> updateAuthenticationKey(@RequestBody UpdateAuthenticationKeyRequest request) {
+	public BaseResponse<Void> updateAuthenticationKey(@Valid @RequestBody UpdateAuthenticationKeyRequest request) {
 		try {
 			raffleService.updateAuthenticationKey(request.getNewKey(), request.getOldKey());
 			return BaseResponse.success(null);

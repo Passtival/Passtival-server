@@ -8,6 +8,7 @@ import com.passtival.backend.domain.raffle.model.request.ApplicantRegistrationRe
 import com.passtival.backend.domain.raffle.repository.ApplicantRepository;
 import com.passtival.backend.domain.raffle.repository.AuthenticationKeyRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -73,7 +74,6 @@ public class RaffleService {
 	 */
 	private boolean isValidAuthenticationKey(String requestKey) {
 		try {
-			// DB에서 유일한 인증키 조회
 			AuthenticationKey authKey = authenticationKeyRepository.findFirstByOrderByIdAsc();
 
 			if (authKey == null) {
@@ -82,6 +82,7 @@ public class RaffleService {
 			}
 
 			return authKey.getKey().equals(requestKey);
+
 		} catch (Exception e) {
 			log.error("인증키 검증 중 오류 발생", e);
 			return false;
@@ -94,6 +95,7 @@ public class RaffleService {
 	 * @param newKey 새로운 인증키
 	 * @param oldKey 기존인증키 (검증용)
 	 */
+	@Transactional
 	public void updateAuthenticationKey(String newKey, String oldKey) {
 		try {
 			// 1. DB에서 현재 인증키 조회
@@ -117,12 +119,9 @@ public class RaffleService {
 				throw new RuntimeException("새로운 인증키가 기존 키와 동일합니다.");
 			}
 
-			// 5. 기존 키 삭제
-			authenticationKeyRepository.delete(currentAuthKey);
-
-			// 6. 새로운 인증키 생성 및 저장
-			AuthenticationKey newAuthKey = new AuthenticationKey(newKey);
-			authenticationKeyRepository.save(newAuthKey);
+			// 5. 기존 키를 새로운 키로 갱신
+			currentAuthKey.updateKey(newKey);
+			authenticationKeyRepository.save(currentAuthKey);
 
 		} catch (RuntimeException e) {
 			throw e; // 비즈니스 로직 예외는 그대로 전파
