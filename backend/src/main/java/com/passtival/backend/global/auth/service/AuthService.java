@@ -1,10 +1,10 @@
 package com.passtival.backend.global.auth.service;
 
 
-import com.passtival.backend.global.auth.RefreshTokenRequest;
+import com.passtival.backend.global.auth.dto.RefreshTokenRequest;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
-import com.passtival.backend.global.jwt.JWTUtil;
+import com.passtival.backend.global.auth.jwt.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

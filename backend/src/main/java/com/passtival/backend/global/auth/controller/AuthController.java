@@ -1,6 +1,6 @@
 package com.passtival.backend.global.auth.controller;
 
-import com.passtival.backend.global.auth.RefreshTokenRequest;
+import com.passtival.backend.global.auth.dto.RefreshTokenRequest;
 import com.passtival.backend.global.auth.service.AuthService;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
