@@ -1,0 +1,44 @@
+package com.passtival.backend.domain.festival.performance.model;
+
+import java.time.LocalDateTime;
+
+import com.passtival.backend.global.common.model.BaseEntity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+
+@Entity
+@Table(name = "performance")
+@Setter @Getter
+public class Performance extends BaseEntity {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "performance_id")
+	private Long id;
+
+	@Column(name = "performance_title")
+	private String title;
+
+	@Column(name = "performance_artist")
+	private String artist;
+
+	@Column(name = "performance_start_at")
+	private LocalDateTime startAt;
+
+	@Column(name = "performance_end_at")
+	private LocalDateTime endAt;
+
+	@Column(name = "performance_area")
+	private String area;
+
+	@Column(name = "performance_image_path")
+	private String imagePath;
+
+}
