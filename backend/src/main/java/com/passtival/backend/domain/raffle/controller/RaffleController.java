@@ -106,7 +106,25 @@ public class RaffleController {
 	 */
 	@Operation(
 		summary = "신청자 등록",
-		description = "신청자의 이름과 학번, 인증키를 입력받아 신청자를 등록합니다."
+		description = "신청자의 이름과 학번, 인증키를 입력받아 신청자를 등록합니다.",
+		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+			description = "신청자 등록 요청 정보",
+			required = true,
+			content = @Content(
+				mediaType = "application/json",
+				schema = @Schema(implementation = ApplicantRegistrationRequest.class),
+				examples = @ExampleObject(
+					name = "신청자 등록 요청 예시",
+					value = """
+				{
+				  "applicantName": "박준선",
+				  "studentId": "2021U2317",
+				  "authenticationKey": "1234"
+				}
+				"""
+				)
+			)
+		)
 	)
 	@PostMapping("/applicants")
 	public BaseResponse<Void> saveApplicant(@RequestBody ApplicantRegistrationRequest request) {
