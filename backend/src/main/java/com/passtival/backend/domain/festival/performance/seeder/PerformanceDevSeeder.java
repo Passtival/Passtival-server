@@ -26,15 +26,9 @@ public class PerformanceDevSeeder {
 	@Transactional
 	public void init() {
 		List<Performance> seeds = new ArrayList<>();
-		seeds.add(build("오프닝 무대", "DJ PSSV", "메인", "images/opening.jpg",
-			LocalDateTime.of(2025, 8, 30, 17, 0),
-			LocalDateTime.of(2025, 8, 30, 18, 0)));
-		seeds.add(build("썸머 나이트", "Sunset Band", "서브A", "images/summer_night.jpg",
-			LocalDateTime.of(2025, 8, 30, 19, 0),
-			LocalDateTime.of(2025, 8, 30, 20, 0)));
-		seeds.add(build("미드나잇 스페셜", "Luna & Co", "메인", "images/midnight.jpg",
-			LocalDateTime.of(2025, 8, 31, 0, 0),
-			LocalDateTime.of(2025, 8, 31, 1, 0)));
+		// seeds.add(build("오프닝 무대", "DJ PSSV", "메인", "images/opening.jpg",
+		// 	LocalDateTime.of(2025, 8, 30, 17, 0),
+		// 	LocalDateTime.of(2025, 8, 30, 18, 0)));
 
 		for (Performance p : seeds) {
 			boolean exists = performanceRepository
