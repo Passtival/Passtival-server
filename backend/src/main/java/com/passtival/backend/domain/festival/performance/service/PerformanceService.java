@@ -4,6 +4,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.passtival.backend.domain.festival.booth.model.entity.Booth;
+import com.passtival.backend.domain.festival.booth.model.response.BoothResponseDTO;
+import com.passtival.backend.domain.festival.performance.dto.response.PerformanceResponseDTO;
 import com.passtival.backend.domain.festival.performance.model.Performance;
 import com.passtival.backend.domain.festival.performance.repository.PerformanceRepository;
 
@@ -25,9 +28,10 @@ public class PerformanceService {
 	}
 
 	// 공연 이름 조회
-	public Performance getPerformanceByPerformanceTitle(String title) {
-		return performanceRepository.findByTitle(title)
-			.orElseThrow(() -> new RuntimeException("공연이름과 일치하는 공연이 없습니다: " + title));
+	public PerformanceResponseDTO getPerformanceByName(String name) {
+		Performance performance = performanceRepository.findByTitle(name)
+			.orElseThrow(() -> new IllegalArgumentException("해당 이름의 공연이 없습니다."));
+		return PerformanceResponseDTO.of(performance); // Entity → DTO 변환
 	}
 
 }
