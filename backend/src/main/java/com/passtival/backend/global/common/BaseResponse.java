@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 
 @Getter
@@ -11,6 +12,7 @@ import lombok.Getter;
 public class BaseResponse<T> {
 
 	@JsonProperty("isSuccess")
+	@Getter(AccessLevel.NONE) // isSuccess에 대한 getter 생성 방지
 	private final boolean isSuccess;
 
 	@JsonProperty("code")
