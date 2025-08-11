@@ -1,9 +1,9 @@
 package com.passtival.backend.domain.matching.scheduler;
 
-import com.passtival.backend.domain.matching.entity.MatchingResult;
-import com.passtival.backend.domain.matching.repository.MatchingResultRepository;
+import com.passtival.backend.domain.matching.entity.Matching;
+import com.passtival.backend.domain.matching.repository.MatchingRepository;
 import com.passtival.backend.domain.member.entity.Member;
-import com.passtival.backend.domain.member.repository.UserRepository;
+import com.passtival.backend.domain.member.repository.MemberRepository;
 import com.passtival.backend.domain.member.enums.Gender;
 
 import lombok.RequiredArgsConstructor;
@@ -24,8 +24,8 @@ import java.util.*;
 @Slf4j
 public class MatchingScheduler {
 
-    private final UserRepository userRepository;
-    private final MatchingResultRepository  matchingResultRepository;
+    private final MemberRepository memberRepository;
+    private final MatchingRepository matchingRepository;
 
     // 매칭 진행 상태 플래그 추가
     private volatile boolean isMatchingInProgress = false;
@@ -46,8 +46,8 @@ public class MatchingScheduler {
         try {
             isMatchingInProgress = true;
             log.info("=== 매칭 알고리즘 시작 ===");
-            long maleCount = userRepository.countByIsApplyTrueAndGender(Gender.male);
-            long femaleCount = userRepository.countByIsApplyTrueAndGender(Gender.female);
+            long maleCount = memberRepository.countByAppliedTrueAndGender(Gender.MALE);
+            long femaleCount = memberRepository.countByAppliedTrueAndGender(Gender.FEMALE);
 
             log.info("신청자 현황 - 남성: {}명, 여성: {}명", maleCount, femaleCount);
 
@@ -56,42 +56,42 @@ public class MatchingScheduler {
 
             if (matchingCount == 0) {
                 log.info("매칭 가능한 사용자가 없습니다.");
-                userRepository.resetAllApplications();
+                memberRepository.resetAllApplications();
                 return;
             }
 
             Pageable malePageable = PageRequest.of(0, matchingCount);
             Pageable femalePageable = PageRequest.of(0, matchingCount);
 
-            List<Member> selectedMales = userRepository
-                    .findTopApplicantsByGender(Gender.male, malePageable);
-            List<Member> selectedFemales = userRepository
-                    .findTopApplicantsByGender(Gender.female, femalePageable);
+            List<Member> selectedMales = memberRepository
+                    .findTopApplicantsByGender(Gender.MALE, malePageable);
+            List<Member> selectedFemales = memberRepository
+                    .findTopApplicantsByGender(Gender.FEMALE, femalePageable);
 
             // 랜덤 매칭
             Collections.shuffle(selectedFemales);
 
             // 🔄 변경: 배치 저장으로 성능 개선
-            List<MatchingResult> matchingResults = new ArrayList<>();
+            List<Matching> matchings = new ArrayList<>();
             LocalDate today = LocalDate.now();
 
             for (int i = 0; i < matchingCount; i++) {
                 Member male = selectedMales.get(i);
                 Member female = selectedFemales.get(i);
 
-                MatchingResult result = new MatchingResult();
-                result.setUserId1(male.getMemberId());
-                result.setUserId2(female.getMemberId());
+                Matching result = new Matching();
+                result.setMaleId(male.getMemberId());
+                result.setFemaleId(female.getMemberId());
                 result.setMatchingDate(today);
 
-                matchingResults.add(result);
+                matchings.add(result);
 
                 log.info("매칭 준비: {} (남성) ↔ {} (여성)",
                         male.getName(), female.getName());
             }
 
             // 배치로 한 번에 저장
-            matchingResultRepository.saveAll(matchingResults);
+            matchingRepository.saveAll(matchings);
 
             // 🔄 변경: 메모리 효율적인 실패자 처리
             handleFailedApplicantsEfficiently(maleCount, femaleCount, selectedMales, selectedFemales);
@@ -112,23 +112,23 @@ public class MatchingScheduler {
         log.info("=== 일일 데이터 정리 시작 ===");
 
         // 1. 당일 매칭 성공자들 조회
-        List<MatchingResult> todayResults = matchingResultRepository.findByMatchingDate(LocalDate.now());
+        List<Matching> todayResults = matchingRepository.findByMatchingDate(LocalDate.now());
 
         if (!todayResults.isEmpty()) {
-            // 2. 매칭 성공자들의 userId 수집
-            List<Long> matchedUserIds = new ArrayList<>();
-            for (MatchingResult result : todayResults) {
-                matchedUserIds.add(result.getUserId1());
-                matchedUserIds.add(result.getUserId2());
+            // 2. 매칭 성공자들의 memberId 수집
+            List<Long> matchedMemberIds = new ArrayList<>();
+            for (Matching result : todayResults) {
+                matchedMemberIds.add(result.getMaleId());
+                matchedMemberIds.add(result.getFemaleId());
             }
 
             // 3. 매칭 성공자들의 신청 상태 초기화
-            userRepository.resetApplicationsByUserIds(matchedUserIds);
-            log.info("매칭 성공자 {}명의 신청 상태 초기화 완료", matchedUserIds.size());
+            memberRepository.resetApplicationsByMemberIds(matchedMemberIds);
+            log.info("매칭 성공자 {}명의 신청 상태 초기화 완료", matchedMemberIds.size());
         }
 
 // 4. 모든 매칭 결과 삭제
-        matchingResultRepository.deleteAllMatchingResults();
+        matchingRepository.deleteAllMatchingResults();
         log.info("모든 매칭 결과 삭제 완료");
     }
 
@@ -148,15 +148,15 @@ public class MatchingScheduler {
 
         // 🔄 개선: 성공자 ID만 수집 (메모리 효율적)
         Set<Long> matchedIds = new HashSet<>();
-        selectedMales.forEach(user -> matchedIds.add(user.getMemberId()));
-        selectedFemales.forEach(user -> matchedIds.add(user.getMemberId()));
+        selectedMales.forEach(member -> matchedIds.add(member.getMemberId()));
+        selectedFemales.forEach(member -> matchedIds.add(member.getMemberId()));
 
         // 🔄 개선: 실패자만 선별적으로 처리
         // 전체를 로드하지 않고 ID만으로 처리
-        List<Long> allMaleIds = userRepository
-                .findUserIdsByGender(Gender.male);
-        List<Long> allFemaleIds = userRepository
-                .findUserIdsByGender(Gender.female);
+        List<Long> allMaleIds = memberRepository
+                .findMemberIdsByGender(Gender.MALE);
+        List<Long> allFemaleIds = memberRepository
+                .findMemberIdsByGender(Gender.FEMALE);
 
         List<Long> failedIds = new ArrayList<>();
 
@@ -169,7 +169,7 @@ public class MatchingScheduler {
                 .forEach(failedIds::add);
 
         if (!failedIds.isEmpty()) {
-            userRepository.resetApplicationsByUserIds(failedIds);
+            memberRepository.resetApplicationsByMemberIds(failedIds);
             log.info("매칭 실패자 {}명의 신청 상태 초기화 완료", failedIds.size());
         }
     }

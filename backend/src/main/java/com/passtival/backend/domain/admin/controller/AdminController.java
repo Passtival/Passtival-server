@@ -15,13 +15,13 @@ public class AdminController {
 
     private final MatchingScheduler matchingScheduler;
 
-    @GetMapping("/execute-matching")
+    @GetMapping("/executeMatching")
     public BaseResponse<String> manualMatching() {
         matchingScheduler.executeMatching();
         return BaseResponse.success("매칭 실행 완료");
     }
 
-    @GetMapping("/cleanup")
+    @GetMapping("/cleanupMatching")
     public BaseResponse<String> manualCleanup() {
         matchingScheduler.dailyCleanup();
         return BaseResponse.success("데이터 정리 완료");

@@ -49,18 +49,18 @@ public class AuthService {
 
         try {
             // 3. 토큰에서 사용자 정보 추출
-            Long userId = jwtUtil.getUserId(refreshToken);
+            Long memberId = jwtUtil.getMemberId(refreshToken);
             String role = jwtUtil.getRole(refreshToken);
 
-            if (userId == null || role == null) {
+            if (memberId == null || role == null) {
                 log.warn("리프레시 토큰에서 사용자 정보 추출 실패");
                 return BaseResponse.fail(BaseResponseStatus.TOKEN_INVALID, "토큰에서 사용자 정보를 찾을 수 없습니다.");
             }
 
             // 4. 새로운 액세스 토큰 생성
-            String newAccessToken = jwtUtil.createAccessToken(userId, role);
+            String newAccessToken = jwtUtil.createAccessToken(memberId, role);
 
-            log.info("액세스 토큰 갱신 성공: userId = {}, role = {}", userId, role);
+            log.info("액세스 토큰 갱신 성공: memberId = {}, role = {}", memberId, role);
 
             // 5. 응답 생성
             TokenResponse tokenResponse = new TokenResponse(newAccessToken);

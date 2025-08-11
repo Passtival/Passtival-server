@@ -1,14 +1,12 @@
 package com.passtival.backend.domain.matching.service;
 
-import com.passtival.backend.domain.matching.dto.MatchingResultDto;
-import com.passtival.backend.domain.matching.entity.MatchingResult;
-import com.passtival.backend.domain.matching.repository.MatchingResultRepository;
+import com.passtival.backend.domain.matching.dto.MatchingDto;
+import com.passtival.backend.domain.matching.entity.Matching;
+import com.passtival.backend.domain.matching.repository.MatchingRepository;
 import com.passtival.backend.domain.member.entity.Member;
-import com.passtival.backend.global.common.enums.Role;
-import com.passtival.backend.domain.member.repository.UserRepository;
+import com.passtival.backend.domain.member.repository.MemberRepository;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
-import com.passtival.backend.global.auth.jwt.JWTUtil;
 import com.passtival.backend.domain.matching.scheduler.MatchingScheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,13 +29,12 @@ import java.util.Optional;
 @Slf4j
 public class MatchingService {
 
-    private final UserRepository userRepository;
-    private final MatchingResultRepository matchingResultRepository;
+    private final MemberRepository memberRepository;
+    private final MatchingRepository matchingRepository;
     private final MatchingScheduler matchingScheduler;
-    private final JWTUtil jwtUtil;
 
     @Transactional
-    public BaseResponse<String> applyMatching(String token, Member requestMember) {
+    public BaseResponse<String> applyMatching(Long memberId, Member requestMember) {
 
         // 매칭 진행 중 체크 추가 (기존 JWT 검증 전에)
         if (matchingScheduler.isMatchingInProgress()) {
@@ -50,51 +47,19 @@ public class MatchingService {
         if (now.isAfter(cutoffTime)) {
             return BaseResponse.fail(BaseResponseStatus.BAD_REQUEST, "오후 6시 이후에는 매칭 신청이 불가능합니다. 내일 다시 시도해주세요.");
         }
-        // 1. JWT 토큰 유효성 검증
-        if (token == null || !token.startsWith("Bearer ")) {
-            log.warn("유효하지 않은 토큰 형식");
-            return BaseResponse.fail(BaseResponseStatus.TOKEN_INVALID, "토큰 형식이 올바르지 않습니다.");
-        }
-
-        String accessToken = token.substring(7); // "Bearer " 제거
-
-        if (!jwtUtil.validateToken(accessToken)) {
-            log.warn("유효하지 않은 JWT 토큰");
-            return BaseResponse.fail(BaseResponseStatus.TOKEN_INVALID, "유효하지 않은 토큰입니다.");
-        }
-
-        if (jwtUtil.isExpired(accessToken)) {
-            log.warn("만료된 JWT 토큰");
-            return BaseResponse.fail(BaseResponseStatus.TOKEN_EXPIRED, "토큰이 만료되었습니다.");
-        }
-
-        // 2. 토큰에서 사용자 정보 추출
-        Long userId = jwtUtil.getUserId(accessToken);
-        String userRole = jwtUtil.getRole(accessToken);
-
-        if (userId == null || userRole == null) {
-            log.warn("토큰에서 사용자 정보 추출 실패");
-            return BaseResponse.fail(BaseResponseStatus.TOKEN_INVALID, "토큰에서 사용자 정보를 찾을 수 없습니다.");
-        }
-
-        // 3. 사용자 권한 검증 (소셜 로그인 사용자만 매칭 신청 가능)
-        if (!Role.ROLE_USER.name().equals(userRole)) {
-            log.warn("권한 없는 사용자의 매칭 신청 시도: userId = {}, role = {}", userId, userRole);
-            return BaseResponse.fail(BaseResponseStatus.ACCESS_DENIED, "매칭 신청 권한이 없습니다.");
-        }
 
         // 4. 사용자 존재 여부 확인
-        Member member = userRepository.findById(userId)
+        Member member = memberRepository.findById(memberId)
                 .orElse(null);
 
         if (member == null) {
-            log.warn("존재하지 않는 사용자: userId = {}", userId);
+            log.warn("존재하지 않는 사용자: memberId = {}", memberId);
             return BaseResponse.fail(BaseResponseStatus.BAD_REQUEST, "존재하지 않는 사용자입니다.");
         }
 
         // 5. 중복 신청 검증
-        if (member.isApply()) {
-            log.info("이미 매칭 신청한 사용자: userId = {}", userId);
+        if (member.isApplied()) {
+            log.info("이미 매칭 신청한 사용자: memberId = {}", memberId);
             return BaseResponse.fail(BaseResponseStatus.BAD_REQUEST, "이미 매칭 신청을 완료하였습니다.");
         }
 
@@ -108,12 +73,12 @@ public class MatchingService {
                 member.setInstagramId(instagramId.trim());
             }
             member.setApplied(true);
-            member.setApplicationTime(LocalDateTime.now());
+            member.setAppliedAt(LocalDateTime.now());
 
-            userRepository.save(member);
+            memberRepository.save(member);
 
         } catch (Exception e) {
-            log.error("매칭 신청 저장 중 오류 발생: userId = {}, error = {}", userId, e.getMessage());
+            log.error("매칭 신청 저장 중 오류 발생: memberId = {}, error = {}", memberId, e.getMessage());
             return BaseResponse.fail(BaseResponseStatus.DATABASE_ERROR, "매칭 신청 처리 중 오류가 발생했습니다.");
         }
 
@@ -121,52 +86,28 @@ public class MatchingService {
         return BaseResponse.success("매칭 신청이 완료되었습니다.");
     }
 
-    public BaseResponse<MatchingResultDto> getMatchingResult(String token) {
-
-        // 1. JWT 토큰 유효성 검증
-        if (token == null || !token.startsWith("Bearer ")) {
-            return BaseResponse.fail(BaseResponseStatus.TOKEN_INVALID, "토큰 형식이 올바르지 않습니다.");
-        }
-
-        String accessToken = token.substring(7);
-
-        if (!jwtUtil.validateToken(accessToken) || jwtUtil.isExpired(accessToken)) {
-            return BaseResponse.fail(BaseResponseStatus.TOKEN_INVALID, "유효하지 않은 토큰입니다.");
-        }
-
-        // 2. 토큰에서 사용자 정보 추출
-        Long userId = jwtUtil.getUserId(accessToken);
-        String userRole = jwtUtil.getRole(accessToken);
-        if (userId == null || userRole == null) {
-            return BaseResponse.fail(BaseResponseStatus.TOKEN_INVALID, "토큰에서 사용자 정보를 찾을 수 없습니다.");
-        }
-
-        // 3. 사용자 권한 검증 추가 (이 부분이 새로 추가되는 코드)
-        if (!Role.ROLE_USER.name().equals(userRole)) {
-            log.warn("권한 없는 사용자의 매칭 결과 조회 시도: userId = {}, role = {}", userId, userRole);
-            return BaseResponse.fail(BaseResponseStatus.ACCESS_DENIED, "매칭 결과 조회 권한이 없습니다.");
-        }
+    public BaseResponse<MatchingDto> getMatchingResult(Long memberId) {
 
         // 3. 오늘 날짜의 매칭 결과 조회
         LocalDate today = LocalDate.now();
-        Optional<MatchingResult> matchingResultOpt = matchingResultRepository
-                .findUserMatchingByDate(today, userId);
+        Optional<Matching> matchingResultOpt = matchingRepository
+                .findMemberMatchingByDate(today, memberId);
 
         if (matchingResultOpt.isEmpty()) {
             return BaseResponse.fail(BaseResponseStatus.BAD_REQUEST, "오늘 매칭 결과가 없습니다.");
         }
 
-        MatchingResult matchingResult = matchingResultOpt.get();
+        Matching matching = matchingResultOpt.get();
 
-        // 4. 나와 상대방의 userId 구분
-        Long myUserId = userId;
-        Long partnerUserId = matchingResult.getUserId1().equals(myUserId)
-                ? matchingResult.getUserId2()
-                : matchingResult.getUserId1();
+        // 4. 나와 상대방의 memberId 구분
+        Long myMemberId = memberId;
+        Long partnerMemberId = matching.getMaleId().equals(myMemberId)
+                ? matching.getFemaleId()
+                : matching.getMaleId();
 
         // 5. 사용자 정보 조회
-        List<Member> members = userRepository
-                .findByUserIdIn(Arrays.asList(myUserId, partnerUserId));
+        List<Member> members = memberRepository
+                .findByMemberIdIn(Arrays.asList(myMemberId, partnerMemberId));
 
         if (members.size() != 2) {
             return BaseResponse.fail(BaseResponseStatus.DATABASE_ERROR, "사용자 정보 조회에 실패했습니다.");
@@ -174,12 +115,12 @@ public class MatchingService {
 
         // 6. 내 정보와 상대방 정보 분리
         Member myMember = members.stream()
-                .filter(user -> user.getMemberId().equals(myUserId))
+                .filter(member -> member.getMemberId().equals(myMemberId))
                 .findFirst()
                 .orElse(null);
 
         Member partnerMember = members.stream()
-                .filter(user -> user.getMemberId().equals(partnerUserId))
+                .filter(member -> member.getMemberId().equals(partnerMemberId))
                 .findFirst()
                 .orElse(null);
 
@@ -188,17 +129,17 @@ public class MatchingService {
         }
 
         // 7. DTO 생성
-        MatchingResultDto.UserInfo myInfo = new MatchingResultDto.UserInfo(
+        MatchingDto.MemberInfo myInfo = new MatchingDto.MemberInfo(
                 myMember.getPhoneNumber(),
                 myMember.getInstagramId()
         );
 
-        MatchingResultDto.UserInfo partnerInfo = new MatchingResultDto.UserInfo(
+        MatchingDto.MemberInfo partnerInfo = new MatchingDto.MemberInfo(
                 partnerMember.getPhoneNumber(),
                 partnerMember.getInstagramId()
         );
 
-        MatchingResultDto resultDto = new MatchingResultDto(
+        MatchingDto resultDto = new MatchingDto(
                 myInfo,
                 partnerInfo,
                 today.toString()

@@ -28,15 +28,15 @@ public class JWTUtil {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    // userId 추출
-    public Long getUserId(String token) {
+    // memberId 추출
+    public Long getMemberId(String token) {
         try{
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-            return Long.parseLong(claims.get("userId", String.class));
+            return claims.get("memberId", Long.class);
         }catch (Exception e){
             //예외처리
             return null;
@@ -110,9 +110,9 @@ public class JWTUtil {
     }
 
     // Access Token 생성
-    public String createAccessToken(Long userId, String role) {
+    public String createAccessToken(Long memberId, String role) {
         return Jwts.builder()
-                .claim("userId", String.valueOf(userId))
+                .claim("memberId", memberId)
                 .claim("role", role)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
@@ -121,9 +121,9 @@ public class JWTUtil {
     }
 
     // Refresh Token 생성
-    public String createRefreshToken(Long userId, String role) {
+    public String createRefreshToken(Long memberId, String role) {
         return Jwts.builder()
-                .claim("userId", String.valueOf(userId))
+                .claim("memberId", memberId)
                 .claim("role", role)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))

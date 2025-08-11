@@ -10,13 +10,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MatchingResultDto {
+public class MatchingDto {
 
     // 내 정보
-    private UserInfo myInfo;
+    private MemberInfo myInfo;
 
     // 상대방 정보
-    private UserInfo partnerInfo;
+    private MemberInfo partnerInfo;
 
     // 매칭 날짜
     private String matchingDate;
@@ -25,7 +25,7 @@ public class MatchingResultDto {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class UserInfo {
+    public static class MemberInfo {
         private String phoneNumber;
         private String instagramId;
     }

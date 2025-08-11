@@ -47,16 +47,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 4. 토큰 유효성 검증
             if (jwtUtil.validateToken(token)) {
                 // 5. 사용자 정보 추출
-                Long userId = jwtUtil.getUserId(token);
+                Long memberId = jwtUtil.getMemberId(token);
                 String role = jwtUtil.getRole(token);
 
-                if (userId != null && role != null) {
+                if (memberId != null && role != null) {
                     // 6. Spring Security 인증 객체 생성
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
-                                    userId, // principal (사용자 식별자)
+                                    memberId, // principal (사용자 식별자)
                                     null,   // credentials (비밀번호 - JWT에서는 불필요)
-                                    Collections.singletonList(new SimpleGrantedAuthority(role))
+                                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
                             );
 
                     // 7. SecurityContext에 인증 정보 설정

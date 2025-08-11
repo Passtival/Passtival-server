@@ -2,7 +2,7 @@ package com.passtival.backend.global.auth.filter;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.passtival.backend.global.auth.security.CustomUserDetails;
+import com.passtival.backend.global.auth.security.CustomMemberDetails;
 import com.passtival.backend.global.auth.jwt.JWTUtil;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
@@ -36,15 +36,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
-        // 1. 클라이언트 요청에서 username, password 추출
-        String username = obtainUsername(request);
+        // 1. 클라이언트 요청에서 membername, password 추출
+        String memberName = obtainUsername(request);
         String password = obtainPassword(request);
 
-        log.info("로그인 시도: username = {}", username);
+        log.info("로그인 시도: username = {}", memberName);
 
         // 2. 인증 토큰 생성
         UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(username, password, null);
+                new UsernamePasswordAuthenticationToken(memberName, password, null);
 
         // 3. AuthenticationManager로 인증 시도
         return authenticationManager.authenticate(authToken);
@@ -54,15 +54,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                             FilterChain chain, Authentication authentication) throws IOException {
         // 1. 사용자 정보 추출
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long userId = userDetails.getUserId(); // PhoneMatchUser의 userId
+        CustomMemberDetails memberDetails = (CustomMemberDetails) authentication.getPrincipal();
+        Long memberId = memberDetails.getMemberId(); // PhoneMatchUser의 userId
         String role = extractRole(authentication.getAuthorities());
 
-        log.info("로그인 성공: userId = {}, role = {}", userId, role);
+        log.info("로그인 성공: memberId = {}, role = {}", memberId, role);
 
         // 2. JWT 토큰 생성
-        String accessToken = jwtUtil.createAccessToken(userId, role);
-        String refreshToken = jwtUtil.createRefreshToken(userId, role);
+        String accessToken = jwtUtil.createAccessToken(memberId, "ROLE_" + role);
+        String refreshToken = jwtUtil.createRefreshToken(memberId, "ROLE_" + role);
 
         // 3. JSON 응답 생성
         TokenResponse tokenResponse = new TokenResponse(accessToken, refreshToken);

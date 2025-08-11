@@ -1,10 +1,12 @@
 package com.passtival.backend.domain.matching.controller;
-import com.passtival.backend.domain.matching.dto.MatchingResultDto;
+import com.passtival.backend.domain.matching.dto.MatchingDto;
 import com.passtival.backend.domain.member.entity.Member;
 import com.passtival.backend.domain.matching.service.MatchingService;
 import com.passtival.backend.global.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -21,14 +23,17 @@ public class MatchingController {
 
 
     @PostMapping("/apply")
+    @PreAuthorize("hasRole('USER')")
     public BaseResponse<String> applyMatching(
-            @RequestHeader("Authorization") String token,
+            @AuthenticationPrincipal Long memberId,
             @RequestBody Member requestMember) {
-        return matchingService.applyMatching(token, requestMember);
+        return matchingService.applyMatching(memberId, requestMember);
     }
+
     @GetMapping("/result")
-    public BaseResponse<MatchingResultDto> getMatchingResult(
-            @RequestHeader("Authorization") String token) {
-        return matchingService.getMatchingResult(token);
+    @PreAuthorize("hasRole('USER')")
+    public BaseResponse<MatchingDto> getMatchingResult(
+            @AuthenticationPrincipal Long memberId) {
+        return matchingService.getMatchingResult(memberId);
     }
 }

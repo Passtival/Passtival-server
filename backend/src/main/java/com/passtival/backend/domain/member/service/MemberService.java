@@ -1,6 +1,6 @@
 package com.passtival.backend.domain.member.service;
 
-import com.passtival.backend.domain.member.repository.UserRepository;
+import com.passtival.backend.domain.member.repository.MemberRepository;
 import com.passtival.backend.domain.member.entity.Member;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
@@ -13,27 +13,27 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserService {
+public class MemberService {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
-    public BaseResponse<String> registerUser(Member member) {
+    public BaseResponse<String> registerMember(Member member) {
 
         // 1. 보안 강화: 클라이언트에서 전송할 수 있는 민감한 필드들을 서버에서 안전하게 재설정
-        // - userId: null로 설정하여 JPA가 자동 생성하도록 함
+        // - memberId: null로 설정하여 JPA가 자동 생성하도록 함
         // - socialId: 현재는 빈 문자열로 통일 (향후 소셜 로그인 구현 시 변경 예정)
         // - role: 모든 신규 사용자는 일반 사용자 권한으로 제한
-        // - isApply: 회원가입 시점에는 매칭 신청하지 않은 상태로 초기화
-        member.setUserId(null);
-        member.setSocialId(null);
-        member.setRole(Role.ROLE_USER);
-        member.setApply(false);
-        member.setApplicationTime(null);
+        // - applied: 회원가입 시점에는 매칭 신청하지 않은 상태로 초기화
+        member.setMemberId(null);
+        member.setSocialId("LOCAL");
+        member.setRole(Role.USER);
+        member.setApplied(false);
+        member.setAppliedAt(null);
 
         // 2. 비즈니스 규칙 검증: 전화번호 중복 검사
         // 전화번호는 시스템에서 사용자를 식별하는 고유 키로 사용되므로 중복 불허
-        if (userRepository.existsByPhoneNumber(member.getPhoneNumber())) {
+        if (memberRepository.existsByPhoneNumber(member.getPhoneNumber())) {
             return BaseResponse.fail(BaseResponseStatus.BAD_REQUEST, "이미 등록된 전화번호입니다.");
         }
 
@@ -45,7 +45,7 @@ public class UserService {
 
         // 4. 데이터 저장: 검증과 보안 처리가 완료된 사용자 정보를 데이터베이스에 저장
         try {
-            userRepository.save(member);
+            memberRepository.save(member);
         } catch (Exception e) {
             // 데이터베이스 저장 실패 시 표준 에러 응답 반환
             return BaseResponse.fail(BaseResponseStatus.DATABASE_ERROR);

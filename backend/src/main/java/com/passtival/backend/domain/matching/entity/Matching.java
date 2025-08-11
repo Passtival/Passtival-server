@@ -9,23 +9,23 @@ import lombok.Setter;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "meeting_result")
+@Table(name = "matching")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MatchingResult {
+public class Matching {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long resultId;
 
-    @Column(nullable = false)
-    private Long userId1; // 남성 또는 첫 번째 사용자
+    @Column(name = "male_id", nullable = false)
+    private Long maleId; // 남성 또는 첫 번째 사용자
 
-    @Column(nullable = false)
-    private Long userId2; // 여성 또는 두 번째 사용자
+    @Column(name = "female_id", nullable = false)
+    private Long femaleId; // 여성 또는 두 번째 사용자
 
-    @Column(nullable = false)
+    @Column(name = "matching_date", nullable = false)
     private LocalDate matchingDate;
 }
