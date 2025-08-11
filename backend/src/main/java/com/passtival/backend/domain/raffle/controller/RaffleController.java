@@ -20,6 +20,13 @@ import com.passtival.backend.domain.raffle.service.RaffleService;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/api/raffle")
 @RequiredArgsConstructor
+@Tag(name = "Raffle-API", description = "응모권 API")
 public class RaffleController {
 
 	private final RaffleService raffleService;
@@ -37,6 +45,10 @@ public class RaffleController {
 	 * 상품 목록 조회 API
 	 * @return 상품 목록 응답
 	 */
+	@Operation(
+		summary = "상품 목록 조회",
+		description = "등록된 상품의 목록을 조회합니다."
+	)
 	@GetMapping("/prizes")
 	public BaseResponse<List<PrizeResponse>> getPrizes() {
 		try {
@@ -57,6 +69,19 @@ public class RaffleController {
 	 * @param prizeId 상품 ID
 	 * @return 상품 정보 응답
 	 */
+	@Operation(
+		summary = "상품 조회",
+		description = "상품 ID로 특정 상품의 정보를 조회합니다.",
+		parameters = {
+			@Parameter(
+				name = "prizeId",
+				description = "조회할 상품의 ID",
+				required = true,
+				in = ParameterIn.PATH,
+				example = "1"
+			)
+		}
+	)
 	@GetMapping("/prizes/{prizeId}")
 	public BaseResponse<PrizeResponse> getPrizeById(@PathVariable("prizeId") Long prizeId) {
 		try {
@@ -71,6 +96,7 @@ public class RaffleController {
 			log.error("상품 조회 중 예상치 못한 오류 - prizeId: {}", prizeId, e);
 			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
+
 	}
 
 	/**
@@ -78,6 +104,28 @@ public class RaffleController {
 	 * @param request 신청자 등록 요청 정보
 	 * @return 신청자 등록 응답 정보
 	 */
+	@Operation(
+		summary = "신청자 등록",
+		description = "신청자의 이름과 학번, 인증키를 입력받아 신청자를 등록합니다.",
+		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+			description = "신청자 등록 요청 정보",
+			required = true,
+			content = @Content(
+				mediaType = "application/json",
+				schema = @Schema(implementation = ApplicantRegistrationRequest.class),
+				examples = @ExampleObject(
+					name = "신청자 등록 요청 예시",
+					value = """
+				{
+				  "applicantName": "박준선",
+				  "studentId": "2021U2317",
+				  "authenticationKey": "1234"
+				}
+				"""
+				)
+			)
+		)
+	)
 	@PostMapping("/applicants")
 	public BaseResponse<Void> saveApplicant(@RequestBody ApplicantRegistrationRequest request) {
 		/* 1. 클라이언트로부터 신청자의 이름과 학번, 인증키 입력받는다.
@@ -104,6 +152,27 @@ public class RaffleController {
 	 * @param request 인증키 변경 요청 정보(oldKey, newKey)
 	 * @return 변경 완료 응답
 	 */
+	@Operation(
+		summary = "인증키 변경",
+		description = "기존 인증키를 검증하고 새로운 인증키로 변경합니다.",
+		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+			description = "인증키 변경 요청 정보",
+			required = true,
+			content = @Content(
+				mediaType = "application/json",
+				schema = @Schema(implementation = UpdateAuthenticationKeyRequest.class),
+				examples = @ExampleObject(
+					name = "인증키 변경 요청",
+					value = """
+                {
+                  "oldKey": "1234",
+                  "newKey": "5678"
+                }
+                """
+				)
+			)
+		)
+	)
 	@PutMapping("/authentication-key")
 	public BaseResponse<Void> updateAuthenticationKey(@Valid @RequestBody UpdateAuthenticationKeyRequest request) {
 		try {
