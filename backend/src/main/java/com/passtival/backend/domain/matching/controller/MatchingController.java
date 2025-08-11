@@ -1,6 +1,6 @@
 package com.passtival.backend.domain.matching.controller;
 import com.passtival.backend.domain.matching.dto.MatchingResultDto;
-import com.passtival.backend.domain.user.entity.User;
+import com.passtival.backend.domain.member.entity.Member;
 import com.passtival.backend.domain.matching.service.MatchingService;
 import com.passtival.backend.global.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +23,8 @@ public class MatchingController {
     @PostMapping("/apply")
     public BaseResponse<String> applyMatching(
             @RequestHeader("Authorization") String token,
-            @RequestBody User requestUser) {
-        return matchingService.applyMatching(token, requestUser);
+            @RequestBody Member requestMember) {
+        return matchingService.applyMatching(token, requestMember);
     }
     @GetMapping("/result")
     public BaseResponse<MatchingResultDto> getMatchingResult(

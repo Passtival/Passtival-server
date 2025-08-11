@@ -2,9 +2,9 @@ package com.passtival.backend.domain.matching.scheduler;
 
 import com.passtival.backend.domain.matching.entity.MatchingResult;
 import com.passtival.backend.domain.matching.repository.MatchingResultRepository;
-import com.passtival.backend.domain.user.entity.User;
-import com.passtival.backend.domain.user.repository.UserRepository;
-import com.passtival.backend.domain.user.enums.Gender;
+import com.passtival.backend.domain.member.entity.Member;
+import com.passtival.backend.domain.member.repository.UserRepository;
+import com.passtival.backend.domain.member.enums.Gender;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,9 +63,9 @@ public class MatchingScheduler {
             Pageable malePageable = PageRequest.of(0, matchingCount);
             Pageable femalePageable = PageRequest.of(0, matchingCount);
 
-            List<User> selectedMales = userRepository
+            List<Member> selectedMales = userRepository
                     .findTopApplicantsByGender(Gender.male, malePageable);
-            List<User> selectedFemales = userRepository
+            List<Member> selectedFemales = userRepository
                     .findTopApplicantsByGender(Gender.female, femalePageable);
 
             // 랜덤 매칭
@@ -76,12 +76,12 @@ public class MatchingScheduler {
             LocalDate today = LocalDate.now();
 
             for (int i = 0; i < matchingCount; i++) {
-                User male = selectedMales.get(i);
-                User female = selectedFemales.get(i);
+                Member male = selectedMales.get(i);
+                Member female = selectedFemales.get(i);
 
                 MatchingResult result = new MatchingResult();
-                result.setUserId1(male.getUserId());
-                result.setUserId2(female.getUserId());
+                result.setUserId1(male.getMemberId());
+                result.setUserId2(female.getMemberId());
                 result.setMatchingDate(today);
 
                 matchingResults.add(result);
@@ -137,8 +137,8 @@ public class MatchingScheduler {
     }
 
     private void handleFailedApplicantsEfficiently(long maleCount, long femaleCount,
-                                                   List<User> selectedMales,
-                                                   List<User> selectedFemales) {
+                                                   List<Member> selectedMales,
+                                                   List<Member> selectedFemales) {
 
         // 모든 신청자가 매칭되었다면 실패자 없음
         if (selectedMales.size() == maleCount && selectedFemales.size() == femaleCount) {
@@ -148,8 +148,8 @@ public class MatchingScheduler {
 
         // 🔄 개선: 성공자 ID만 수집 (메모리 효율적)
         Set<Long> matchedIds = new HashSet<>();
-        selectedMales.forEach(user -> matchedIds.add(user.getUserId()));
-        selectedFemales.forEach(user -> matchedIds.add(user.getUserId()));
+        selectedMales.forEach(user -> matchedIds.add(user.getMemberId()));
+        selectedFemales.forEach(user -> matchedIds.add(user.getMemberId()));
 
         // 🔄 개선: 실패자만 선별적으로 처리
         // 전체를 로드하지 않고 ID만으로 처리

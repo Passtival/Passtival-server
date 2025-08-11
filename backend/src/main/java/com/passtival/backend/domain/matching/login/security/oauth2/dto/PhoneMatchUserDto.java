@@ -1,6 +1,6 @@
 package com.passtival.backend.domain.matching.login.security.oauth2.dto;
 
-import com.passtival.backend.domain.user.enums.Gender;
+import com.passtival.backend.domain.member.enums.Gender;
 import com.passtival.backend.global.common.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

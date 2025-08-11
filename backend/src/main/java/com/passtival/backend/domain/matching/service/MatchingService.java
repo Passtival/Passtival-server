@@ -3,9 +3,9 @@ package com.passtival.backend.domain.matching.service;
 import com.passtival.backend.domain.matching.dto.MatchingResultDto;
 import com.passtival.backend.domain.matching.entity.MatchingResult;
 import com.passtival.backend.domain.matching.repository.MatchingResultRepository;
-import com.passtival.backend.domain.user.entity.User;
+import com.passtival.backend.domain.member.entity.Member;
 import com.passtival.backend.global.common.enums.Role;
-import com.passtival.backend.domain.user.repository.UserRepository;
+import com.passtival.backend.domain.member.repository.UserRepository;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.auth.jwt.JWTUtil;
@@ -37,7 +37,7 @@ public class MatchingService {
     private final JWTUtil jwtUtil;
 
     @Transactional
-    public BaseResponse<String> applyMatching(String token, User requestUser) {
+    public BaseResponse<String> applyMatching(String token, Member requestMember) {
 
         // 매칭 진행 중 체크 추가 (기존 JWT 검증 전에)
         if (matchingScheduler.isMatchingInProgress()) {
@@ -84,16 +84,16 @@ public class MatchingService {
         }
 
         // 4. 사용자 존재 여부 확인
-        User user = userRepository.findById(userId)
+        Member member = userRepository.findById(userId)
                 .orElse(null);
 
-        if (user == null) {
+        if (member == null) {
             log.warn("존재하지 않는 사용자: userId = {}", userId);
             return BaseResponse.fail(BaseResponseStatus.BAD_REQUEST, "존재하지 않는 사용자입니다.");
         }
 
         // 5. 중복 신청 검증
-        if (user.isApply()) {
+        if (member.isApply()) {
             log.info("이미 매칭 신청한 사용자: userId = {}", userId);
             return BaseResponse.fail(BaseResponseStatus.BAD_REQUEST, "이미 매칭 신청을 완료하였습니다.");
         }
@@ -101,16 +101,16 @@ public class MatchingService {
         // 7. 매칭 신청 처리
         try {
             // 6. 인스타그램 ID 검증 (선택 입력)
-            String instagramId = requestUser.getInstagramId();
+            String instagramId = requestMember.getInstagramId();
             if (instagramId == null || instagramId.trim().isEmpty()) {
-                user.setInstagramId("");
+                member.setInstagramId("");
             } else {
-                user.setInstagramId(instagramId.trim());
+                member.setInstagramId(instagramId.trim());
             }
-            user.setApply(true);
-            user.setApplicationTime(LocalDateTime.now());
+            member.setApplied(true);
+            member.setApplicationTime(LocalDateTime.now());
 
-            userRepository.save(user);
+            userRepository.save(member);
 
         } catch (Exception e) {
             log.error("매칭 신청 저장 중 오류 발생: userId = {}, error = {}", userId, e.getMessage());
@@ -165,37 +165,37 @@ public class MatchingService {
                 : matchingResult.getUserId1();
 
         // 5. 사용자 정보 조회
-        List<User> users = userRepository
+        List<Member> members = userRepository
                 .findByUserIdIn(Arrays.asList(myUserId, partnerUserId));
 
-        if (users.size() != 2) {
+        if (members.size() != 2) {
             return BaseResponse.fail(BaseResponseStatus.DATABASE_ERROR, "사용자 정보 조회에 실패했습니다.");
         }
 
         // 6. 내 정보와 상대방 정보 분리
-        User myUser = users.stream()
-                .filter(user -> user.getUserId().equals(myUserId))
+        Member myMember = members.stream()
+                .filter(user -> user.getMemberId().equals(myUserId))
                 .findFirst()
                 .orElse(null);
 
-        User partnerUser = users.stream()
-                .filter(user -> user.getUserId().equals(partnerUserId))
+        Member partnerMember = members.stream()
+                .filter(user -> user.getMemberId().equals(partnerUserId))
                 .findFirst()
                 .orElse(null);
 
-        if (myUser == null || partnerUser == null) {
+        if (myMember == null || partnerMember == null) {
             return BaseResponse.fail(BaseResponseStatus.DATABASE_ERROR, "사용자 정보를 찾을 수 없습니다.");
         }
 
         // 7. DTO 생성
         MatchingResultDto.UserInfo myInfo = new MatchingResultDto.UserInfo(
-                myUser.getPhoneNumber(),
-                myUser.getInstagramId()
+                myMember.getPhoneNumber(),
+                myMember.getInstagramId()
         );
 
         MatchingResultDto.UserInfo partnerInfo = new MatchingResultDto.UserInfo(
-                partnerUser.getPhoneNumber(),
-                partnerUser.getInstagramId()
+                partnerMember.getPhoneNumber(),
+                partnerMember.getInstagramId()
         );
 
         MatchingResultDto resultDto = new MatchingResultDto(

@@ -1,7 +1,7 @@
-package com.passtival.backend.domain.user.entity;
+package com.passtival.backend.domain.member.entity;
 
 
-import com.passtival.backend.domain.user.enums.Gender;
+import com.passtival.backend.domain.member.enums.Gender;
 import com.passtival.backend.global.common.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -12,16 +12,16 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "meeting_member_table")
+@Table(name = "members")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long memberId;
 
     @Column(length = 100)//unique = true, length = 100
     private String socialId;// 소셜 로그인 ID (예: "kakao_1234567890")
@@ -53,8 +53,8 @@ public class User {
     private Role role;
 
     // 명시적 getter 메서드 추가 (Lombok 문제 해결)
-    public Long getUserId() {
-        return userId;
+    public Long getMemberId() {
+        return memberId;
     }
 
     public String getName() {

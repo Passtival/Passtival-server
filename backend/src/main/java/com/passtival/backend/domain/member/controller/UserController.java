@@ -1,7 +1,7 @@
-package com.passtival.backend.domain.user.controller;
+package com.passtival.backend.domain.member.controller;
 
-import com.passtival.backend.domain.user.entity.User;
-import com.passtival.backend.domain.user.service.UserService;
+import com.passtival.backend.domain.member.entity.Member;
+import com.passtival.backend.domain.member.service.UserService;
 import com.passtival.backend.global.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,8 +17,8 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public BaseResponse<String> signup(@RequestBody User user) {
-        return userService.registerUser(user);
+    public BaseResponse<String> signup(@RequestBody Member member) {
+        return userService.registerUser(member);
     }
 
 }

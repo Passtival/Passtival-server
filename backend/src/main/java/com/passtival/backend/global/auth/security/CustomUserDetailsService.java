@@ -1,8 +1,8 @@
 package com.passtival.backend.global.auth.security;
 
 
-import com.passtival.backend.domain.user.entity.User;
-import com.passtival.backend.domain.user.repository.UserRepository;
+import com.passtival.backend.domain.member.entity.Member;
+import com.passtival.backend.domain.member.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,15 +22,15 @@ public class CustomUserDetailsService implements UserDetailsService {
         log.info("사용자 조회 시도: username = {}", username);
 
         // username은 전화번호로 사용
-        User user = userRepository.findByPhoneNumber(username)
+        Member member = userRepository.findByPhoneNumber(username)
                 .orElseThrow(() -> {
                     log.warn("사용자를 찾을 수 없음: phoneNumber = {}", username);
                     return new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username);
                 });
 
         log.info("사용자 조회 성공: userId = {}, name = {}",
-                user.getUserId(), user.getName());
+                member.getMemberId(), member.getName());
 
-        return new CustomUserDetails(user);
+        return new CustomUserDetails(member);
     }
 }
