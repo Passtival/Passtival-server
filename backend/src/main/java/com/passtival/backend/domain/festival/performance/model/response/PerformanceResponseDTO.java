@@ -17,6 +17,8 @@ public class PerformanceResponseDTO {
 	private final LocalDateTime endAt;
 	private final String area;
 	private final String imagePath;
+	private final String introduction;
+	private final String info;
 
 	public static PerformanceResponseDTO of(Performance performance) {
 
@@ -31,6 +33,8 @@ public class PerformanceResponseDTO {
 			.endAt(performance.getEndAt())
 			.area(performance.getArea())
 			.imagePath(performance.getImagePath())
+			.introduction(performance.getIntroduction())
+			.info(performance.getInfo())
 			.build();
 	}
 }
