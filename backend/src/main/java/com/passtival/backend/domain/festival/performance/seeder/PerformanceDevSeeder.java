@@ -26,9 +26,16 @@ public class PerformanceDevSeeder {
 	@Transactional
 	public void init() {
 		List<Performance> seeds = new ArrayList<>();
-		// seeds.add(build("오프닝 무대", "DJ PSSV", "메인", "images/opening.jpg",
+		// seeds.add(build(
+		// 	"오프닝 무대",
+		// 	"DJ PSSV",
+		// 	"메인",
+		// 	"images/opening.jpg",
 		// 	LocalDateTime.of(2025, 8, 30, 17, 0),
-		// 	LocalDateTime.of(2025, 8, 30, 18, 0)));
+		// 	LocalDateTime.of(2025, 8, 30, 18, 0),
+		// 	"축제 시작을 알리는 퍼포먼스",
+		// 	"우천 시 실내 이동"
+		// ));
 
 		for (Performance p : seeds) {
 			boolean exists = performanceRepository
@@ -41,15 +48,26 @@ public class PerformanceDevSeeder {
 
 	}
 
-	private Performance build(String title, String artist, String area, String imagePath,
-		LocalDateTime startAt, LocalDateTime endAt) {
-		Performance p = new Performance();
-		p.setTitle(title);
-		p.setArtist(artist);
-		p.setArea(area);
-		p.setImagePath(imagePath);
-		p.setStartAt(startAt);
-		p.setEndAt(endAt);
-		return p;
+	// ✅ Builder 기반 생성 메서드
+	private Performance build(
+		String title,
+		String artist,
+		String area,
+		String imagePath,
+		LocalDateTime startAt,
+		LocalDateTime endAt,
+		String introduction,
+		String info
+	) {
+		return Performance.builder()
+			.title(title)
+			.artist(artist)
+			.area(area)
+			.imagePath(imagePath)
+			.startAt(startAt)
+			.endAt(endAt)
+			.introduction(introduction)
+			.info(info)
+			.build();
 	}
 }
