@@ -1,9 +1,12 @@
 package com.passtival.backend.domain.festival.performance.service;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.passtival.backend.domain.festival.performance.model.response.PerformanceDetailResponse;
 import com.passtival.backend.domain.festival.performance.model.response.PerformanceResponse;
 import com.passtival.backend.domain.festival.performance.model.entity.Performance;
 import com.passtival.backend.domain.festival.performance.repository.PerformanceRepository;
@@ -33,10 +36,12 @@ public class PerformanceService {
 	}
 
 	// 공연 이름 조회
-	public PerformanceResponse getPerformanceByName(String name) {
-		Performance performance = performanceRepository.findByTitle(name)
-			.orElseThrow(() -> new IllegalArgumentException("해당 이름의 공연이 없습니다."));
-		return PerformanceResponse.of(performance); // Entity → DTO 변환
+	public PerformanceDetailResponse getPerformanceByName(String name) throws BaseException {
+		Optional<Performance> performanceOpt = performanceRepository.findByTitle(name);
+		if (performanceOpt.isEmpty()) {
+			throw new BaseException(BaseResponseStatus.PERFORMANCE_NOT_FOUND);
+		}
+		return PerformanceDetailResponse.of(performanceOpt.get());
 	}
 
 }
