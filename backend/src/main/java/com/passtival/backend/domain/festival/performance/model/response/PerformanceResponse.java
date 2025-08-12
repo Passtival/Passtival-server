@@ -15,10 +15,9 @@ public class PerformanceResponse {
 	private final String artist;
 	private final LocalDateTime startAt;
 	private final LocalDateTime endAt;
-	private final String area;
 	private final String imagePath;
 	private final String introduction;
-	private final String info;
+	private final Integer day;
 
 	public static PerformanceResponse of(Performance performance) {
 
@@ -31,10 +30,9 @@ public class PerformanceResponse {
 			.artist(performance.getArtist())
 			.startAt(performance.getStartAt())
 			.endAt(performance.getEndAt())
-			.area(performance.getArea())
 			.imagePath(performance.getImagePath())
 			.introduction(performance.getIntroduction())
-			.info(performance.getInfo())
+			.day(performance.getDay())
 			.build();
 	}
 }
