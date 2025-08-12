@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.passtival.backend.domain.festival.performance.model.response.PerformanceDetailResponse;
 import com.passtival.backend.domain.festival.performance.model.response.PerformanceResponse;
 import com.passtival.backend.domain.festival.performance.model.entity.Performance;
 import com.passtival.backend.domain.festival.performance.service.PerformanceService;
@@ -43,11 +44,16 @@ public class PerformanceController {
 	/**
 	 * 공연 이름으로 단일 조회
 	 */
-	@GetMapping("performance/{name}")
-	public BaseResponse<PerformanceResponse> getPerformanceByName(
-		@PathVariable("performanceName") String performanceName) throws BaseException {
-		PerformanceResponse performanceResponse = performanceService.getPerformanceByName(performanceName);
-		return BaseResponse.success(performanceResponse);
+	@GetMapping("/performance/{performanceName}")
+	public BaseResponse<PerformanceDetailResponse> getPerformanceByName(
+		@PathVariable String performanceName) throws BaseException {
+		try {
+			PerformanceDetailResponse detail = performanceService.getPerformanceByName(performanceName);
+			return BaseResponse.success(detail);
+		} catch (RuntimeException e) {
+			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
+
 
 }
