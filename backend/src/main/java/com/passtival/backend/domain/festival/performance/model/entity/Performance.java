@@ -11,11 +11,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @Table(name = "performance")
-@Setter @Getter
+@Getter
 public class Performance extends BaseEntity {
 
 	@Id
@@ -41,4 +40,9 @@ public class Performance extends BaseEntity {
 	@Column(name = "performance_image_path")
 	private String imagePath;
 
+	@Column(name = "performance_introduction")
+	private String introduction;
+
+	@Column(name = "performance_info")
+	private String info;
 }
