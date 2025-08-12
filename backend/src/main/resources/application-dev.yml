@@ -25,9 +25,10 @@ spring:
 logging:
   level:
     root: info
-    org.hibernate.sql: debug
-    org.hibernate.type.descriptor.sql.BasicBinder: trace
-    com.passtival.backend: debug
+    org.hibernate.sql: off # Hibernate SQL 로그 비활성화
+    org.hibernate.type.descriptor.sql.BasicBinder: off
+    # 애플리케이션 로그만 유지
+    com.passtival.backend: info
 
 jwt:
   secret: ${JWT_SECRET_KEY}
