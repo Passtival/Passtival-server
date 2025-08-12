@@ -12,6 +12,7 @@ import com.passtival.backend.domain.festival.performance.model.entity.Performanc
 import com.passtival.backend.domain.festival.performance.service.PerformanceService;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
+import com.passtival.backend.global.exception.BaseException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,8 +28,8 @@ public class PerformanceController {
 	 * 예: /api/performances?page=0&size=10&sort=date,desc
 	 */
 	@GetMapping("/performance")
-	public BaseResponse<?> getPerformances(
-		@PageableDefault(size = 5) Pageable pageable) {
+	public BaseResponse<?> getPerformances (
+		@PageableDefault(size = 5) Pageable pageable) throws BaseException {
 		try {
 			Page<Performance> page = performanceService.getAllPerformances(pageable);
 			Page<PerformanceResponseDTO> dtoPage = page.map(PerformanceResponseDTO::of);
