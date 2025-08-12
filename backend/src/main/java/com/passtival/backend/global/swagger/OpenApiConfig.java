@@ -23,10 +23,7 @@ public class OpenApiConfig {
 			.servers(List.of(
 				new Server()
 					.url("http://localhost:8080")
-					.description("개발용 서버"),
-				new Server()
-					.url("https://api.passtival.com")
-					.description("배포용 서버")
+					.description("API 서버")
 			));
 	}
 
