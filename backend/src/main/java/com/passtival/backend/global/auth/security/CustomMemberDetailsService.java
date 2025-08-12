@@ -18,13 +18,13 @@ public class CustomMemberDetailsService implements UserDetailsService {
     private final MemberRepository memberRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String socialId) throws UsernameNotFoundException {
 
         // username은 전화번호로 사용
-        Member member = memberRepository.findByPhoneNumber(username)
+        Member member = memberRepository.findBySocialId(socialId)
                 .orElseThrow(() -> {
-                    log.warn("사용자를 찾을 수 없음: phoneNumber = {}", username);
-                    return new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username);
+                    log.warn("사용자를 찾을 수 없음: phoneNumber = {}",socialId);
+                    return new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + socialId);
                 });
 
         return new CustomMemberDetails(member);

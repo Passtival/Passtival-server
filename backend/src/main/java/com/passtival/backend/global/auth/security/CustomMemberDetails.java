@@ -12,22 +12,21 @@ public class CustomMemberDetails implements UserDetails {
 
     private final Long memberId;
     private final String role;
-    private final String password;
-    private final String phoneNumber;
+    private final String socialId;           // 소셜 로그인 ID
+    private final boolean onboardingCompleted; // 온보딩 완료 여부
 
     public CustomMemberDetails(Member member) {
         this.memberId = member.getMemberId();
         this.role ="ROLE_" + member.getRole().name();
-        this.password = member.getPassword();
-        this.phoneNumber = member.getPhoneNumber();
+        this.socialId = member.getSocialId();
+        this.onboardingCompleted = member.isOnboardingCompleted();
     }
     public CustomMemberDetails(Long memberId, String role) {
         this.memberId = memberId;
         this.role = role;
-        this.password = null; // 토큰 기반 인증 시에는 비밀번호 정보 없음
-        this.phoneNumber = null; // 필요 시 토큰에 추가 가능
+        this.socialId = null;
+        this.onboardingCompleted = false;
     }
-
 
     public Long getMemberId() {
         return this.memberId;
@@ -41,7 +40,7 @@ public class CustomMemberDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return this.password;
+        return null; // 소셜 로그인에서는 비밀번호 없음
     }
 
     @Override
