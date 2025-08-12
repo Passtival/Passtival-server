@@ -35,12 +35,11 @@ public class BoothController {
 	public BaseResponse<?> getBooths(
 		@PageableDefault(size = 5) Pageable pageable) {
 		try {
-			Page<Booth> page = boothService.getAllBooths(pageable);
+			Page<BoothResponseDTO> page = boothService.getAllBooths(pageable);
 			if (page.isEmpty()) {
 				return BaseResponse.fail(BaseResponseStatus.DATA_NULL);
 			}
-			Page<BoothResponseDTO> dtoPage = page.map(BoothResponseDTO::of);
-			return BaseResponse.success(dtoPage);
+			return BaseResponse.success(page);
 		} catch (RuntimeException e) {
 			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}

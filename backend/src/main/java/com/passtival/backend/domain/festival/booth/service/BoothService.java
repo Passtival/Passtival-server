@@ -21,8 +21,9 @@ public class BoothService {
 	 * @param pageable 페이지 요청 정보
 	 * @return Page<Booth>
 	 */
-	public Page<Booth> getAllBooths(Pageable pageable) {
-		return boothRepository.findAll(pageable);
+	public Page<BoothResponseDTO> getAllBooths(Pageable pageable) {
+		return boothRepository.findAll(pageable)
+			.map(BoothResponseDTO::of);
 	}
 
 	// 부스 이름 조회
