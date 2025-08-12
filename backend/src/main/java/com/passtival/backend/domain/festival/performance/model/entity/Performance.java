@@ -47,4 +47,9 @@ public class Performance extends BaseEntity {
 
 	@Column(name = "performance_info")
 	private String info;
+
+	// 일차를 구분해주는 속성
+	@Column(name = "performance_day")
+	private Integer day;
+
 }
