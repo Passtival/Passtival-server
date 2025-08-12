@@ -8,11 +8,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update # 개발 중에는 update, 배포 시엔 validate or none
-    show-sql: true
+    show-sql: false # SQL 로그 비활성화
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false # SQL 포맷팅 비활성화
         dialect: org.hibernate.dialect.MySQL8Dialect
+        show_sql: false # Hibernate SQL 로그 비활성화
+        use_sql_comments: false # SQL 주석 비활성화
 
   data:
     redis:
@@ -25,9 +27,10 @@ spring:
 logging:
   level:
     root: info
-    org.hibernate.sql: debug
-    org.hibernate.type.descriptor.sql.BasicBinder: trace
-    com.passtival.backend: debug
+    org.hibernate.sql: off # Hibernate SQL 로그 비활성화
+    org.hibernate.type.descriptor.sql.BasicBinder: off
+    # 애플리케이션 로그만 유지
+    com.passtival.backend: info
 
 jwt:
   secret: ${JWT_SECRET_KEY}
