@@ -8,9 +8,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.passtival.backend.domain.festival.performance.model.response.PerformanceResponseDTO;
+import com.passtival.backend.domain.festival.performance.model.response.PerformanceResponse;
 import com.passtival.backend.domain.festival.performance.model.entity.Performance;
-import com.passtival.backend.domain.festival.performance.repository.PerformanceRepository;
 import com.passtival.backend.domain.festival.performance.service.PerformanceService;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
@@ -34,7 +33,7 @@ public class PerformanceController {
 		@PageableDefault(size = 5) Pageable pageable) throws BaseException {
 		try {
 			Page<Performance> page = performanceService.getAllPerformances(pageable);
-			Page<PerformanceResponseDTO> dtoPage = page.map(PerformanceResponseDTO::of);
+			Page<PerformanceResponse> dtoPage = page.map(PerformanceResponse::of);
 			return BaseResponse.success(dtoPage);
 		} catch (RuntimeException e) {
 			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR);
@@ -45,10 +44,10 @@ public class PerformanceController {
 	 * 공연 이름으로 단일 조회
 	 */
 	@GetMapping("performance/{name}")
-	public BaseResponse<PerformanceResponseDTO> getPerformanceByName(
+	public BaseResponse<PerformanceResponse> getPerformanceByName(
 		@PathVariable("performanceName") String performanceName) throws BaseException {
-		PerformanceResponseDTO performanceResponseDTO = performanceService.getPerformanceByName(performanceName);
-		return BaseResponse.success(performanceResponseDTO);
+		PerformanceResponse performanceResponse = performanceService.getPerformanceByName(performanceName);
+		return BaseResponse.success(performanceResponse);
 	}
 
 }

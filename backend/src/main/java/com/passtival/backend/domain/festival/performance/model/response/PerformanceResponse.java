@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class PerformanceResponseDTO {
+public class PerformanceResponse {
 
 	private final String title;
 	private final String artist;
@@ -20,13 +20,13 @@ public class PerformanceResponseDTO {
 	private final String introduction;
 	private final String info;
 
-	public static PerformanceResponseDTO of(Performance performance) {
+	public static PerformanceResponse of(Performance performance) {
 
 		if (performance == null) {
 			// performance가 아예 존재하지 않을 경우
 			throw new IllegalArgumentException("performance 정보가 존재하지 않습니다.");
 		}
-		return PerformanceResponseDTO.builder()
+		return PerformanceResponse.builder()
 			.title(performance.getTitle())
 			.artist(performance.getArtist())
 			.startAt(performance.getStartAt())
