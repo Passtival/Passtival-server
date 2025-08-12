@@ -1,32 +1,26 @@
 package com.passtival.backend.domain.matching.dto;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+//미팅 결과를 전달하기 위한 Dto
 @Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Builder
 public class MatchingDto {
 
     // 내 정보
-    private MemberInfo myInfo;
+    private final MemberInfo myInfo;
 
     // 상대방 정보
-    private MemberInfo partnerInfo;
+    private final MemberInfo partnerInfo;
 
     // 매칭 날짜
-    private String matchingDate;
+    private final String matchingDate;
 
     @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
+    @Builder
     public static class MemberInfo {
-        private String phoneNumber;
-        private String instagramId;
+        private final String phoneNumber;
+        private final String instagramId;
     }
 }

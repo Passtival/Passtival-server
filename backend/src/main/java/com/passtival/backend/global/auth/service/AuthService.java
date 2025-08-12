@@ -2,6 +2,7 @@ package com.passtival.backend.global.auth.service;
 
 
 import com.passtival.backend.global.auth.dto.RefreshTokenRequest;
+import com.passtival.backend.global.auth.dto.TokenResponseDto;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.auth.jwt.JWTUtil;
@@ -32,55 +33,41 @@ public class AuthService {
      * 3. 새로운 액세스 토큰 생성
      * 4. 응답 반환
      */
-    public BaseResponse<TokenResponse> refreshAccessToken(RefreshTokenRequest request) {
+    public BaseResponse<TokenResponseDto> refreshAccessToken(RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();
 
-        // 1. 리프레시 토큰 유효성 검증
-        if (!jwtUtil.validateToken(refreshToken)) {
-            log.warn("유효하지 않은 리프레시 토큰: {}", refreshToken.substring(0, 20) + "...");
-            return BaseResponse.fail(BaseResponseStatus.TOKEN_INVALID, "리프레시 토큰이 유효하지 않습니다.");
-        }
-
-        // 2. 리프레시 토큰 만료 확인
-        if (jwtUtil.isExpired(refreshToken)) {
-            log.warn("만료된 리프레시 토큰");
-            return BaseResponse.fail(BaseResponseStatus.TOKEN_EXPIRED, "리프레시 토큰이 만료되었습니다.");
-        }
-
         try {
-            // 3. 토큰에서 사용자 정보 추출
-            Long memberId = jwtUtil.getMemberId(refreshToken);
-            String role = jwtUtil.getRole(refreshToken);
+            JWTUtil.TokenInfo tokenInfo = jwtUtil.extractTokenInfo(refreshToken);
 
-            if (memberId == null || role == null) {
-                log.warn("리프레시 토큰에서 사용자 정보 추출 실패");
-                return BaseResponse.fail(BaseResponseStatus.TOKEN_INVALID, "토큰에서 사용자 정보를 찾을 수 없습니다.");
+            // 2. 토큰 파싱 실패 또는 정보 부족 체크
+            if (tokenInfo == null || tokenInfo.memberId == null || tokenInfo.role == null) {
+                log.warn("리프레시 토큰 파싱 실패 또는 사용자 정보 부족");
+                return BaseResponse.fail(BaseResponseStatus.TOKEN_INVALID, "리프레시 토큰이 유효하지 않습니다.");
             }
 
-            // 4. 새로운 액세스 토큰 생성
-            String newAccessToken = jwtUtil.createAccessToken(memberId, role);
+            // 3. 토큰 만료 여부 검증 (추가 파싱 없음)
+            if (tokenInfo.isExpired()) {
+                log.warn("만료된 리프레시 토큰");
+                return BaseResponse.fail(BaseResponseStatus.TOKEN_INVALID, "리프레시 토큰이 만료되었습니다.");
+            }
 
-            log.info("액세스 토큰 갱신 성공: memberId = {}, role = {}", memberId, role);
+
+            // 4. 새로운 액세스 토큰 생성
+            String newAccessToken = jwtUtil.createAccessToken(tokenInfo.memberId, tokenInfo.role);
+
 
             // 5. 응답 생성
-            TokenResponse tokenResponse = new TokenResponse(newAccessToken);
+            // 5. 응답 생성 (refreshToken은 null이므로 JSON에서 제외됨)
+            TokenResponseDto tokenResponse = TokenResponseDto.builder()
+                    .accessToken(newAccessToken)
+                    // refreshToken은 설정하지 않음 (null) -> JSON에서 제외
+                    .build();
+
             return BaseResponse.success(tokenResponse);
 
         } catch (Exception e) {
             log.error("토큰 갱신 중 예외 발생: {}", e.getMessage());
             return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "토큰 갱신 중 오류가 발생했습니다.");
-        }
-    }
-
-    /**
-     * 토큰 응답 DTO
-     * 새로운 액세스 토큰만 반환 (리프레시 토큰은 재사용)
-     */
-    public static class TokenResponse {
-        public String accessToken;
-
-        public TokenResponse(String accessToken) {
-            this.accessToken = accessToken;
         }
     }
 }

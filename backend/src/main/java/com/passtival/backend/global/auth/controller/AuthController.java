@@ -1,9 +1,11 @@
 package com.passtival.backend.global.auth.controller;
 
 import com.passtival.backend.global.auth.dto.RefreshTokenRequest;
+import com.passtival.backend.global.auth.dto.TokenResponseDto;
 import com.passtival.backend.global.auth.service.AuthService;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -18,14 +20,8 @@ public class AuthController {
 
     private final AuthService authService;
 
-    /**
-     * 리프레시 토큰을 통한 액세스 토큰 갱신 API
-     * POST /api/auth/refresh
-     * @param request 리프레시 토큰이 포함된 요청 객체
-     * @return BaseResponse<AuthService.TokenResponse> 새로운 액세스 토큰 또는 에러 응답
-     */
     @PostMapping("/refresh")
-    public BaseResponse<AuthService.TokenResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+    public BaseResponse<TokenResponseDto> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
 
         // 수동 검증: 리프레시 토큰이 비어있는지 확인
         if (request == null || !StringUtils.hasText(request.getRefreshToken())) {

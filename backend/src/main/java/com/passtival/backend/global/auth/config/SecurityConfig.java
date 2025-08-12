@@ -70,12 +70,23 @@ public class SecurityConfig {
         http.httpBasic((auth) -> auth.disable());
 
         http.authorizeHttpRequests((auth) -> auth
-                .requestMatchers("/api/member/signup", "/api/auth/login", "/join", "/api/auth/refresh").permitAll()
+
+                // 소셜 로그인 관련 경로
+                .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
+
+                // 회원가입 완료 API (소셜 로그인 후 호출)
+                .requestMatchers("/api/members/completeSignup").authenticated()
+
+                // 특정 역할의 사용자만 허용
+                .requestMatchers("/api/admin/**", "/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/matching/apply", "/api/matching/result").hasRole("USER")
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/admin").hasRole("ADMIN")
+
+                // 로그인 한 사용자면 누구나 사용가능
                 .requestMatchers("/api/test/**").authenticated()
-                .anyRequest().authenticated());
+
+                // 인증(JWT 토큰 필요 없음) 절차 없이 모든 접근을 허용
+                .anyRequest().permitAll());
 
         LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
         loginFilter.setFilterProcessesUrl("/api/auth/login");

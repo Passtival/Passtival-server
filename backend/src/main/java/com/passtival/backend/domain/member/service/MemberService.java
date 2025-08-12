@@ -1,13 +1,12 @@
 package com.passtival.backend.domain.member.service;
 
+import com.passtival.backend.domain.member.dto.MemberSignupDto;
 import com.passtival.backend.domain.member.repository.MemberRepository;
 import com.passtival.backend.domain.member.entity.Member;
-import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
-import com.passtival.backend.global.common.enums.Role;
+import com.passtival.backend.global.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,43 +14,89 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class MemberService {
 
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final MemberRepository memberRepository;
 
-    public BaseResponse<String> registerMember(Member member) {
-
-        // 1. 보안 강화: 클라이언트에서 전송할 수 있는 민감한 필드들을 서버에서 안전하게 재설정
-        // - memberId: null로 설정하여 JPA가 자동 생성하도록 함
-        // - socialId: 현재는 빈 문자열로 통일 (향후 소셜 로그인 구현 시 변경 예정)
-        // - role: 모든 신규 사용자는 일반 사용자 권한으로 제한
-        // - applied: 회원가입 시점에는 매칭 신청하지 않은 상태로 초기화
-        member.setMemberId(null);
-        member.setSocialId("LOCAL");
-        member.setRole(Role.USER);
-        member.setApplied(false);
-        member.setAppliedAt(null);
-
-        // 2. 비즈니스 규칙 검증: 전화번호 중복 검사
-        // 전화번호는 시스템에서 사용자를 식별하는 고유 키로 사용되므로 중복 불허
-        if (memberRepository.existsByPhoneNumber(member.getPhoneNumber())) {
-            return BaseResponse.fail(BaseResponseStatus.BAD_REQUEST, "이미 등록된 전화번호입니다.");
-        }
-
-        // 3. 보안 처리: 비밀번호 암호화
-        // BCrypt 해시 함수를 사용하여 평문 비밀번호를 안전하게 암호화
-        // BCrypt는 솔트를 자동으로 생성하여 레인보우 테이블 공격을 방어
-        String encodedPassword = bCryptPasswordEncoder.encode(member.getPassword());
-        member.setPassword(encodedPassword);
-
-        // 4. 데이터 저장: 검증과 보안 처리가 완료된 사용자 정보를 데이터베이스에 저장
+    /**
+     * 회원 등록 (소셜 로그인 이후 추가 정보 입력)
+     * @param dto 회원 등록 요청 정보
+     * @throws BaseException 회원 등록 실패 시
+     */
+    public void registerMember(Long memberId, MemberSignupDto dto) throws BaseException {
         try {
-            memberRepository.save(member);
-        } catch (Exception e) {
-            // 데이터베이스 저장 실패 시 표준 에러 응답 반환
-            return BaseResponse.fail(BaseResponseStatus.DATABASE_ERROR);
-        }
+            Member member = getMemberById(memberId);
 
-        // 5. 성공 응답: BaseResponse 표준 형태로 성공 메시지 반환
-        return BaseResponse.success("회원가입이 완료되었습니다.");
+            //이미 온보딩 완료 사용자 인지
+            if (member.isOnboardingCompleted()) {
+                throw new BaseException(BaseResponseStatus.ONBOARDING_ALREADY_COMPLETED);
+            }
+
+            // 전화번호 중복 검사
+            validatePhoneNumber(dto.getPhoneNumber());
+
+            // 2. 회원 정보 생성 및 저장
+            member.completeOnboarding(dto.getGender(), dto.getPhoneNumber(), dto.getInstagramId());
+
+            memberRepository.save(member);
+
+        } catch (BaseException e) {
+            throw e; // BaseException은 그대로 전파
+        } catch (Exception e) {
+            log.error("회원 등록 중 예외 발생: {}", e.getMessage(), e);
+            throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 전화번호 중복 검사
+     * @param phoneNumber 검사할 전화번호
+     * @throws BaseException 전화번호가 이미 사용 중인 경우
+     */
+    private void validatePhoneNumber(String phoneNumber) throws BaseException {
+        try {
+            if (memberRepository.existsByPhoneNumber(phoneNumber)) {
+                throw new BaseException(BaseResponseStatus.DUPLICATE_PHONE_NUMBER);
+            }
+        } catch (BaseException e) {
+            throw e; // BaseException은 그대로 전파
+        } catch (Exception e) {
+            log.error("전화번호 중복 검사 중 예외 발생: {}", e.getMessage(), e);
+            throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 회원 ID로 회원 조회
+     * @param memberId 회원 ID
+     * @return 회원 정보
+     * @throws BaseException 회원을 찾을 수 없는 경우
+     */
+    public Member getMemberById(Long memberId) throws BaseException {
+        try {
+            return memberRepository.findById(memberId)
+                    .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
+        } catch (BaseException e) {
+            throw e; // BaseException은 그대로 전파
+        } catch (Exception e) {
+            log.error("회원 조회 중 예외 발생: memberId={}, error={}", memberId, e.getMessage(), e);
+            throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 전화번호로 회원 조회
+     * @param phoneNumber 전화번호
+     * @return 회원 정보
+     * @throws BaseException 회원을 찾을 수 없는 경우
+     */
+    public Member getMemberByPhoneNumber(String phoneNumber) throws BaseException {
+        try {
+            return memberRepository.findByPhoneNumber(phoneNumber)
+                    .orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
+        } catch (BaseException e) {
+            throw e; // BaseException은 그대로 전파
+        } catch (Exception e) {
+            log.error("전화번호로 회원 조회 중 예외 발생: phoneNumber={}, error={}", phoneNumber, e.getMessage(), e);
+            throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 
 
@@ -30,14 +31,15 @@ public class MatchingScheduler {
     // 매칭 진행 상태 플래그 추가
     private volatile boolean isMatchingInProgress = false;
 
-    // 테스트용: 매 1분마다 실행 (개발 시에만 사용)
-    // @Scheduled(cron = "0 */1 * * * *")
-    // 운영용: 매일 오후 6시 정시 0 0 18 * * *
+    /** 매칭 시작 시간: 매일 오후 6시 1분 0 1 18 * * *
+     * 매칭중에 신청 방지 되어있음
+     */
     @Scheduled(cron = "0 1 18 * * *")
     @Transactional
     public void executeMatching() {
-        // 여기에 동시성 제어 로직 추가 필요 매칭 중에는 데이터 저장 방지
+        // 여기에 동시성 제어 로직 추가 필요
 
+        //매칭중에 신청 방지
         if (isMatchingInProgress) {
             log.warn("매칭이 이미 진행 중입니다. 이번 스케줄을 건너뜁니다.");
             return;
@@ -45,14 +47,12 @@ public class MatchingScheduler {
 
         try {
             isMatchingInProgress = true;
-            log.info("=== 매칭 알고리즘 시작 ===");
             long maleCount = memberRepository.countByAppliedTrueAndGender(Gender.MALE);
             long femaleCount = memberRepository.countByAppliedTrueAndGender(Gender.FEMALE);
 
-            log.info("신청자 현황 - 남성: {}명, 여성: {}명", maleCount, femaleCount);
 
-            // 매칭 수 결정 + 최대 제한 적용
-            int matchingCount = (int) Math.min(Math.min(maleCount, femaleCount), 1000); // 최대 1000쌍
+            // 매칭 수 결정 + (최대 1000쌍) 제한 적용
+            int matchingCount = (int) Math.min(Math.min(maleCount, femaleCount), 1000);
 
             if (matchingCount == 0) {
                 log.info("매칭 가능한 사용자가 없습니다.");
@@ -71,32 +71,26 @@ public class MatchingScheduler {
             // 랜덤 매칭
             Collections.shuffle(selectedFemales);
 
-            // 🔄 변경: 배치 저장으로 성능 개선
+            // 배치 저장으로 성능 개선
             List<Matching> matchings = new ArrayList<>();
-            LocalDate today = LocalDate.now();
 
             for (int i = 0; i < matchingCount; i++) {
                 Member male = selectedMales.get(i);
                 Member female = selectedFemales.get(i);
 
-                Matching result = new Matching();
-                result.setMaleId(male.getMemberId());
-                result.setFemaleId(female.getMemberId());
-                result.setMatchingDate(today);
+                Matching result = Matching.createMatching(
+                        male.getMemberId(),
+                        female.getMemberId()
+                );
 
                 matchings.add(result);
-
-                log.info("매칭 준비: {} (남성) ↔ {} (여성)",
-                        male.getName(), female.getName());
             }
 
             // 배치로 한 번에 저장
             matchingRepository.saveAll(matchings);
 
-            // 🔄 변경: 메모리 효율적인 실패자 처리
+            // 메모리 효율적인 실패자 처리
             handleFailedApplicantsEfficiently(maleCount, femaleCount, selectedMales, selectedFemales);
-
-            log.info("=== 매칭 완료 - {}쌍 매칭 ===", matchingCount);
 
         } catch (Exception e) {
             log.error("매칭 알고리즘 실행 중 오류: ", e);
@@ -106,71 +100,60 @@ public class MatchingScheduler {
         }
     }
 
-    @Scheduled(cron = "0 59 23 * * *") // 매일 23:59
+    /** 매칭 시작 시간: 매일 오후 11시 59분에 진행: 0 59 23 * * *
+     * 매칭중에 신청 방지 되어있음
+     */
+    @Scheduled(cron = "0 59 23 * * *")
     @Transactional
     public void dailyCleanup() {
-        log.info("=== 일일 데이터 정리 시작 ===");
 
-        // 1. 당일 매칭 성공자들 조회
-        List<Matching> todayResults = matchingRepository.findByMatchingDate(LocalDate.now());
+        // 당일 매칭 성공자들 조회
+        List<Matching> todayResults = matchingRepository.findByMatchingDate(LocalDate.now(ZoneId.of("Asia/Seoul")));
 
         if (!todayResults.isEmpty()) {
-            // 2. 매칭 성공자들의 memberId 수집
+            // 매칭 성공자들의 memberId 수집
             List<Long> matchedMemberIds = new ArrayList<>();
+
             for (Matching result : todayResults) {
                 matchedMemberIds.add(result.getMaleId());
                 matchedMemberIds.add(result.getFemaleId());
             }
 
-            // 3. 매칭 성공자들의 신청 상태 초기화
+            // 매칭 성공자들의 신청 상태 초기화
             memberRepository.resetApplicationsByMemberIds(matchedMemberIds);
-            log.info("매칭 성공자 {}명의 신청 상태 초기화 완료", matchedMemberIds.size());
         }
 
-// 4. 모든 매칭 결과 삭제
+        //모든 매칭 결과 삭제
         matchingRepository.deleteAllMatchingResults();
-        log.info("모든 매칭 결과 삭제 완료");
     }
 
+    // 매칭 중인지 검토하는 로직 (서비스에서 신청 제한에서 사용)
     public boolean isMatchingInProgress() {
         return isMatchingInProgress;
     }
 
+    //실패자만 별도로 처리하는 과정을 미리 분리하여 최적화
     private void handleFailedApplicantsEfficiently(long maleCount, long femaleCount,
                                                    List<Member> selectedMales,
                                                    List<Member> selectedFemales) {
 
-        // 모든 신청자가 매칭되었다면 실패자 없음
+        // 모든 신청자가 매칭됨 - 실패자 처리 생략
         if (selectedMales.size() == maleCount && selectedFemales.size() == femaleCount) {
-            log.info("모든 신청자가 매칭됨 - 실패자 처리 생략");
             return;
         }
 
-        // 🔄 개선: 성공자 ID만 수집 (메모리 효율적)
+        // 성공자 ID만 수집
         Set<Long> matchedIds = new HashSet<>();
         selectedMales.forEach(member -> matchedIds.add(member.getMemberId()));
         selectedFemales.forEach(member -> matchedIds.add(member.getMemberId()));
 
-        // 🔄 개선: 실패자만 선별적으로 처리
-        // 전체를 로드하지 않고 ID만으로 처리
-        List<Long> allMaleIds = memberRepository
-                .findMemberIdsByGender(Gender.MALE);
-        List<Long> allFemaleIds = memberRepository
-                .findMemberIdsByGender(Gender.FEMALE);
-
-        List<Long> failedIds = new ArrayList<>();
-
-        allMaleIds.stream()
-                .filter(id -> !matchedIds.contains(id))
-                .forEach(failedIds::add);
-
-        allFemaleIds.stream()
-                .filter(id -> !matchedIds.contains(id))
-                .forEach(failedIds::add);
-
-        if (!failedIds.isEmpty()) {
-            memberRepository.resetApplicationsByMemberIds(failedIds);
-            log.info("매칭 실패자 {}명의 신청 상태 초기화 완료", failedIds.size());
+        // 실패자만 선별적으로 ID만으로 처리
+        if (!matchedIds.isEmpty()) {
+            memberRepository.resetApplicationsForUnmatched(matchedIds);
+        } else {
+            // NOT IN이 비어있는 Set을 처리하지 못할 수 있으므로 모든 신청자를 초기화하는 별도 처리
+            memberRepository.resetAllApplications();
         }
+
     }
 }

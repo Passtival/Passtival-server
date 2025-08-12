@@ -2,6 +2,7 @@ package com.passtival.backend.global.auth.filter;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.passtival.backend.global.auth.dto.TokenResponseDto;
 import com.passtival.backend.global.auth.security.CustomMemberDetails;
 import com.passtival.backend.global.auth.jwt.JWTUtil;
 import com.passtival.backend.global.common.BaseResponse;
@@ -61,17 +62,21 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         log.info("로그인 성공: memberId = {}, role = {}", memberId, role);
 
         // 2. JWT 토큰 생성
-        String accessToken = jwtUtil.createAccessToken(memberId, "ROLE_" + role);
-        String refreshToken = jwtUtil.createRefreshToken(memberId, "ROLE_" + role);
+        String accessToken = jwtUtil.createAccessToken(memberId, role);
+        String refreshToken = jwtUtil.createRefreshToken(memberId,  role);
 
-        // 3. JSON 응답 생성
-        TokenResponse tokenResponse = new TokenResponse(accessToken, refreshToken);
-        BaseResponse<TokenResponse> successResponse = BaseResponse.success(tokenResponse);
+        // 3. TokenResponseDto 사용 (로그인 시에는 두 토큰 모두 포함)
+        TokenResponseDto tokenResponse = TokenResponseDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)  // 로그인 시에는 두 토큰 모두 제공
+                .build();
+
+        BaseResponse<TokenResponseDto> successResponse = BaseResponse.success(tokenResponse);
+
 
         // 4. 응답 설정
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.addHeader("Authorization", "Bearer " + accessToken);
 
         // 5. JSON 응답 전송
         String jsonResponse = objectMapper.writeValueAsString(successResponse);
@@ -100,14 +105,4 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         return auth.getAuthority();
     }
 
-    // 토큰 응답 DTO
-    public static class TokenResponse {
-        public String accessToken;
-        public String refreshToken;
-
-        public TokenResponse(String accessToken, String refreshToken) {
-            this.accessToken = accessToken;
-            this.refreshToken = refreshToken;
-        }
-    }
 }

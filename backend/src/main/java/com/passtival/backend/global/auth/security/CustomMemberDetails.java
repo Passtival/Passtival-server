@@ -10,43 +10,44 @@ import java.util.Collections;
 
 public class CustomMemberDetails implements UserDetails {
 
-    private final Member member;
+    private final Long memberId;
+    private final String role;
+    private final String password;
+    private final String phoneNumber;
 
     public CustomMemberDetails(Member member) {
-        this.member = member;
+        this.memberId = member.getMemberId();
+        this.role ="ROLE_" + member.getRole().name();
+        this.password = member.getPassword();
+        this.phoneNumber = member.getPhoneNumber();
+    }
+    public CustomMemberDetails(Long memberId, String role) {
+        this.memberId = memberId;
+        this.role = role;
+        this.password = null; // 토큰 기반 인증 시에는 비밀번호 정보 없음
+        this.phoneNumber = null; // 필요 시 토큰에 추가 가능
     }
 
-    // 우리 프로젝트에서 사용할 메서드들
+
     public Long getMemberId() {
-        return member.getMemberId();
-    }
-
-    public String getName() {
-        return member.getName();
-    }
-
-    public String getPhoneNumber() {
-        return member.getPhoneNumber();
+        return this.memberId;
     }
 
     // UserDetails 인터페이스 구현
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Role enum을 GrantedAuthority로 변환
-        return Collections.singletonList(
-                new SimpleGrantedAuthority(member.getRole().name())
-        );
+        return Collections.singletonList(new SimpleGrantedAuthority(this.role));
     }
 
     @Override
     public String getPassword() {
-        return member.getPassword();
+        return this.password;
     }
 
     @Override
     public String getUsername() {
-        // 전화번호를 username으로 사용 (고유 식별자)
-        return member.getPhoneNumber();
+        // UserDetails의 username은 고유 식별자 역할을 하므로 memberId를 반환
+        return String.valueOf(this.memberId);
     }
 
     /**

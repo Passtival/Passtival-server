@@ -29,7 +29,7 @@ public class JWTUtil {
     }
 
     // memberId 추출
-    public Long getMemberId(String token) {
+    public Long getMemberIdToken(String token) {
         try{
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(secretKey)
@@ -82,7 +82,7 @@ public class JWTUtil {
     }
 
     // 토큰 만료 여부 확인
-    public Boolean isExpired(String token) {
+    public Boolean isExpiredToken(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(secretKey)
@@ -102,10 +102,60 @@ public class JWTUtil {
                     .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token);
-            return !isExpired(token);
+            return !isExpiredToken(token);
         } catch (Exception e) {
             log.warn("토큰 검증 실패: {}", e.getMessage());
             return false;
+        }
+    }
+
+    public TokenValidationResult validateAndExtractToken(String token) {
+        try {
+            // 1. 토큰을 단 한 번만 파싱합니다.
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            // 2. 파싱된 claims 객체에서 모든 정보를 추출합니다.
+            Long memberId = claims.get("memberId", Long.class);
+            String role = claims.get("role", String.class);
+            Date expiration = claims.getExpiration();
+
+            // 필수 정보 존재 여부를 확인합니다.
+            // 파싱이 성공하고 필수 정보가 있다면, 토큰은 유효합니다.
+            boolean isValid = (memberId != null && role != null);
+
+            return new TokenValidationResult(memberId, role, expiration, isValid);
+
+        } catch (Exception e) {
+            // ExpiredJwtException, SignatureException 등 모든 예외 발생 시 유효하지 않은 토큰으로 간주합니다.
+            log.warn("토큰 검증 및 정보 추출 실패: {}", e.getMessage());
+            return TokenValidationResult.invalid();
+        }
+    }
+    public TokenInfo extractTokenInfo(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            // 2. 파싱된 claims 객체에서 정보를 추출합니다.
+            Long memberId = claims.get("memberId", Long.class);
+            String role = claims.get("role", String.class);
+            Date expiration = claims.getExpiration();
+
+            if (memberId != null && role != null) {
+                return new TokenInfo(memberId, role, expiration);
+            }
+            // 필수 정보가 누락된 경우
+            return null;
+
+        } catch (Exception e) {
+            // 파싱 과정에서 예외가 발생하면(만료, 오류 등) null을 반환합니다.
+            return null;
         }
     }
 
@@ -129,5 +179,39 @@ public class JWTUtil {
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
+    }
+    public static class TokenValidationResult {
+        public final Long memberId;
+        public final String role;
+        public final Date expiration;
+        public final boolean isValid;
+
+        public TokenValidationResult(Long memberId, String role, Date expiration, boolean isValid) {
+            this.memberId = memberId;
+            this.role = role;
+            this.expiration = expiration;
+            this.isValid = isValid;
+        }
+
+        public static TokenValidationResult invalid() {
+            return new TokenValidationResult(null, null, null, false);
+        }
+    }
+
+    // AuthService용
+    public static class TokenInfo {
+        public final Long memberId;
+        public final String role;
+        public final Date expiration;
+
+        public TokenInfo(Long memberId, String role, Date expiration) {
+            this.memberId = memberId;
+            this.role = role;
+            this.expiration = expiration;
+        }
+
+        public boolean isExpired() {
+            return expiration.before(new Date());
+        }
     }
 }

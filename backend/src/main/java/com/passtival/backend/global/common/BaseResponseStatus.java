@@ -12,6 +12,11 @@ public enum BaseResponseStatus {
 	BAD_REQUEST(false, 400, "잘못된 요청입니다."),
 	INVALID_REQUEST(false, 400, "요청 조건이 충족되지 않습니다."),
 	VALIDATION_ERROR(false, 400, "입력값 검증에 실패했습니다."),
+	INCOMPLETE_MEMBER_INFO(false, 400, "회원 정보가 불완전합니다."),
+	INVALID_MEMBER_DATA(false, 400, "잘못된 회원 정보입니다."),
+	MATCHING_TIME_INVALID(false, 400, "매칭 신청은 매일 00:00부터 18:00까지만 가능합니다."),
+	ONBOARDING_REQUIRED(false, 400, "온보딩이 필요한 사용자입니다."),
+
 
 	// 401: 인증 오류
 	UNAUTHORIZED(false, 401, "인증에 실패했습니다."),
@@ -26,10 +31,19 @@ public enum BaseResponseStatus {
 	NOT_FOUND(false, 404, "요청한 리소스를 찾을 수 없습니다."),
 	PRIZE_NOT_FOUND(false, 404, "해당 ID의 상품을 찾을 수 없습니다."),
 	AUTH_KEY_NOT_FOUND(false, 404, "등록된 인증키가 없습니다."),
+	MEMBER_NOT_FOUND(false, 404, "회원을 찾을 수 없습니다."),
+	MATCHING_RESULT_NOT_FOUND(false, 404, "오늘 매칭 결과가 없습니다."),
+	PARTNER_INFO_NOT_FOUND(false, 404, "파트너 정보를 찾을 수 없습니다."),
 
 	// 409: 충돌
 	DUPLICATE_REQUEST(false, 409, "이미 처리된 요청입니다."),
 	DUPLICATE_APPLICANT(false, 409, "이미 신청한 학번입니다."),
+	DUPLICATE_PHONE_NUMBER(false, 409, "이미 사용중인 전화번호입니다."),
+	MATCHING_IN_PROGRESS(false, 409, "현재 매칭이 진행 중입니다. 내일 다시 시도해주세요."),
+	ALREADY_APPLIED_MATCHING(false, 409, "이미 매칭 신청을 완료하였습니다."),
+	DUPLICATE_SOCIAL_ID(false, 409, "이미 사용중인 소셜 ID입니다."),
+	ONBOARDING_ALREADY_COMPLETED(false, 409, "이미 온보딩이 완료된 사용자입니다."),
+
 
 	// 422: 처리 불가능한 엔티티 (비즈니스 로직 오류)
 	INVALID_AUTH_KEY(false, 422, "인증키가 일치하지 않습니다."),
