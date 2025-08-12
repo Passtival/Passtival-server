@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.passtival.backend.domain.festival.performance.model.Performance;
+import com.passtival.backend.domain.festival.performance.model.entity.Performance;
 import com.passtival.backend.domain.festival.performance.repository.PerformanceRepository;
 
 import jakarta.annotation.PostConstruct;

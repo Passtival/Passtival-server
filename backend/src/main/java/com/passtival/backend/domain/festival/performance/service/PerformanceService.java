@@ -4,10 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.passtival.backend.domain.festival.booth.model.entity.Booth;
-import com.passtival.backend.domain.festival.booth.model.response.BoothResponseDTO;
-import com.passtival.backend.domain.festival.performance.dto.response.PerformanceResponseDTO;
-import com.passtival.backend.domain.festival.performance.model.Performance;
+import com.passtival.backend.domain.festival.performance.model.response.PerformanceResponseDTO;
+import com.passtival.backend.domain.festival.performance.model.entity.Performance;
 import com.passtival.backend.domain.festival.performance.repository.PerformanceRepository;
 
 import lombok.RequiredArgsConstructor;

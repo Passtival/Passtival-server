@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.passtival.backend.domain.festival.performance.dto.response.PerformanceResponseDTO;
-import com.passtival.backend.domain.festival.performance.model.Performance;
+import com.passtival.backend.domain.festival.performance.model.response.PerformanceResponseDTO;
+import com.passtival.backend.domain.festival.performance.model.entity.Performance;
 import com.passtival.backend.domain.festival.performance.service.PerformanceService;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;

@@ -1,8 +1,8 @@
-package com.passtival.backend.domain.festival.performance.dto.response;
+package com.passtival.backend.domain.festival.performance.model.response;
 
 import java.time.LocalDateTime;
 
-import com.passtival.backend.domain.festival.performance.model.Performance;
+import com.passtival.backend.domain.festival.performance.model.entity.Performance;
 
 import lombok.Builder;
 import lombok.Getter;
