@@ -1,5 +1,7 @@
 package com.passtival.backend.global.handler;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,13 +13,31 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
+import com.passtival.backend.global.discord.DiscordService;
 import com.passtival.backend.global.exception.BaseException;
 
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice
 @Slf4j
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+	private final DiscordService discordService;
+
+	// 500 Internal Server Error 처리(모든 예상치 못한 예외)
+	@ExceptionHandler(Exception.class)
+	public BaseResponse<?> handleInternalServerError(Exception e, HttpServletRequest request) {
+		log.error("500 서버 내부 오류 발생: {}", e.getMessage(), e);
+
+		// Discord 에러 알림 전송
+		String stackTrace = getStackTrace(e);
+		discordService.sendErrorNotification(e.getMessage(), request.getRequestURL().toString(), stackTrace);
+
+		return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+	}
 
 	// 모든 예외를 처리하는 핸들러
 	@ExceptionHandler(BaseException.class)
@@ -44,6 +64,13 @@ public class GlobalExceptionHandler {
 			errors.put(fieldName, errorMessage);
 		});
 		return BaseResponse.fail(BaseResponseStatus.INVALID_REQUEST,errors);
+	}
+
+	private String getStackTrace(Exception e) {
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		return sw.toString();
 	}
 
 }
