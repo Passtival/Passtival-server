@@ -35,6 +35,7 @@ public class PerformanceDevSeeder {
 		// 	LocalDateTime.of(2025, 8, 30, 18, 0),
 		// 	"축제 시작을 알리는 퍼포먼스",
 		// 	"우천 시 실내 이동"
+		//  1
 		// ));
 
 		for (Performance p : seeds) {
@@ -57,7 +58,8 @@ public class PerformanceDevSeeder {
 		LocalDateTime startAt,
 		LocalDateTime endAt,
 		String introduction,
-		String info
+		String info,
+		Integer day
 	) {
 		return Performance.builder()
 			.title(title)
@@ -68,6 +70,7 @@ public class PerformanceDevSeeder {
 			.endAt(endAt)
 			.introduction(introduction)
 			.info(info)
+			.day(day)
 			.build();
 	}
 }
