@@ -44,11 +44,11 @@ public class PerformanceController {
 	/**
 	 * 공연 이름으로 단일 조회
 	 */
-	@GetMapping("/performance/{performanceName}")
-	public BaseResponse<PerformanceDetailResponse> getPerformanceByName(
-		@PathVariable String performanceName) throws BaseException {
+	@GetMapping("/performance/{performanceTitle}")
+	public BaseResponse<PerformanceDetailResponse> getPerformanceByTitle(
+		@PathVariable String performanceTitle) throws BaseException {
 		try {
-			PerformanceDetailResponse detail = performanceService.getPerformanceByName(performanceName);
+			PerformanceDetailResponse detail = performanceService.getPerformanceByTitle(performanceTitle);
 			return BaseResponse.success(detail);
 		} catch (RuntimeException e) {
 			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR);
