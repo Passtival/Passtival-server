@@ -36,8 +36,8 @@ public class PerformanceService {
 	}
 
 	// 공연 이름 조회
-	public PerformanceDetailResponse getPerformanceByName(String name) throws BaseException {
-		Optional<Performance> performanceOpt = performanceRepository.findByTitle(name);
+	public PerformanceDetailResponse getPerformanceByTitle(String title) throws BaseException {
+		Optional<Performance> performanceOpt = performanceRepository.findByTitle(title);
 		if (performanceOpt.isEmpty()) {
 			throw new BaseException(BaseResponseStatus.PERFORMANCE_NOT_FOUND);
 		}
