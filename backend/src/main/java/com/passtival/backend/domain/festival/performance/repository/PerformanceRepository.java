@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import com.passtival.backend.domain.festival.performance.model.entity.Performance;
 
@@ -11,5 +12,6 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
 
 	Optional<Performance> findByTitle(String title);
 
-	Optional<Performance> findByTitleAndStartAt(String title, LocalDateTime startAt);
+	Optional<Performance> findByTitleAndDay(String title, Integer day);
+
 }
