@@ -27,23 +27,23 @@ public class PerformanceDevSeeder implements ApplicationRunner {
 	@Override
 	@Transactional
 	public void run(ApplicationArguments args) {
-		List<Performance> seeds = List.of(build(
-			"신석기","글로벌경영학과","아리관","images/opening.jpg",
-			LocalDateTime.of(2025, 8, 30, 17, 0),
-			LocalDateTime.of(2025, 8, 30, 18, 0),
-			"축제 시작을 알리는 퍼포먼스",
-			1,
-			List.of(songSpec("아이유","좋은 날"), songSpec("블랙핑크","붐바야"))
-		));
+		// List<Performance> seeds = List.of(build(
+		// 	"신석기","글로벌경영학과","아리관","images/opening.jpg",
+		// 	LocalDateTime.of(2025, 8, 30, 17, 0),
+		// 	LocalDateTime.of(2025, 8, 30, 18, 0),
+		// 	"축제 시작을 알리는 퍼포먼스",
+		// 	1,
+		// 	List.of(songSpec("아이유","좋은 날"), songSpec("블랙핑크","붐바야"))
+		// ));
 
-		for (Performance p : seeds) {
-			boolean exists = performanceRepository
-				.findByTitleAndDay(p.getTitle(), p.getDay())
-				.isPresent();
-			if (!exists) {
-				performanceRepository.save(p);
-			}
-		}
+		// for (Performance p : seeds) {
+		// 	boolean exists = performanceRepository
+		// 		.findByTitleAndDay(p.getTitle(), p.getDay())
+		// 		.isPresent();
+		// 	if (!exists) {
+		// 		performanceRepository.save(p);
+		// 	}
+		// }
 		performanceRepository.flush();
 	}
 
