@@ -18,8 +18,8 @@ public class PerformanceDetailResponse {
 
 	private final String title;
 	private final String artist;
-	private final LocalDateTime startAt;
-	private final LocalDateTime endAt;
+	private final LocalDateTime startTime;
+	private final LocalDateTime endTime;
 	private final String area;
 	private final String imagePath;
 	private final String introduction;
@@ -53,8 +53,8 @@ public class PerformanceDetailResponse {
 		return PerformanceDetailResponse.builder()
 			.title(performance.getTitle())
 			.artist(performance.getArtist())
-			.startAt(performance.getStartAt())
-			.endAt(performance.getEndAt())
+			.startTime(performance.getStartTime())
+			.endTime(performance.getEndTime())
 			.area(performance.getArea())
 			.imagePath(performance.getImagePath())
 			.introduction(performance.getIntroduction())

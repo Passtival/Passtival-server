@@ -49,12 +49,12 @@ public class PerformanceDevSeeder implements ApplicationRunner {
 
 	private Performance build(
 		String title, String artist, String area, String imagePath,
-		LocalDateTime startAt, LocalDateTime endAt,
+		LocalDateTime startTime, LocalDateTime endTime,
 		String introduction, Integer day, List<SongSpec> songSpecs
 	) {
 		Performance performance = Performance.builder()
 			.title(title).artist(artist).area(area)
-			.imagePath(imagePath).startAt(startAt).endAt(endAt)
+			.imagePath(imagePath).startTime(startTime).endTime(endTime)
 			.introduction(introduction).day(day)
 			.build();
 
