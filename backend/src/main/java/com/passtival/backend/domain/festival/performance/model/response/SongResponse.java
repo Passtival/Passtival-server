@@ -13,9 +13,7 @@ public class SongResponse {
 	private final String title;
 
 	public static SongResponse from(Song song) {
-		if (song == null) {
-			return SongResponse.builder().singer(null).title(null).build();
-		}
+
 		return SongResponse.builder()
 			.singer(song.getSinger())
 			.title(song.getTitle())

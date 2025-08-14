@@ -30,11 +30,6 @@ public class PerformanceDetailResponse {
 
 	public static PerformanceDetailResponse of(Performance performance) {
 
-		if (performance == null) {
-			// performance가 아예 존재하지 않을 경우
-			throw new IllegalArgumentException("performance 정보가 존재하지 않습니다.");
-		}
-
 		List<Song> songEntities;
 
 		//Performance에 getSongs()가 있으면 그걸 쓰고, 없으면 그냥 빈 리스트로 처리
