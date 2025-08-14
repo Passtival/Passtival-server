@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class BoothResponseDTO {
+public class BoothResponse {
 
 	private final String name;
 	private final String type;
@@ -28,11 +28,9 @@ public class BoothResponseDTO {
 	 * @return BoothResponseDTO 객체
 	 * @throws IllegalArgumentException booth가 null인 경우
 	 */
-	public static BoothResponseDTO of(Booth booth) {
-		if (booth == null) {
-			throw new IllegalArgumentException("Booth 값이 null입니다.");
-		}
-		return BoothResponseDTO.builder()
+	public static BoothResponse of(Booth booth) {
+
+		return BoothResponse.builder()
 			.name(booth.getName())
 			.type(booth.getType())
 			.department(booth.getDepartment())
