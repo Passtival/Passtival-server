@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/passtival")
+@RequestMapping("/api/festival")
 public class PerformanceController {
 
 	private final PerformanceService performanceService;
