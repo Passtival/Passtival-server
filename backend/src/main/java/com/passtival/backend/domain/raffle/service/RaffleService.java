@@ -7,6 +7,8 @@ import com.passtival.backend.domain.raffle.model.entity.AuthenticationKey;
 import com.passtival.backend.domain.raffle.model.request.ApplicantRegistrationRequest;
 import com.passtival.backend.domain.raffle.repository.ApplicantRepository;
 import com.passtival.backend.domain.raffle.repository.AuthenticationKeyRepository;
+import com.passtival.backend.global.common.BaseResponseStatus;
+import com.passtival.backend.global.exception.BaseException;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +29,7 @@ public class RaffleService {
 	 * 신청자 등록
 	 * @param request 신청자 등록 요청 정보
 	 */
-	public void registerApplicant(ApplicantRegistrationRequest request) {
+	public void registerApplicant(ApplicantRegistrationRequest request) throws BaseException {
 
 		// 신청자 등록 로직
 		// =========================================================
@@ -39,15 +41,11 @@ public class RaffleService {
 
 		try {
 			// 1. 인증키 유효성 검사
-			if (!isValidAuthenticationKey(request.getKey())) {
-				log.warn("유효하지 않은 인증키입니다 - key: {}", request.getKey());
-				throw new RuntimeException("유효하지 않은 인증키입니다.");
-			}
+			validateAuthenticationKey(request.getKey());
 
-			// 2. 학번으로 기존 신청자 존재 여부 확인
+			// 2. 학번 중복 확인
 			if (applicantRepository.existsByStudentId(request.getStudentId())) {
-				log.warn("이미 신청한 학번입니다 - studentId: {}", request.getStudentId());
-				throw new RuntimeException("이미 신청한 학번입니다.");
+				throw new BaseException(BaseResponseStatus.DUPLICATE_APPLICANT);
 			}
 
 			// 3. 신청자 등록
@@ -57,12 +55,10 @@ public class RaffleService {
 				.build();
 
 			applicantRepository.save(newApplicant);
-		} catch (RuntimeException e) {
-			throw e;
+		} catch (BaseException e) {
+			throw e; // BaseException은 그대로 전파
 		} catch (Exception e) {
-			log.error("신청자 등록 중 오류 발생 - studentId: {}",
-				request.getStudentId(), e);
-			throw new RuntimeException("신청자 등록 중 오류가 발생했습니다.", e);
+			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -70,23 +66,36 @@ public class RaffleService {
 	/**
 	 * 인증키 유효성 검사
 	 * @param requestKey 요청에서 받은 인증키
-	 * @return 인증키가 유효하면 true, 그렇지 않으면 false
+	 * @throws BaseException 인증키가 유효하지 않은 경우
 	 */
-	private boolean isValidAuthenticationKey(String requestKey) {
+	private void validateAuthenticationKey(String requestKey) throws BaseException {
 		try {
-			AuthenticationKey authKey = authenticationKeyRepository.findFirstByOrderByIdAsc();
+			AuthenticationKey authKey = getCurrentAuthenticationKey();
 
-			if (authKey == null) {
-				log.warn("DB에 등록된 인증키가 없습니다.");
-				return false;
+			if (!authKey.getKey().equals(requestKey)) {
+				throw new BaseException(BaseResponseStatus.INVALID_AUTH_KEY);
 			}
 
-			return authKey.getKey().equals(requestKey);
-
+		} catch (BaseException e) {
+			throw e; // BaseException은 그대로 전파
 		} catch (Exception e) {
-			log.error("인증키 검증 중 오류 발생", e);
-			return false;
+			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	/**
+	 * 현재 인증키 조회
+	 * @return 현재 인증키
+	 * @throws BaseException 인증키가 없는 경우
+	 */
+	private AuthenticationKey getCurrentAuthenticationKey() throws BaseException {
+		AuthenticationKey authKey = authenticationKeyRepository.findFirstByOrderByIdAsc();
+
+		if (authKey == null) {
+			throw new BaseException(BaseResponseStatus.AUTH_KEY_NOT_FOUND);
+		}
+
+		return authKey;
 	}
 
 
@@ -94,43 +103,34 @@ public class RaffleService {
 	 * 인증키 갱신 (기존 키 검증 후 새로운 키로 업데이트)
 	 * @param newKey 새로운 인증키
 	 * @param oldKey 기존인증키 (검증용)
+	 * @throws BaseException 인증키 검증 실패, DB 오류 시
 	 */
 	@Transactional
-	public void updateAuthenticationKey(String newKey, String oldKey) {
+	public void updateAuthenticationKey(String newKey, String oldKey) throws BaseException {
 		try {
-			// 1. DB에서 현재 인증키 조회
-			AuthenticationKey currentAuthKey = authenticationKeyRepository.findFirstByOrderByIdAsc();
+			// 1. 현재 인증키 조회
+			AuthenticationKey currentAuthKey = getCurrentAuthenticationKey();
 
-			// 2. DB에 인증키가 없는 경우
-			if (currentAuthKey == null) {
-				log.warn("DB에 등록된 인증키가 없습니다.");
-				throw new RuntimeException("DB에 등록된 인증키가 없습니다.");
-			}
-
-			// 3. 기존 인증키(oldKey) 검증
+			// 2. 기존 인증키 검증
 			if (!currentAuthKey.getKey().equals(oldKey)) {
-				log.warn("기존 인증키가 일치하지 않습니다. - 입력된 oldKey: {}", oldKey);
-				throw new RuntimeException("기존 인증키가 일치하지 않습니다.");
+				throw new BaseException(BaseResponseStatus.INVALID_AUTH_KEY);
 			}
 
-			// 4. 새로운 키와 기존 키가 같은 경우 체크
+			// 3. 새로운 키와 기존 키가 같은 경우 체크
 			if (currentAuthKey.getKey().equals(newKey)) {
-				log.warn("새로운 인증키가 기존 키와 동일합니다.");
-				throw new RuntimeException("새로운 인증키가 기존 키와 동일합니다.");
+				throw new BaseException(BaseResponseStatus.SAME_AUTH_KEY);
 			}
 
-			// 5. 기존 키를 새로운 키로 갱신
+			// 4. 기존 키를 새로운 키로 갱신
 			currentAuthKey.updateKey(newKey);
 			authenticationKeyRepository.save(currentAuthKey);
 
-		} catch (RuntimeException e) {
+		} catch (BaseException e) {
 			throw e; // 비즈니스 로직 예외는 그대로 전파
 		}
 		catch (Exception e) {
-			log.error("인증키 갱신 중 오류 발생", e);
-			throw new RuntimeException("인증키 갱신 중 오류가 발생했습니다.", e);
+			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
-
 	}
 
 

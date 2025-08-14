@@ -18,7 +18,7 @@ import com.passtival.backend.domain.raffle.model.response.PrizeResponse;
 import com.passtival.backend.domain.raffle.service.PrizeService;
 import com.passtival.backend.domain.raffle.service.RaffleService;
 import com.passtival.backend.global.common.BaseResponse;
-import com.passtival.backend.global.common.BaseResponseStatus;
+import com.passtival.backend.global.exception.BaseException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -50,18 +50,12 @@ public class RaffleController {
 		description = "등록된 상품의 목록을 조회합니다."
 	)
 	@GetMapping("/prizes")
-	public BaseResponse<List<PrizeResponse>> getPrizes() {
-		try {
-			List<Prize> prizes = prizeService.getAllPrizes();
-			List<PrizeResponse> prizeResponses = prizes.stream()
-				.map(PrizeResponse::of)
-				.collect(Collectors.toList());
-			return BaseResponse.success(prizeResponses);
-
-		} catch (Exception e) {
-			log.error("상품 목록 조회 실패", e);
-			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR);
-		}
+	public BaseResponse<List<PrizeResponse>> getPrizes() throws BaseException {
+		List<Prize> prizes = prizeService.getAllPrizes();
+		List<PrizeResponse> prizeResponses = prizes.stream()
+			.map(PrizeResponse::of)
+			.collect(Collectors.toList());
+		return BaseResponse.success(prizeResponses);
 	}
 
 	/**
@@ -83,20 +77,10 @@ public class RaffleController {
 		}
 	)
 	@GetMapping("/prizes/{prizeId}")
-	public BaseResponse<PrizeResponse> getPrizeById(@PathVariable("prizeId") Long prizeId) {
-		try {
-			Prize prize = prizeService.getPrizeById(prizeId);
-			PrizeResponse prizeResponse = PrizeResponse.of(prize);
-			return BaseResponse.success(prizeResponse);
-
-		} catch (RuntimeException e) {
-			log.warn("상품 조회 실패 - prizeId: {}, 사유: {}", prizeId, e.getMessage());
-			return BaseResponse.fail(BaseResponseStatus.BAD_REQUEST, e.getMessage());
-		} catch (Exception e) {
-			log.error("상품 조회 중 예상치 못한 오류 - prizeId: {}", prizeId, e);
-			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR);
-		}
-
+	public BaseResponse<PrizeResponse> getPrizeById(@PathVariable("prizeId") Long prizeId) throws BaseException {
+		Prize prize = prizeService.getPrizeById(prizeId);
+		PrizeResponse prizeResponse = PrizeResponse.of(prize);
+		return BaseResponse.success(prizeResponse);
 	}
 
 	/**
@@ -127,23 +111,14 @@ public class RaffleController {
 		)
 	)
 	@PostMapping("/applicants")
-	public BaseResponse<Void> saveApplicant(@RequestBody ApplicantRegistrationRequest request) {
+	public BaseResponse<Void> saveApplicant(@RequestBody ApplicantRegistrationRequest request) throws BaseException {
 		/* 1. 클라이언트로부터 신청자의 이름과 학번, 인증키 입력받는다.
 		* 2. 신청자의 이름과 학번을 기반으로 신청자를 데이터베이스에 저장한다.
 		* 3. 신청이 완료되면 클라이언트에게 성공 메시지를 반환한다.
 		* 4. 만약 신청자의 이름과 학번이 같은 경우, 이미 신청한 것으로 간주하고 에러 메시지를 반환한다.
 		 */
-		try {
-			raffleService.registerApplicant(request);
-			return BaseResponse.success(null);
-		} catch (RuntimeException e) {
-			log.warn("신청자 등록 실패 - name: {}, studentId: {}, 사유: {}",
-				request.getApplicantName(), request.getStudentId(), e.getMessage());
-			return BaseResponse.fail(BaseResponseStatus.BAD_REQUEST, e.getMessage());
-		} catch (Exception e)  {
-			log.error("신청자 등록 중 예상치 못한 오류", e);
-			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR);
-		}
+		raffleService.registerApplicant(request);
+		return BaseResponse.success(null);
 	}
 
 
@@ -174,16 +149,8 @@ public class RaffleController {
 		)
 	)
 	@PutMapping("/authentication-key")
-	public BaseResponse<Void> updateAuthenticationKey(@Valid @RequestBody UpdateAuthenticationKeyRequest request) {
-		try {
-			raffleService.updateAuthenticationKey(request.getNewKey(), request.getOldKey());
-			return BaseResponse.success(null);
-		} catch (RuntimeException e) {
-			log.warn("인증키 변경 실패 - 사유: {}", e.getMessage());
-			return BaseResponse.fail(BaseResponseStatus.BAD_REQUEST, e.getMessage());
-		} catch (Exception e) {
-			log.error("인증키 변경 중 예상치 못한 오류", e);
-			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR);
-		}
+	public BaseResponse<Void> updateAuthenticationKey(@Valid @RequestBody UpdateAuthenticationKeyRequest request) throws BaseException{
+		raffleService.updateAuthenticationKey(request.getNewKey(), request.getOldKey());
+		return BaseResponse.success(null);
 	}
 }

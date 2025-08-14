@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.passtival.backend.domain.raffle.model.entity.Prize;
 import com.passtival.backend.domain.raffle.repository.PrizeRepository;
+import com.passtival.backend.global.common.BaseResponseStatus;
+import com.passtival.backend.global.exception.BaseException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,12 +27,11 @@ public class PrizeService {
 	 * 상품 목록 조회
 	 * @return 상품 목록
 	 */
-	public List<Prize> getAllPrizes() {
+	public List<Prize> getAllPrizes() throws BaseException {
 		try {
 			return prizeRepository.findAll();
 		} catch (Exception e) {
-			log.error("데이터베이스에서 상품 목록 조회 중 오류 발생", e);
-			throw new RuntimeException("상품 목록 조회 중 오류가 발생했습니다.", e);
+			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
 		}
 	}
 
@@ -39,15 +40,14 @@ public class PrizeService {
 	 * @param prizeId 상품 ID
 	 * @return 상품 정보
 	 */
-	public Prize getPrizeById(Long prizeId) {
+	public Prize getPrizeById(Long prizeId) throws BaseException {
 		try {
 			return prizeRepository.findById(prizeId)
-				.orElseThrow(() -> new RuntimeException("해당 ID의 상품을 찾을 수 없습니다."));
-		} catch (RuntimeException e) {
+				.orElseThrow(() -> new BaseException(BaseResponseStatus.PRIZE_NOT_FOUND));
+		} catch (BaseException e) {
 			throw e; // RuntimeException은 그대로 전파
 		} catch (Exception e) {
-			log.error("데이터베이스에서 상품 조회 중 오류 발생 - prizeId: {}", prizeId, e);
-			throw new RuntimeException("상품 조회 중 오류가 발생했습니다.", e);
+			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
 		}
 	}
 
