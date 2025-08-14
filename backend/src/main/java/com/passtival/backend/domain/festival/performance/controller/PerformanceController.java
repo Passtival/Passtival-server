@@ -32,13 +32,9 @@ public class PerformanceController {
 	@GetMapping("/performance")
 	public BaseResponse<?> getPerformances(
 		@PageableDefault(size = 5) Pageable pageable) throws BaseException {
-		try {
-			Page<Performance> page = performanceService.getAllPerformances(pageable);
-			Page<PerformanceResponse> dtoPage = page.map(PerformanceResponse::of);
-			return BaseResponse.success(dtoPage);
-		} catch (RuntimeException e) {
-			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR);
-		}
+		Page<Performance> page = performanceService.getAllPerformances(pageable);
+		Page<PerformanceResponse> dtoPage = page.map(PerformanceResponse::of);
+		return BaseResponse.success(dtoPage);
 	}
 
 	/**
@@ -47,12 +43,8 @@ public class PerformanceController {
 	@GetMapping("/performance/{performanceTitle}")
 	public BaseResponse<PerformanceDetailResponse> getPerformanceByTitle(
 		@PathVariable String performanceTitle) throws BaseException {
-		try {
-			PerformanceDetailResponse detail = performanceService.getPerformanceByTitle(performanceTitle);
-			return BaseResponse.success(detail);
-		} catch (RuntimeException e) {
-			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR);
-		}
+		PerformanceDetailResponse detail = performanceService.getPerformanceByTitle(performanceTitle);
+		return BaseResponse.success(detail);
 	}
 
 
