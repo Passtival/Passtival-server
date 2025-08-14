@@ -28,6 +28,7 @@ public class PerformanceController {
 	/**
 	 * 공연 목록 조회 (페이징/정렬 지원)
 	 * 예: /api/performances?page=0&size=10&sort=date,desc
+	 * @return 모든 공연 정보 응답
 	 */
 	@GetMapping("/performance")
 	public BaseResponse<?> getPerformances(
@@ -39,6 +40,8 @@ public class PerformanceController {
 
 	/**
 	 * 공연 이름으로 단일 조회
+	 * @param performanceTitle 공연 이름
+	 * @return 공연 이름으로 정보 응답
 	 */
 	@GetMapping("/performance/{performanceTitle}")
 	public BaseResponse<PerformanceDetailResponse> getPerformanceByTitle(
