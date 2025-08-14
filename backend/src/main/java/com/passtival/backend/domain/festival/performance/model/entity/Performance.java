@@ -30,28 +30,28 @@ public class Performance extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "performance_id")
+	@Column(name = "id")
 	private Long id;
 
-	@Column(name = "performance_title")
+	@Column(name = "title")
 	private String title;
 
-	@Column(name = "performance_artist")
+	@Column(name = "artist")
 	private String artist;
 
-	@Column(name = "performance_start_at")
-	private LocalDateTime startAt;
+	@Column(name = "start_time")
+	private LocalDateTime startTime;
 
-	@Column(name = "performance_end_at")
-	private LocalDateTime endAt;
+	@Column(name = "end_time")
+	private LocalDateTime endTime;
 
-	@Column(name = "performance_area")
+	@Column(name = "area")
 	private String area;
 
-	@Column(name = "performance_image_path")
+	@Column(name = "image_path")
 	private String imagePath;
 
-	@Column(name = "performance_introduction")
+	@Column(name = "introduction")
 	private String introduction;
 
 	@Builder.Default
