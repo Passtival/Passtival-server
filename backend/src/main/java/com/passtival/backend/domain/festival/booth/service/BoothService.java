@@ -5,8 +5,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.passtival.backend.domain.festival.booth.model.entity.Booth;
-import com.passtival.backend.domain.festival.booth.model.response.BoothResponseDTO;
+import com.passtival.backend.domain.festival.booth.model.response.BoothResponse;
 import com.passtival.backend.domain.festival.booth.repository.BoothRepository;
+import com.passtival.backend.global.common.BaseResponseStatus;
+import com.passtival.backend.global.exception.BaseException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,15 +23,18 @@ public class BoothService {
 	 * @param pageable 페이지 요청 정보
 	 * @return Page<Booth>
 	 */
-	public Page<BoothResponseDTO> getAllBooths(Pageable pageable) {
-		return boothRepository.findAll(pageable)
-			.map(BoothResponseDTO::of);
+	public Page<BoothResponse> getAllBooths(Pageable pageable) throws BaseException {
+		Page<Booth> page = boothRepository.findAll(pageable);
+		if (page.isEmpty()) {
+			throw new BaseException(BaseResponseStatus.PERFORMANCE_NOT_FOUND);
+		}
+		return page.map(BoothResponse::of);
 	}
 
 	// 부스 이름 조회
-	public BoothResponseDTO getBoothByName(String name) {
+	public BoothResponse getBoothByName(String name) {
 		Booth booth = boothRepository.findByName(name)
 			.orElseThrow(() -> new IllegalArgumentException("해당 이름의 부스가 없습니다."));
-		return BoothResponseDTO.of(booth); // Entity → DTO 변환
+		return BoothResponse.of(booth); // Entity → DTO 변환
 	}
 }
