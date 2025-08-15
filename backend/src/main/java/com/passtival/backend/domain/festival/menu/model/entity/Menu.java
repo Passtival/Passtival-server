@@ -1,19 +1,29 @@
 package com.passtival.backend.domain.festival.menu.model.entity;
 
+import com.passtival.backend.domain.festival.booth.model.entity.Booth;
+import com.passtival.backend.domain.festival.performance.model.entity.Performance;
 import com.passtival.backend.global.common.model.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "menu")
-@Getter @Setter
+@Getter
+@Builder
 public class Menu extends BaseEntity {
 
 	@Id
@@ -35,5 +45,13 @@ public class Menu extends BaseEntity {
 
 	@Column(name = "menu_image_path")
 	private String imagePath;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "booth_id", nullable = false)
+	private Booth booth;
+
+	public void setBooth(Booth booth) {
+		this.booth = booth;
+	}
 
 }

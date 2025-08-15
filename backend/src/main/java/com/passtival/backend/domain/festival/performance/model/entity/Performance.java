@@ -58,7 +58,6 @@ public class Performance extends BaseEntity {
 	@OneToMany(mappedBy = "performance", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Song> songs = new ArrayList<>();
 
-
 	// 일차를 구분해주는 속성
 	@Column(name = "performance_day")
 	private Integer day;

@@ -1,5 +1,7 @@
 package com.passtival.backend.domain.festival.booth.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -8,8 +10,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.passtival.backend.domain.festival.booth.model.response.BoothDetailResponse;
 import com.passtival.backend.domain.festival.booth.model.response.BoothResponse;
 import com.passtival.backend.domain.festival.booth.service.BoothService;
+import com.passtival.backend.domain.festival.menu.model.response.MenuResponse;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
@@ -41,8 +45,17 @@ public class BoothController {
 	 * @return BoothResponse
 	 */
 	@GetMapping("/booth/{name}")
-	public BaseResponse<BoothResponse> getBoothByName(@PathVariable String name) {
-		BoothResponse booth = boothService.getBoothByName(name);
-		return BaseResponse.success(booth);
+	public BaseResponse<BoothDetailResponse> getBoothDetail(@PathVariable String name) throws BaseException {
+		BoothDetailResponse boothDetail = boothService.getBoothDetailByName(name);
+		return BaseResponse.success(boothDetail);
+	}
+
+	/**
+	 * 부스 이름으로 해당 부스의 메뉴 조회
+	 */
+	@GetMapping("/{boothName}/menus")
+	public BaseResponse<List<MenuResponse>> getMenusByBoothName(@PathVariable String boothName) throws BaseException {
+		List<MenuResponse> menus = boothService.getMenusByBoothName(boothName);
+		return BaseResponse.success(menus);
 	}
 }
