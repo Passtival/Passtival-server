@@ -13,6 +13,8 @@ import com.passtival.backend.domain.matching.model.entity.Matching;
 
 public interface MatchingRepository extends JpaRepository<Matching, Long> {
 
+	boolean existsByMatchingDate(LocalDate date);
+
 	// 특정 날짜의 매칭 결과 조회
 	List<Matching> findByMatchingDate(LocalDate date);
 

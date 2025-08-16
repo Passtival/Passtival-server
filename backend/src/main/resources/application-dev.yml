@@ -5,6 +5,25 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-name: ${KAKAO_CLIENT_NAME}
+            client-authentication-method: client_secret_post
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+            authorization-grant-type: ${KAKAO_AUTHORIZATION_GRANT_TYPE}
+            scope: ${KAKAO_SCOPE}
+        provider:
+          kakao:
+            authorization-uri: ${KAKAO_AUTHORIZATION_URI}
+            token-uri: ${KAKAO_TOKEN_URI}
+            user-info-uri: ${KAKAO_USER_INFO_URI}
+            user-name-attribute: ${KAKAO_USER_NAME_ATTRIBUTE}
+
   jpa:
     hibernate:
       ddl-auto: update # 개발 중에는 update, 배포 시엔 validate or none
@@ -36,5 +55,3 @@ jwt:
   secret: ${JWT_SECRET_KEY}
   access-token-expiration: ${JWT_ACCESS_EXPIRATION}
   refresh-token-expiration: ${JWT_REFRESH_EXPIRATION}
-
-

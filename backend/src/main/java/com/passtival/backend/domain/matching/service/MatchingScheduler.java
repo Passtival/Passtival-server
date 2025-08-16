@@ -7,18 +7,23 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.passtival.backend.domain.matching.model.entity.Matching;
 import com.passtival.backend.domain.matching.model.entity.Member;
 import com.passtival.backend.domain.matching.model.enums.Gender;
 import com.passtival.backend.domain.matching.repository.MatchingRepository;
 import com.passtival.backend.domain.matching.repository.MemberRepository;
+import com.passtival.backend.global.common.BaseResponseStatus;
+import com.passtival.backend.global.exception.BaseException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,130 +36,316 @@ public class MatchingScheduler {
 	private final MemberRepository memberRepository;
 	private final MatchingRepository matchingRepository;
 
+	//최대 1000쌍 제한
+	private static final int MAX_MATCHING_PAIRS = 1000;
 	// 매칭 진행 상태 플래그 추가
-	private volatile boolean isMatchingInProgress = false;
+	private final AtomicBoolean inProgress = new AtomicBoolean(false);
 
-	/** 매칭 시작 시간: 매일 오후 6시 1분 0 1 18 * * *
+	/**
+	 * 매칭 시작 시간: 매일 오후 6시 1분 (0 1 18 * * *)
 	 * 매칭중에 신청 방지 되어있음
+	 * (rollbackFor = Exception.class)을 통해 매칭 문제 발생시 롤백
 	 */
-	@Scheduled(cron = "0 1 18 * * *")
-	@Transactional
-	public void executeMatching() {
-		// 여기에 동시성 제어 로직 추가 필요
-
-		//매칭중에 신청 방지
-		if (isMatchingInProgress) {
+	@Transactional(rollbackFor = Exception.class)
+	@Scheduled(cron = "0 1 18 * * *", zone = "Asia/Seoul")
+	public void dailyMatching() throws BaseException {
+		if (!inProgress.compareAndSet(false, true))
 			return;
-		}
+
+		//반환의 우선 순위 때문에 매칭 도중 사용될 가능성 방지
+		boolean syncRegistered = false;
 
 		try {
-			isMatchingInProgress = true;
-			long maleCount = memberRepository.countByAppliedTrueAndGender(Gender.MALE);
-			long femaleCount = memberRepository.countByAppliedTrueAndGender(Gender.FEMALE);
 
-			// 매칭 수 결정 + (최대 1000쌍) 제한 적용
-			int matchingCount = (int)Math.min(Math.min(maleCount, femaleCount), 1000);
+			// 트랜잭션 동기화가 켜져 있으면 커밋/롤백 이후에 플래그 내리기
+			if (TransactionSynchronizationManager.isSynchronizationActive()) {
+				TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+					@Override
+					public void afterCompletion(int status) {
+						inProgress.set(false);
+					}
+				});
+				syncRegistered = true;
+			}
 
-			if (matchingCount == 0) {
-				log.info("매칭 가능한 사용자가 없습니다.");
-				memberRepository.resetAllApplications();
+			// 이미 매칭이 진행 중이면 종료
+			if (matchingRepository.existsByMatchingDate(LocalDate.now(ZoneId.of("Asia/Seoul")))) {
 				return;
 			}
 
-			Pageable malePageable = PageRequest.of(0, matchingCount);
-			Pageable femalePageable = PageRequest.of(0, matchingCount);
+			// 1. 매칭 가능 인원 확인
+			long maleCount = countApplicantsByGender(Gender.MALE);
+			long femaleCount = countApplicantsByGender(Gender.FEMALE);
 
-			List<Member> selectedMales = memberRepository
-				.findByAppliedTrueAndGenderOrderByAppliedAtAsc(Gender.MALE, malePageable);
-			List<Member> selectedFemales = memberRepository
-				.findByAppliedTrueAndGenderOrderByAppliedAtAsc(Gender.FEMALE, femalePageable);
+			// 2. 매칭 수 결정
+			int matchingCount = calculateMatchingCount(maleCount, femaleCount);
 
-			// 랜덤 매칭
+			if (matchingCount <= 0) {
+				resetAllApplications();
+				return;
+			}
+
+			// 3. 매칭 대상자 선별
+			List<Member> selectedMales = selectMembersByGender(Gender.MALE, matchingCount);
+			List<Member> selectedFemales = selectMembersByGender(Gender.FEMALE, matchingCount);
+
+			// 4. 랜덤 매칭 실행
+			List<Matching> matchings = performRandomMatching(selectedMales, selectedFemales, matchingCount);
+
+			// 5. 매칭 결과 저장
+			saveMatchingResults(matchings);
+
+			// 6. 매칭 실패자 처리
+			handleFailedApplicants(maleCount, femaleCount, selectedMales.subList(0, matchingCount),
+				selectedFemales.subList(0, matchingCount));
+
+		} catch (Exception e) {
+			log.error("매칭 알고리즘 실행 중 예외 발생: {}", e.getMessage(), e);
+			throw e;
+		} finally {
+			// 트랜잭션 동기화가 없거나, 등록 전에 크래시한 경우를 대비한 안전장치
+			if (!syncRegistered) {
+				inProgress.set(false);
+			}
+		}
+	}
+
+	/**
+	 * 매칭 정리 시간: 매일 오후 11시 59분 (0 59 23 * * *)
+	 * 당일 매칭 데이터 초기화
+	 */
+	@Scheduled(cron = "0 59 23 * * *", zone = "Asia/Seoul")
+	@Transactional
+	public void dailyCleanup() throws BaseException {
+		try {
+
+			// 1. 당일 매칭 성공자 조회
+			List<Matching> todayResults = getTodayMatchingResults();
+
+			if (!todayResults.isEmpty()) {
+				// 2. 매칭 성공자들의 신청 상태 초기화
+				List<Long> matchedMemberIds = extractMatchedMemberIds(todayResults);
+				resetApplicationsForMatchedMembers(matchedMemberIds);
+			}
+
+			// 3. 모든 매칭 결과 삭제
+			deleteAllMatchingResults();
+		} catch (Exception e) {
+			log.error("일일 매칭 데이터 정리 중 예외 발생: {}", e.getMessage(), e);
+			throw e;
+		}
+	}
+
+	/**
+	 * 매칭 진행 상태 확인
+	 * @return 매칭 진행 중 여부
+	 */
+	public boolean isMatchingInProgress() {
+		return inProgress.get();
+	}
+
+	/**
+	 * 성별별 신청자 수 조회
+	 * @param gender 성별
+	 * @return 신청자 수
+	 * @throws BaseException 조회 실패 시
+	 */
+	private long countApplicantsByGender(Gender gender) throws BaseException {
+		try {
+			return memberRepository.countByAppliedTrueAndGender(gender);
+		} catch (Exception e) {
+			log.error("성별별 신청자 수 조회 중 예외 발생: gender={}, error={}", gender, e.getMessage(), e);
+			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+		}
+	}
+
+	/**
+	 * 매칭 수 계산
+	 * @param maleCount 남성 신청자 수
+	 * @param femaleCount 여성 신청자 수
+	 * @return 매칭 가능 수 (최대 1000쌍)
+	 */
+	private int calculateMatchingCount(long maleCount, long femaleCount) {
+		int matchingCount = (int)Math.min(Math.min(maleCount, femaleCount), MAX_MATCHING_PAIRS);
+		return matchingCount;
+	}
+
+	/**
+	 * 성별별 매칭 대상자 선별 (선착순)
+	 * @param gender 성별
+	 * @param count 선별할 인원 수
+	 * @return 선별된 회원 목록
+	 * @throws BaseException 조회 실패 시
+	 */
+	private List<Member> selectMembersByGender(Gender gender, int count) throws BaseException {
+		try {
+			Pageable pageable = PageRequest.of(0, count);
+			return memberRepository.findByAppliedTrueAndGenderOrderByAppliedAtAsc(gender, pageable);
+		} catch (Exception e) {
+			log.error("성별별 매칭 대상자 선별 중 예외 발생: gender={}, count={}, error={}",
+				gender, count, e.getMessage(), e);
+			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+		}
+	}
+
+	/**
+	 * 랜덤 매칭 수행
+	 * @param selectedMales 선별된 남성 회원 목록
+	 * @param selectedFemales 선별된 여성 회원 목록
+	 * @param matchingCount 매칭 수
+	 * @return 매칭 결과 목록
+	 * @throws BaseException 매칭 처리 실패 시
+	 */
+	private List<Matching> performRandomMatching(List<Member> selectedMales, List<Member> selectedFemales,
+		int matchingCount) throws BaseException {
+		try {
+			// 랜덤 매칭을 위한 여성 목록 셔플
 			Collections.shuffle(selectedFemales);
 
-			// 배치 저장으로 성능 개선
 			List<Matching> matchings = new ArrayList<>();
-
 			for (int i = 0; i < matchingCount; i++) {
 				Member male = selectedMales.get(i);
 				Member female = selectedFemales.get(i);
 
-				Matching result = Matching.createMatching(
-					male.getMemberId(),
-					female.getMemberId()
-				);
-
-				matchings.add(result);
+				Matching matching = Matching.createMatching(male.getMemberId(), female.getMemberId());
+				matchings.add(matching);
 			}
 
-			// 배치로 한 번에 저장
-			matchingRepository.saveAll(matchings);
-
-			// 메모리 효율적인 실패자 처리
-			handleFailedApplicantsEfficiently(maleCount, femaleCount, selectedMales, selectedFemales);
+			return matchings;
 
 		} catch (Exception e) {
-			log.error("매칭 알고리즘 실행 중 오류: ", e);
-			throw e;
-		} finally {
-			isMatchingInProgress = false;
+			log.error("랜덤 매칭 수행 중 예외 발생: matchingCount={}, error={}", matchingCount, e.getMessage(), e);
+			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
-	/** 매칭 시작 시간: 매일 오후 11시 59분에 진행: 0 59 23 * * *
-	 * 매칭중에 신청 방지 되어있음
+	/**
+	 * 매칭 결과 저장
+	 * @param matchings 매칭 결과 목록
+	 * @throws BaseException 저장 실패 시
 	 */
-	@Scheduled(cron = "0 59 23 * * *")
-	@Transactional
-	public void dailyCleanup() {
+	private void saveMatchingResults(List<Matching> matchings) throws BaseException {
+		try {
+			matchingRepository.saveAll(matchings);
+		} catch (Exception e) {
+			log.error("매칭 결과 저장 중 예외 발생: matchingCount={}, error={}", matchings.size(), e.getMessage(), e);
+			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+		}
+	}
 
-		// 당일 매칭 성공자들 조회
-		List<Matching> todayResults = matchingRepository.findByMatchingDate(LocalDate.now(ZoneId.of("Asia/Seoul")));
+	/**
+	 * 매칭 실패자 처리
+	 * @param maleCount 전체 남성 신청자 수
+	 * @param femaleCount 전체 여성 신청자 수
+	 * @param selectedMales 매칭된 남성 목록
+	 * @param selectedFemales 매칭된 여성 목록
+	 * @throws BaseException 처리 실패 시
+	 */
+	private void handleFailedApplicants(long maleCount, long femaleCount,
+		List<Member> selectedMales, List<Member> selectedFemales) throws BaseException {
+		try {
 
-		if (!todayResults.isEmpty()) {
-			// 매칭 성공자들의 memberId 수집
+			// 모든 신청자가 매칭된 경우 - 실패자 처리 생략
+			if (selectedMales.size() == maleCount && selectedFemales.size() == femaleCount) {
+				return;
+			}
+
+			// 매칭 성공자 ID 수집
+			Set<Long> matchedIds = new HashSet<>();
+			selectedMales.forEach(member -> matchedIds.add(member.getMemberId()));
+			selectedFemales.forEach(member -> matchedIds.add(member.getMemberId()));
+
+			long totalApplicants = maleCount + femaleCount;
+			long failedCount = totalApplicants - matchedIds.size();
+
+			// 매칭 실패자들의 신청 상태 초기화
+			if (matchedIds.isEmpty()) {
+				// 매칭된 회원이 없는 경우 모든 신청자 초기화
+				memberRepository.resetAllApplications();
+			} else if (failedCount > 0) {
+				// 매칭 실패자만 초기화 (matchedIds가 비어있지 않을 때만 실행)
+				memberRepository.resetApplicationsForUnmatched(matchedIds);
+			}
+
+		} catch (Exception e) {
+			log.error("매칭 실패자 처리 중 예외 발생: error={}", e.getMessage(), e);
+			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+		}
+	}
+
+	/**
+	 * 모든 신청자의 신청 상태 초기화
+	 * @throws BaseException 초기화 실패 시
+	 */
+	private void resetAllApplications() throws BaseException {
+		try {
+			memberRepository.resetAllApplications();
+		} catch (Exception e) {
+			log.error("모든 신청자 상태 초기화 중 예외 발생: {}", e.getMessage(), e);
+			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+		}
+	}
+
+	/**
+	 * 당일 매칭 결과 조회
+	 * @return 당일 매칭 결과 목록
+	 * @throws BaseException 조회 실패 시
+	 */
+	private List<Matching> getTodayMatchingResults() throws BaseException {
+		try {
+			LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+			return matchingRepository.findByMatchingDate(today);
+		} catch (Exception e) {
+			log.error("당일 매칭 결과 조회 중 예외 발생: {}", e.getMessage(), e);
+			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+		}
+	}
+
+	/**
+	 * 매칭 결과에서 회원 ID 목록 추출
+	 * @param matchingResults 매칭 결과 목록
+	 * @return 매칭된 회원 ID 목록
+	 * @throws BaseException 추출 실패 시
+	 */
+	private List<Long> extractMatchedMemberIds(List<Matching> matchingResults) throws BaseException {
+		try {
 			List<Long> matchedMemberIds = new ArrayList<>();
-
-			for (Matching result : todayResults) {
+			for (Matching result : matchingResults) {
 				matchedMemberIds.add(result.getMaleId());
 				matchedMemberIds.add(result.getFemaleId());
 			}
+			return matchedMemberIds;
+		} catch (Exception e) {
+			log.error("매칭된 회원 ID 추출 중 예외 발생: {}", e.getMessage(), e);
+			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 
-			// 매칭 성공자들의 신청 상태 초기화
+	/**
+	 * 매칭 성공자들의 신청 상태 초기화
+	 * @param matchedMemberIds 매칭된 회원 ID 목록
+	 * @throws BaseException 초기화 실패 시
+	 */
+	private void resetApplicationsForMatchedMembers(List<Long> matchedMemberIds) throws BaseException {
+		try {
 			memberRepository.resetApplicationsByMemberIds(matchedMemberIds);
+		} catch (Exception e) {
+			log.error("매칭 성공자 신청 상태 초기화 중 예외 발생: memberCount={}, error={}",
+				matchedMemberIds.size(), e.getMessage(), e);
+			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
 		}
-
-		//모든 매칭 결과 삭제
-		matchingRepository.deleteAllMatchingResults();
 	}
 
-	// 매칭 중인지 검토하는 로직 (서비스에서 신청 제한에서 사용)
-	public boolean isMatchingInProgress() {
-		return isMatchingInProgress;
-	}
-
-	//실패자만 별도로 처리하는 과정을 미리 분리하여 최적화
-	private void handleFailedApplicantsEfficiently(long maleCount, long femaleCount,
-		List<Member> selectedMales,
-		List<Member> selectedFemales) {
-
-		// 모든 신청자가 매칭됨 - 실패자 처리 생략
-		if (selectedMales.size() == maleCount && selectedFemales.size() == femaleCount) {
-			return;
+	/**
+	 * 모든 매칭 결과 삭제
+	 * @throws BaseException 삭제 실패 시
+	 */
+	private void deleteAllMatchingResults() throws BaseException {
+		try {
+			matchingRepository.deleteAllMatchingResults();
+		} catch (Exception e) {
+			log.error("매칭 결과 삭제 중 예외 발생: {}", e.getMessage(), e);
+			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
 		}
-
-		// 성공자 ID만 수집
-		Set<Long> matchedIds = new HashSet<>();
-		selectedMales.forEach(member -> matchedIds.add(member.getMemberId()));
-		selectedFemales.forEach(member -> matchedIds.add(member.getMemberId()));
-
-		// 실패자만 선별적으로 ID만으로 처리
-		if (!matchedIds.isEmpty()) {
-			memberRepository.resetApplicationsForUnmatched(matchedIds);
-		} else {
-			// NOT IN이 비어있는 Set을 처리하지 못할 수 있으므로 모든 신청자를 초기화하는 별도 처리
-			memberRepository.resetAllApplications();
-		}
-
 	}
 }

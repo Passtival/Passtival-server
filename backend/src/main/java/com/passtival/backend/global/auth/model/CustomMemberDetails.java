@@ -1,4 +1,4 @@
-package com.passtival.backend.global.auth.security;
+package com.passtival.backend.global.auth.model;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -18,7 +18,7 @@ public class CustomMemberDetails implements UserDetails {
 
 	public CustomMemberDetails(Member member) {
 		this.memberId = member.getMemberId();
-		this.role = "ROLE_" + member.getRole().name();
+		this.role = "ROLE_" + member.getRole();
 		this.socialId = member.getSocialId();
 		this.onboardingCompleted = member.isOnboardingCompleted();
 	}

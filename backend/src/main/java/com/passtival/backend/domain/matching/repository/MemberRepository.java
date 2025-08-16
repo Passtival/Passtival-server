@@ -19,6 +19,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
 	Optional<Member> findBySocialId(String socialId);
 
+	//회원 가입용 소셜 로그인으로 구현(카카오톡만 사용할때 가능)
 	boolean existsBySocialId(String socialId);
 
 	// 회원가입용 전화번호 중복 검사
@@ -47,4 +48,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 	@Modifying
 	@Query("UPDATE Member m SET m.applied = false, m.appliedAt = null WHERE m.applied = true AND m.memberId NOT IN :matchedIds")
 	void resetApplicationsForUnmatched(@Param("matchedIds") Set<Long> matchedIds);
+
+	// 테스트용 메서드들
+	List<Member> findByNameStartingWith(String namePrefix);
+
 }

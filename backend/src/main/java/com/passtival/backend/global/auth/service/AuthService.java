@@ -1,14 +1,16 @@
 package com.passtival.backend.global.auth.service;
 
+import org.springframework.stereotype.Service;
 
-import com.passtival.backend.global.auth.dto.RefreshTokenRequest;
-import com.passtival.backend.global.auth.dto.TokenResponseDto;
-import com.passtival.backend.global.common.BaseResponse;
+import com.passtival.backend.domain.matching.service.MemberService;
+import com.passtival.backend.global.auth.jwt.JwtUtil;
+import com.passtival.backend.global.auth.model.token.RefreshTokenRequest;
+import com.passtival.backend.global.auth.model.token.TokenResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
-import com.passtival.backend.global.auth.jwt.JWTUtil;
+import com.passtival.backend.global.exception.BaseException;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 /**
  * JWT 토큰 관련 인증 서비스
@@ -19,55 +21,92 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class AuthService {
 
-    private final JWTUtil jwtUtil;
+	private final JwtUtil jwtUtil;
+	private final MemberService memberService;
 
-    /**
-     * 리프레시 토큰을 통한 새로운 액세스 토큰 발급
-     *
-     * @param request 리프레시 토큰이 포함된 요청 객체
-     * @return BaseResponse<TokenResponse> 새로운 액세스 토큰 또는 에러 응답
-     *
-     * 비즈니스 로직:
-     * 1. 리프레시 토큰 유효성 검증 (형식, 서명, 만료시간)
-     * 2. 토큰에서 사용자 정보 추출 (userId, role)
-     * 3. 새로운 액세스 토큰 생성
-     * 4. 응답 반환
-     */
-    public BaseResponse<TokenResponseDto> refreshAccessToken(RefreshTokenRequest request) {
-        String refreshToken = request.getRefreshToken();
+	/**
+	 * 리프레시 토큰을 통한 새로운 액세스 토큰 발급
+	 * @param request 리프레시 토큰이 포함된 요청 객체
+	 * @return TokenResponse 새로운 액세스 토큰
+	 * @throws BaseException 토큰이 유효하지 않거나 처리 중 오류 발생 시
+	 */
+	public TokenResponse refreshAccessToken(RefreshTokenRequest request) throws BaseException {
+		try {
 
-        try {
-            JWTUtil.TokenInfo tokenInfo = jwtUtil.extractTokenInfo(refreshToken);
+			// 1. 수동 검증: 리프레시 토큰 null/empty 체크
+			validateRefreshTokenRequest(request);
 
-            // 2. 토큰 파싱 실패 또는 정보 부족 체크
-            if (tokenInfo == null || tokenInfo.memberId == null || tokenInfo.role == null) {
-                log.warn("리프레시 토큰 파싱 실패 또는 사용자 정보 부족");
-                return BaseResponse.fail(BaseResponseStatus.TOKEN_INVALID, "리프레시 토큰이 유효하지 않습니다.");
-            }
+			String refreshToken = request.getRefreshToken().trim();
 
-            // 3. 토큰 만료 여부 검증 (추가 파싱 없음)
-            if (tokenInfo.isExpired()) {
-                log.warn("만료된 리프레시 토큰");
-                return BaseResponse.fail(BaseResponseStatus.TOKEN_INVALID, "리프레시 토큰이 만료되었습니다.");
-            }
+			// 2. 토큰 파싱 및 검증
+			JwtUtil.TokenInfo tokenInfo = parseAndValidateToken(refreshToken);
 
+			// 3. 새로운 액세스 토큰 생성
+			String newAccessToken = jwtUtil.createAccessToken(tokenInfo.memberId, tokenInfo.role);
 
-            // 4. 새로운 액세스 토큰 생성
-            String newAccessToken = jwtUtil.createAccessToken(tokenInfo.memberId, tokenInfo.role);
+			// 4. 응답 생성 (refreshToken은 포함하지 않음)
+			return TokenResponse.builder()
+				.accessToken(newAccessToken)
+				.build();
 
+		} catch (BaseException e) {
+			throw e;
+		} catch (Exception e) {
+			log.error("토큰 갱신 중 예외 발생: {}", e.getMessage(), e);
+			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 
-            // 5. 응답 생성
-            // 5. 응답 생성 (refreshToken은 null이므로 JSON에서 제외됨)
-            TokenResponseDto tokenResponse = TokenResponseDto.builder()
-                    .accessToken(newAccessToken)
-                    // refreshToken은 설정하지 않음 (null) -> JSON에서 제외
-                    .build();
+	/**
+	 * 리프레시 토큰 요청 검증
+	 * @param request 리프레시 토큰 요청
+	 * @throws BaseException 요청이 유효하지 않은 경우
+	 */
+	private void validateRefreshTokenRequest(RefreshTokenRequest request) throws BaseException {
+		try {
+			if (request == null) {
+				throw new BaseException(BaseResponseStatus.BAD_REQUEST);
+			}
 
-            return BaseResponse.success(tokenResponse);
+			if (request.getRefreshToken() == null || request.getRefreshToken().trim().isEmpty()) {
+				throw new BaseException(BaseResponseStatus.REFRESH_TOKEN_REQUIRED);
+			}
 
-        } catch (Exception e) {
-            log.error("토큰 갱신 중 예외 발생: {}", e.getMessage());
-            return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "토큰 갱신 중 오류가 발생했습니다.");
-        }
-    }
+		} catch (BaseException e) {
+			throw e;
+		} catch (Exception e) {
+			log.error("리프레시 토큰 요청 검증 중 예외 발생: {}", e.getMessage(), e);
+			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * 토큰 파싱 및 검증
+	 * @param refreshToken 리프레시 토큰
+	 * @return TokenInfo 파싱된 토큰 정보
+	 * @throws BaseException 토큰이 유효하지 않은 경우
+	 */
+	private JwtUtil.TokenInfo parseAndValidateToken(String refreshToken) throws BaseException {
+		try {
+			JwtUtil.TokenInfo tokenInfo = jwtUtil.extractTokenInfo(refreshToken);
+
+			// 토큰 파싱 실패 또는 정보 부족 체크
+			if (tokenInfo == null || tokenInfo.memberId == null || tokenInfo.role == null) {
+				throw new BaseException(BaseResponseStatus.TOKEN_INVALID);
+			}
+
+			// 토큰 만료 여부 검증
+			if (tokenInfo.isExpired()) {
+				throw new BaseException(BaseResponseStatus.TOKEN_EXPIRED);
+			}
+
+			return tokenInfo;
+
+		} catch (BaseException e) {
+			throw e; // BaseException은 그대로 전파
+		} catch (Exception e) {
+			log.error("토큰 파싱 및 검증 중 예외 발생: {}", e.getMessage(), e);
+			throw new BaseException(BaseResponseStatus.TOKEN_INVALID);
+		}
+	}
 }

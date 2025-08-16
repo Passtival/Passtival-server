@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.passtival.backend.domain.matching.model.request.MemberOnboardingRequest;
 import com.passtival.backend.domain.matching.service.MemberService;
-import com.passtival.backend.global.auth.security.CustomMemberDetails;
+import com.passtival.backend.global.auth.model.CustomMemberDetails;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.exception.BaseException;
 
@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/member")
+@RequestMapping("/api/me")
 @RequiredArgsConstructor
 @Tag(name = "Member-API", description = "회원 관리 API")
 public class MemberController {
@@ -40,7 +41,10 @@ public class MemberController {
 	//소셜 로그인 이후에 추가 정보를 얻는 로직 추가 예정
 	@Operation(
 		summary = "온보딩 (추가 정보 입력)",
-		description = "소셜 로그인으로 가입된 사용자가 추가 정보(성별, 전화번호)를 입력하여 가입을 완료합니다. **인증 토큰이 필요합니다.**",
+		description = "소셜 로그인으로 가입된 사용자가 추가 정보(성별, 전화번호)를 입력하여 가입을 완료합니다. **인증 토큰이 필요합니다.**"
+			+ "전화번호 허용 형식: \"010-1234-5678\", \"010 1234 5678\", \"01012345678\""
+			+ "인스타그램 Id 선택 사항",
+		security = @SecurityRequirement(name = "jwtAuth"),
 		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
 			description = "추가 입력 정보",
 			required = true,
@@ -52,7 +56,8 @@ public class MemberController {
 					value = """
 						{
 						  "gender": "MALE",
-						  "phoneNumber": "01012345678",
+						  "phoneNumber": "01012345678"
+						  "instagramId": "one_112"
 						}
 						"""
 				)

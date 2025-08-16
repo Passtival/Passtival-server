@@ -35,6 +35,9 @@ public class MatchingService {
 	private final MatchingRepository matchingRepository;
 	private final MatchingScheduler matchingScheduler;
 
+	//소개팅 신청 제한 시간
+	private static final int MATCHING_APPLICATION_DEADLINE_HOUR = 18;
+
 	@Transactional
 	public void applyMatching(Long memberId, MatchingRequest matchingRequest)
 		throws BaseException {
@@ -45,7 +48,7 @@ public class MatchingService {
 
 			LocalTime now = LocalTime.now(ZoneId.of("Asia/Seoul"));
 			LocalTime startTime = LocalTime.of(0, 0);   // 00:00
-			LocalTime endTime = LocalTime.of(18, 0);    // 18:00
+			LocalTime endTime = LocalTime.of(MATCHING_APPLICATION_DEADLINE_HOUR, 0);
 
 			// 신청 가능 시간: 00:00 ~ 18:00
 			if (now.isBefore(startTime) || now.isAfter(endTime)) {
@@ -82,14 +85,14 @@ public class MatchingService {
 			// 오늘 날짜의 매칭 결과 조회
 			LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
-			Optional<Matching> matchingResultOpt = matchingRepository
+			Optional<Matching> matchingResult = matchingRepository
 				.findMemberMatchingByDate(today, memberId);
 
-			if (matchingResultOpt.isEmpty()) {
+			if (matchingResult.isEmpty()) {
 				throw new BaseException(BaseResponseStatus.MATCHING_RESULT_NOT_FOUND);
 			}
 
-			Matching matching = matchingResultOpt.get();
+			Matching matching = matchingResult.get();
 
 			// 나의 memberId
 			Long myMemberId = memberId;
@@ -132,13 +135,13 @@ public class MatchingService {
 				.instagramId(partnerMember.getInstagramId())
 				.build();
 
-			MatchingResponse matchResponse = MatchingResponse.builder()
+			MatchingResponse response = MatchingResponse.builder()
 				.myInfo(myInfo)
 				.partnerInfo(partnerInfo)
 				.matchingDate(today.toString())
 				.build();
 
-			return matchResponse;
+			return response;
 		} catch (BaseException e) {
 			throw e;
 		} catch (Exception e) {

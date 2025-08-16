@@ -39,7 +39,7 @@ public class Member extends BaseEntity {
 	@Column(length = 25)
 	private String name; // "홍길동"
 
-	@Column(nullable = false, length = 10)
+	@Column(length = 10)
 	@Enumerated(EnumType.STRING)
 	private Gender gender;// "MALE" 또는 "FEMALE"
 
@@ -63,14 +63,14 @@ public class Member extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
-	public static Member createSocialMember(String socialId, String name, Gender gender, String phoneNumber,
-		String instagramId) {
+	//, Gender gender, String phoneNumber, String name(현재는 닉네임을 넣는중)
+	public static Member createSocialMember(String socialId, String name) {
 		return Member.builder()
 			.socialId(socialId)
 			.name(name)
 			//.gender(gender)
 			//.phoneNumber(phoneNumber)
-			.instagramId(instagramId)
+			.instagramId(null)
 			.applied(false)
 			.appliedAt(null)
 			.onboardingCompleted(false)
@@ -79,9 +79,17 @@ public class Member extends BaseEntity {
 	}
 
 	//온보딩 완료 처리
-	public void completeOnboarding(Gender gender, String phoneNumber) {
+	public void completeOnboarding(Gender gender, String phoneNumber, String instagramId) {
 		this.gender = gender;
 		this.phoneNumber = phoneNumber;
+
+		// 인스타그램 ID 처리 (null이나 빈 문자열은 빈 문자열로 저장)
+		if (instagramId == null || instagramId.trim().isEmpty()) {
+			this.instagramId = "";
+		} else {
+			this.instagramId = instagramId.trim();
+		}
+
 		this.onboardingCompleted = true;
 	}
 
