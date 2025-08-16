@@ -17,7 +17,6 @@ public enum BaseResponseStatus {
 	MATCHING_TIME_INVALID(false, 400, "매칭 신청은 매일 00:00부터 18:00까지만 가능합니다."),
 	ONBOARDING_REQUIRED(false, 400, "온보딩이 필요한 사용자입니다."),
 
-
 	// 401: 인증 오류
 	UNAUTHORIZED(false, 401, "인증에 실패했습니다."),
 	TOKEN_EXPIRED(false, 401, "토큰이 만료되었습니다."),
@@ -31,6 +30,7 @@ public enum BaseResponseStatus {
 	NOT_FOUND(false, 404, "요청한 리소스를 찾을 수 없습니다."),
 	PRIZE_NOT_FOUND(false, 404, "해당 ID의 상품을 찾을 수 없습니다."),
 	AUTH_KEY_NOT_FOUND(false, 404, "등록된 인증키가 없습니다."),
+	PERFORMANCE_NOT_FOUND(false, 404, "등록된 공연 데이터가 없습니다."),
 	MEMBER_NOT_FOUND(false, 404, "회원을 찾을 수 없습니다."),
 	MATCHING_RESULT_NOT_FOUND(false, 404, "오늘 매칭 결과가 없습니다."),
 	PARTNER_INFO_NOT_FOUND(false, 404, "파트너 정보를 찾을 수 없습니다."),
@@ -44,7 +44,6 @@ public enum BaseResponseStatus {
 	DUPLICATE_SOCIAL_ID(false, 409, "이미 사용중인 소셜 ID입니다."),
 	ONBOARDING_ALREADY_COMPLETED(false, 409, "이미 온보딩이 완료된 사용자입니다."),
 
-
 	// 422: 처리 불가능한 엔티티 (비즈니스 로직 오류)
 	INVALID_AUTH_KEY(false, 422, "인증키가 일치하지 않습니다."),
 	SAME_AUTH_KEY(false, 422, "기존 인증키와 동일한 키로는 변경할 수 없습니다."),
@@ -52,9 +51,6 @@ public enum BaseResponseStatus {
 	// 500: 서버 오류
 	INTERNAL_SERVER_ERROR(false, 500, "서버에서 오류가 발생하였습니다."),
 	DATABASE_ERROR(false, 500, "데이터베이스 오류가 발생했습니다.");
-
-
-
 
 	private final boolean isSuccess; // 요청 성공 여부
 	private final int code; // 응답 코드
