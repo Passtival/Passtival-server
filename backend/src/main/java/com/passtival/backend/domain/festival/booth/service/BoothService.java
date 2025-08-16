@@ -44,7 +44,9 @@ public class BoothService {
 	// 부스 이름 조회
 	public BoothDetailResponse getBoothDetailByName(String name) throws BaseException {
 		Optional<Booth> optBooth = boothRepository.findByName(name);
-		if (optBooth.isEmpty()) throw new BaseException(BaseResponseStatus.BOOTH_NOT_FOUND);
+		if (optBooth.isEmpty()) {
+			throw new BaseException(BaseResponseStatus.BOOTH_NOT_FOUND);
+		}
 		return BoothDetailResponse.of(optBooth.get());
 	}
 
