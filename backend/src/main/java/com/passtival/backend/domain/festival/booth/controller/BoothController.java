@@ -44,9 +44,9 @@ public class BoothController {
 	 * @param {name} 부스 이름 요청 정보
 	 * @return BoothResponse
 	 */
-	@GetMapping("/booth/{name}")
-	public BaseResponse<BoothDetailResponse> getBoothDetail(@PathVariable String name) throws BaseException {
-		BoothDetailResponse boothDetail = boothService.getBoothDetailByName(name);
+	@GetMapping("/booth/{boothName}")
+	public BaseResponse<BoothDetailResponse> getBoothDetail(@PathVariable String boothName) throws BaseException {
+		BoothDetailResponse boothDetail = boothService.getBoothDetailByName(boothName);
 		return BaseResponse.success(boothDetail);
 	}
 

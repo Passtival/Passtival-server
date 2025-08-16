@@ -4,16 +4,17 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.passtival.backend.domain.festival.booth.model.entity.Booth;
 import com.passtival.backend.domain.festival.menu.model.entity.Menu;
-import com.passtival.backend.domain.festival.performance.model.entity.Song;
 import com.passtival.backend.domain.festival.menu.model.response.MenuResponse;
-import com.passtival.backend.domain.festival.performance.model.response.SongResponse;
 
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 @Builder
 public class BoothDetailResponse {
 
@@ -35,14 +36,8 @@ public class BoothDetailResponse {
 
 		List<Menu> menuEntities;
 
-		//Booth에 getMenus()가 있으면 그걸 쓰고, 없으면 그냥 빈 리스트로 처리
-		try {
-			menuEntities = booth.getMenus();
-		} catch (NoSuchMethodError e) {
-			menuEntities = Collections.emptyList();
-		}
-
-		List<MenuResponse> menuResponses = (menuEntities == null ? Collections.<Menu>emptyList() : menuEntities)
+		List<MenuResponse> menuResponses = Optional.ofNullable(booth.getMenus())
+			.orElse(Collections.emptyList())
 			.stream()
 			.filter(Objects::nonNull)
 			.map(MenuResponse::from)

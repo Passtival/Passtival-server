@@ -15,8 +15,6 @@ import com.passtival.backend.domain.festival.booth.model.response.BoothResponse;
 import com.passtival.backend.domain.festival.booth.repository.BoothRepository;
 import com.passtival.backend.domain.festival.menu.model.entity.Menu;
 import com.passtival.backend.domain.festival.menu.model.response.MenuResponse;
-import com.passtival.backend.domain.festival.performance.model.entity.Performance;
-import com.passtival.backend.domain.festival.performance.model.response.PerformanceDetailResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 

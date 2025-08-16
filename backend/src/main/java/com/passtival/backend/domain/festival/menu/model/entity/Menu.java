@@ -23,6 +23,8 @@ import lombok.Setter;
 @Entity
 @Table(name = "menu")
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Builder
 public class Menu extends BaseEntity {
 

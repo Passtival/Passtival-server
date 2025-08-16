@@ -35,7 +35,7 @@ public class PerformanceDevSeeder implements ApplicationRunner {
 		// 	1,
 		// 	List.of(songSpec("아이유","좋은 날"), songSpec("블랙핑크","붐바야"))
 		// ));
-
+		//
 		// for (Performance p : seeds) {
 		// 	boolean exists = performanceRepository
 		// 		.findByTitleAndDay(p.getTitle(), p.getDay())
@@ -44,7 +44,7 @@ public class PerformanceDevSeeder implements ApplicationRunner {
 		// 		performanceRepository.save(p);
 		// 	}
 		// }
-		performanceRepository.flush();
+		// performanceRepository.flush();
 	}
 
 	private Performance build(
