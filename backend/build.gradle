@@ -57,6 +57,9 @@ dependencies {
     // Feign Client
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
+    // AWS SDK for S3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 //    testImplementation 'org.springframework.security:spring-security-test'

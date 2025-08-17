@@ -30,34 +30,33 @@ public class Performance extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
+	@Column(name = "performance_id")
 	private Long id;
 
-	@Column(name = "title")
+	@Column(name = "performance_title")
 	private String title;
 
-	@Column(name = "artist")
+	@Column(name = "performance_artist")
 	private String artist;
 
-	@Column(name = "start_time")
+	@Column(name = "performance_start_time")
 	private LocalDateTime startTime;
 
-	@Column(name = "end_time")
+	@Column(name = "performance_end_time")
 	private LocalDateTime endTime;
 
-	@Column(name = "area")
+	@Column(name = "performance_area")
 	private String area;
 
-	@Column(name = "image_path")
+	@Column(name = "performance_image_path")
 	private String imagePath;
 
-	@Column(name = "introduction")
+	@Column(name = "performance_introduction")
 	private String introduction;
 
 	@Builder.Default
 	@OneToMany(mappedBy = "performance", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Song> songs = new ArrayList<>();
-
 
 	// 일차를 구분해주는 속성
 	@Column(name = "performance_day")
