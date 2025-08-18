@@ -98,7 +98,6 @@ public class RaffleService {
 		return authKey;
 	}
 
-
 	/**
 	 * 인증키 갱신 (기존 키 검증 후 새로운 키로 업데이트)
 	 * @param newKey 새로운 인증키
@@ -127,11 +126,9 @@ public class RaffleService {
 
 		} catch (BaseException e) {
 			throw e; // 비즈니스 로직 예외는 그대로 전파
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-
 
 }
