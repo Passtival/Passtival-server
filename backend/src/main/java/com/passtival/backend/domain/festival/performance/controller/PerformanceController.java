@@ -40,7 +40,7 @@ public class PerformanceController {
 
 	@GetMapping("/performance")
 	public BaseResponse<?> getPerformances(
-		@PageableDefault(size = 5) Pageable pageable) throws BaseException {
+		@PageableDefault(size = 5) Pageable pageable) {
 		Page<Performance> page = performanceService.getAllPerformances(pageable);
 		Page<PerformanceResponse> dtoPage = page.map(PerformanceResponse::of);
 		return BaseResponse.success(dtoPage);
@@ -67,7 +67,7 @@ public class PerformanceController {
 
 	@GetMapping("/performance/{performanceTitle}")
 	public BaseResponse<PerformanceDetailResponse> getPerformanceByTitle(
-		@PathVariable String performanceTitle) throws BaseException {
+		@PathVariable String performanceTitle) {
 		PerformanceDetailResponse detail = performanceService.getPerformanceByTitle(performanceTitle);
 		return BaseResponse.success(detail);
 	}

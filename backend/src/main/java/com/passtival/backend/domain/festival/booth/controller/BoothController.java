@@ -41,7 +41,7 @@ public class BoothController {
 	)
 	@GetMapping("/booth")
 	public BaseResponse<?> getBooths(
-		@PageableDefault(size = 5) Pageable pageable) throws BaseException {
+		@PageableDefault(size = 5) Pageable pageable) {
 		Page<BoothResponse> page = boothService.getAllBooths(pageable);
 		return BaseResponse.success(page);
 	}
@@ -66,7 +66,7 @@ public class BoothController {
 	)
 
 	@GetMapping("/booth/{boothName}")
-	public BaseResponse<BoothDetailResponse> getBoothDetail(@PathVariable String boothName) throws BaseException {
+	public BaseResponse<BoothDetailResponse> getBoothDetail(@PathVariable String boothName) {
 		BoothDetailResponse boothDetail = boothService.getBoothDetailByName(boothName);
 		return BaseResponse.success(boothDetail);
 	}
@@ -89,7 +89,7 @@ public class BoothController {
 	)
 
 	@GetMapping("/{boothName}/menus")
-	public BaseResponse<List<MenuResponse>> getMenusByBoothName(@PathVariable String boothName) throws BaseException {
+	public BaseResponse<List<MenuResponse>> getMenusByBoothName(@PathVariable String boothName) {
 		List<MenuResponse> menus = boothService.getMenusByBoothName(boothName);
 		return BaseResponse.success(menus);
 	}
