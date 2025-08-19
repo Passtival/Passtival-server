@@ -1,7 +1,8 @@
-package com.passtival.backend.global.swagger;
+package com.passtival.backend.global.config;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,6 +14,12 @@ import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
 public class OpenApiConfig {
+
+	@Value("${swagger.server.url:http://localhost:8080}")
+	private String serverUrl;
+
+	@Value("${swagger.server.description:API 서버}")
+	private String serverDescription;
 
 	@Bean
 	public OpenAPI openAPI() {
@@ -34,8 +41,8 @@ public class OpenApiConfig {
 				.version("v1.0.0"))
 			.servers(List.of(
 				new Server()
-					.url("http://localhost:8080")
-					.description("API 서버")
+					.url(serverUrl)
+					.description(serverDescription)
 			))
 			.components(components);
 	}
