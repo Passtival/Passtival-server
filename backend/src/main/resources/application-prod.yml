@@ -43,6 +43,11 @@ spring:
   thymeleaf:
     cache: true
 
+swagger:
+  server:
+    url: ${SWAGGER_SERVER_URL}
+    description: "운영 서버"
+
 logging:
   level:
     root: error
