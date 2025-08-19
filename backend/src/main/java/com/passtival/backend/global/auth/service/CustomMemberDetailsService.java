@@ -42,7 +42,6 @@ public class CustomMemberDetailsService implements UserDetailsService {
 			throw e;
 		} catch (Exception e) {
 			// 예상치 못한 예외는 UsernameNotFoundException으로 래핑
-			log.error("사용자 조회 중 예외 발생: socialId={}, error={}", socialId, e.getMessage(), e);
 			throw new UsernameNotFoundException("사용자 조회 중 오류가 발생했습니다: " + socialId, e);
 		}
 	}
@@ -55,20 +54,17 @@ public class CustomMemberDetailsService implements UserDetailsService {
 	private void validateSocialId(String socialId) throws UsernameNotFoundException {
 		try {
 			if (socialId == null || socialId.trim().isEmpty()) {
-				log.warn("소셜 ID가 비어있음");
 				throw new UsernameNotFoundException("소셜 ID는 필수입니다");
 			}
 
 			// 소셜 ID 형식 검증 (provider_id 형태)
 			if (!socialId.contains("_")) {
-				log.warn("잘못된 소셜 ID 형식: {}", socialId);
 				throw new UsernameNotFoundException("잘못된 소셜 ID 형식입니다: " + socialId);
 			}
 
 		} catch (UsernameNotFoundException e) {
 			throw e;
 		} catch (Exception e) {
-			log.error("소셜 ID 검증 중 예외 발생: {}", e.getMessage(), e);
 			throw new UsernameNotFoundException("소셜 ID 검증 중 오류가 발생했습니다", e);
 		}
 	}
@@ -83,14 +79,12 @@ public class CustomMemberDetailsService implements UserDetailsService {
 		try {
 			return memberRepository.findBySocialId(socialId.trim())
 				.orElseThrow(() -> {
-					log.warn("사용자를 찾을 수 없음: socialId={}", socialId);
 					return new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + socialId);
 				});
 
 		} catch (UsernameNotFoundException e) {
 			throw e;
 		} catch (Exception e) {
-			log.error("회원 조회 중 예외 발생: socialId={}, error={}", socialId, e.getMessage(), e);
 			throw new UsernameNotFoundException("회원 조회 중 오류가 발생했습니다: " + socialId, e);
 		}
 	}

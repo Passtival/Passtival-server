@@ -54,7 +54,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			// OAuth2AuthenticationException은 그대로 전파 (Spring Security 표준)
 			throw e;
 		} catch (Exception e) {
-			log.error("OAuth2 사용자 처리 중 예외 발생: {}", e.getMessage(), e);
 			// 수정: OAuth2Error 객체 사용
 			OAuth2Error error = new OAuth2Error(
 				"oauth2_processing_error",
@@ -80,14 +79,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			if ("kakao".equals(registrationId)) {
 				return new KakaoResponse(oAuth2User.getAttributes());
 			} else {
-				log.warn("지원하지 않는 OAuth2 제공자: {}", registrationId);
 				throw new OAuth2AuthenticationException("지원하지 않는 로그인 제공자입니다: " + registrationId);
 			}
 
 		} catch (OAuth2AuthenticationException e) {
 			throw e;
 		} catch (Exception e) {
-			log.error("OAuth2 응답 파싱 중 예외 발생: {}", e.getMessage(), e);
 			OAuth2Error error = new OAuth2Error(
 				"oauth2_parsing_error",
 				"OAuth2 응답 파싱 중 오류가 발생했습니다",
@@ -114,7 +111,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		} catch (OAuth2AuthenticationException e) {
 			throw e;
 		} catch (Exception e) {
-			log.error("소셜 ID 검증 중 예외 발생: {}", e.getMessage(), e);
 			OAuth2Error error = new OAuth2Error(
 				"social_id_validation_error",
 				"소셜 ID 검증 중 오류가 발생했습니다",
@@ -147,8 +143,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		} catch (OAuth2AuthenticationException e) {
 			throw e;
 		} catch (Exception e) {
-			log.error("회원 정보 처리 중 예외 발생: socialId={}, error={}",
-				oAuth2Response.getSocialId(), e.getMessage(), e);
 			OAuth2Error error = new OAuth2Error(
 				"member_processing_error",
 				"회원 정보 처리 중 오류가 발생했습니다",
@@ -176,8 +170,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			return savedMember;
 
 		} catch (Exception e) {
-			log.error("신규 회원 생성 중 예외 발생: socialId={}, error={}",
-				oAuth2Response.getSocialId(), e.getMessage(), e);
 			OAuth2Error error = new OAuth2Error(
 				"member_creation_error",
 				"신규 회원 생성 중 오류가 발생했습니다",
@@ -209,8 +201,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			return new CustomOAuth2User(authUserDto);
 
 		} catch (Exception e) {
-			log.error("CustomOAuth2User 생성 중 예외 발생: memberId={}, error={}",
-				member.getMemberId(), e.getMessage(), e);
 			OAuth2Error error = new OAuth2Error(
 				"oauth2_user_creation_error",
 				"사용자 인증 정보 생성 중 오류가 발생했습니다",

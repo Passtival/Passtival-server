@@ -76,7 +76,6 @@ public class MatchingTestController {
 			return BaseResponse.success("테스트 회원 6명(남성3명, 여성3명) 생성 완료!");
 
 		} catch (Exception e) {
-			log.error("테스트 회원 생성 실패: {}", e.getMessage(), e);
 			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 생성 실패: " + e.getMessage());
 		}
 	}
@@ -100,7 +99,6 @@ public class MatchingTestController {
 			return BaseResponse.success(testMembers.size() + "명의 테스트 회원이 매칭에 신청했습니다!");
 
 		} catch (Exception e) {
-			log.error("테스트 회원 매칭 신청 실패: {}", e.getMessage(), e);
 			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 매칭 신청 실패: " + e.getMessage());
 		}
 	}
@@ -121,12 +119,9 @@ public class MatchingTestController {
 			throw new BaseException(BaseResponseStatus.BAD_REQUEST);
 		}
 
-		log.info("수동 매칭 실행 요청");
-
 		// 매칭 스케줄러의 dailyMatching 메서드 호출
 		matchingScheduler.dailyMatching();
 
-		log.info("수동 매칭 실행 완료");
 		return BaseResponse.success("매칭이 성공적으로 실행되었습니다.");
 	}
 
@@ -141,12 +136,10 @@ public class MatchingTestController {
 	)
 	@GetMapping("/cleanup")
 	public BaseResponse<String> manualCleanup() throws BaseException {
-		log.info("수동 매칭 데이터 정리 요청");
 
 		// 매칭 스케줄러의 dailyCleanup 메서드 호출
 		matchingScheduler.dailyCleanup();
 
-		log.info("수동 매칭 데이터 정리 완료");
 		return BaseResponse.success("매칭 데이터가 성공적으로 정리되었습니다.");
 	}
 
@@ -166,7 +159,6 @@ public class MatchingTestController {
 			return BaseResponse.success(memberInfo);
 
 		} catch (Exception e) {
-			log.error("테스트 회원 목록 조회 실패: {}", e.getMessage(), e);
 			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 목록 조회 실패: " + e.getMessage());
 		}
 	}

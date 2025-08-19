@@ -53,7 +53,6 @@ public class MemberService {
 			//DB unique 제약조건 위반 시 처리
 			throw new BaseException(BaseResponseStatus.DUPLICATE_PHONE_NUMBER);
 		} catch (Exception e) {
-			log.error("회원 등록 중 예외 발생: {}", e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -71,7 +70,6 @@ public class MemberService {
 		} catch (BaseException e) {
 			throw e; // BaseException은 그대로 전파
 		} catch (Exception e) {
-			log.error("전화번호 중복 검사 중 예외 발생: {}", e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -84,7 +82,6 @@ public class MemberService {
 	// 	}catch (BaseException e) {
 	// 		throw e;
 	// 	}catch (Exception e) {
-	// 		log.error("전화번호 중복 검사 중 예외 발생: {}", e.getMessage(), e);
 	// 		throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 	// 	}
 	// }
@@ -102,7 +99,6 @@ public class MemberService {
 		} catch (BaseException e) {
 			throw e; // BaseException은 그대로 전파
 		} catch (Exception e) {
-			log.error("회원 조회 중 예외 발생: memberId={}, error={}", memberId, e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -120,7 +116,6 @@ public class MemberService {
 	// 	} catch (BaseException e) {
 	// 		throw e; // BaseException은 그대로 전파
 	// 	} catch (Exception e) {
-	// 		log.error("전화번호로 회원 조회 중 예외 발생: phoneNumber={}, error={}",
 	// 			phoneNumber, e.getMessage(), e);
 	// 		throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 	// 	}
@@ -165,7 +160,6 @@ public class MemberService {
 		} catch (BaseException e) {
 			throw e;
 		} catch (Exception e) {
-			log.error("전화번호 검증 중 예외 발생: phoneNumber={}, error={}", phoneNumber, e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
 	}

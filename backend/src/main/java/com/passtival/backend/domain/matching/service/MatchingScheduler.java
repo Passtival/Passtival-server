@@ -100,7 +100,6 @@ public class MatchingScheduler {
 				selectedFemales.subList(0, matchingCount));
 
 		} catch (Exception e) {
-			log.error("매칭 알고리즘 실행 중 예외 발생: {}", e.getMessage(), e);
 			throw e;
 		} finally {
 			// 트랜잭션 동기화가 없거나, 등록 전에 크래시한 경우를 대비한 안전장치
@@ -131,7 +130,6 @@ public class MatchingScheduler {
 			// 3. 모든 매칭 결과 삭제
 			deleteAllMatchingResults();
 		} catch (Exception e) {
-			log.error("일일 매칭 데이터 정리 중 예외 발생: {}", e.getMessage(), e);
 			throw e;
 		}
 	}
@@ -154,7 +152,6 @@ public class MatchingScheduler {
 		try {
 			return memberRepository.countByAppliedTrueAndGender(gender);
 		} catch (Exception e) {
-			log.error("성별별 신청자 수 조회 중 예외 발생: gender={}, error={}", gender, e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
 		}
 	}
@@ -182,8 +179,6 @@ public class MatchingScheduler {
 			Pageable pageable = PageRequest.of(0, count);
 			return memberRepository.findByAppliedTrueAndGenderOrderByAppliedAtAsc(gender, pageable);
 		} catch (Exception e) {
-			log.error("성별별 매칭 대상자 선별 중 예외 발생: gender={}, count={}, error={}",
-				gender, count, e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
 		}
 	}
@@ -214,7 +209,6 @@ public class MatchingScheduler {
 			return matchings;
 
 		} catch (Exception e) {
-			log.error("랜덤 매칭 수행 중 예외 발생: matchingCount={}, error={}", matchingCount, e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -228,7 +222,6 @@ public class MatchingScheduler {
 		try {
 			matchingRepository.saveAll(matchings);
 		} catch (Exception e) {
-			log.error("매칭 결과 저장 중 예외 발생: matchingCount={}, error={}", matchings.size(), e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
 		}
 	}
@@ -268,7 +261,6 @@ public class MatchingScheduler {
 			}
 
 		} catch (Exception e) {
-			log.error("매칭 실패자 처리 중 예외 발생: error={}", e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
 		}
 	}
@@ -281,7 +273,6 @@ public class MatchingScheduler {
 		try {
 			memberRepository.resetAllApplications();
 		} catch (Exception e) {
-			log.error("모든 신청자 상태 초기화 중 예외 발생: {}", e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
 		}
 	}
@@ -296,7 +287,6 @@ public class MatchingScheduler {
 			LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 			return matchingRepository.findByMatchingDate(today);
 		} catch (Exception e) {
-			log.error("당일 매칭 결과 조회 중 예외 발생: {}", e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
 		}
 	}
@@ -316,7 +306,6 @@ public class MatchingScheduler {
 			}
 			return matchedMemberIds;
 		} catch (Exception e) {
-			log.error("매칭된 회원 ID 추출 중 예외 발생: {}", e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -330,8 +319,6 @@ public class MatchingScheduler {
 		try {
 			memberRepository.resetApplicationsByMemberIds(matchedMemberIds);
 		} catch (Exception e) {
-			log.error("매칭 성공자 신청 상태 초기화 중 예외 발생: memberCount={}, error={}",
-				matchedMemberIds.size(), e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
 		}
 	}
@@ -344,7 +331,6 @@ public class MatchingScheduler {
 		try {
 			matchingRepository.deleteAllMatchingResults();
 		} catch (Exception e) {
-			log.error("매칭 결과 삭제 중 예외 발생: {}", e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
 		}
 	}

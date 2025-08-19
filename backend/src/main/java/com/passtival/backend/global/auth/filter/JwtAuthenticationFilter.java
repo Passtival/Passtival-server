@@ -50,8 +50,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			// 파싱된 정보로 유효성 검증 (null 체크, 만료 확인, 필수 필드 모두 포함)
 			if (tokenInfo != null && !tokenInfo.isExpired()) {
 
-				log.warn("유효하지 않은 JWT 토큰 시도: IP={}", request.getRemoteAddr());
-
 				CustomMemberDetails memberDetails = new CustomMemberDetails(
 					tokenInfo.memberId, tokenInfo.role);
 
@@ -68,7 +66,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			}
 
 		} catch (Exception e) {
-			log.error("JWT 보안 오류: 악의적 토큰 가능성 - {}", e.getMessage());
 			sendErrorResponse(response, BaseResponseStatus.TOKEN_INVALID);
 			return;
 		}

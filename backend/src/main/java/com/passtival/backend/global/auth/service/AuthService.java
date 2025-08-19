@@ -52,7 +52,6 @@ public class AuthService {
 		} catch (BaseException e) {
 			throw e;
 		} catch (Exception e) {
-			log.error("토큰 갱신 중 예외 발생: {}", e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -75,7 +74,6 @@ public class AuthService {
 		} catch (BaseException e) {
 			throw e;
 		} catch (Exception e) {
-			log.error("리프레시 토큰 요청 검증 중 예외 발생: {}", e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -105,7 +103,6 @@ public class AuthService {
 		} catch (BaseException e) {
 			throw e; // BaseException은 그대로 전파
 		} catch (Exception e) {
-			log.error("토큰 파싱 및 검증 중 예외 발생: {}", e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.TOKEN_INVALID);
 		}
 	}

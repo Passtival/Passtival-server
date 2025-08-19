@@ -75,7 +75,6 @@ public class MatchingService {
 		} catch (BaseException e) {
 			throw e; // BaseException은 그대로 전파
 		} catch (Exception e) {
-			log.error("매칭 신청 중 예외 발생: memberId={}, error={}", memberId, e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -145,7 +144,6 @@ public class MatchingService {
 		} catch (BaseException e) {
 			throw e;
 		} catch (Exception e) {
-			log.error("매칭 결과 조회 중 예외 발생: memberId={}, error={}", memberId, e.getMessage(), e);
 			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
 	}

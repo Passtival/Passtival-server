@@ -46,9 +46,6 @@ public class AuthTestController {
 	public BaseResponse<AuthTestResponse> testAuth(
 		@AuthenticationPrincipal CustomMemberDetails memberDetails) {
 
-		log.info("JWT 인증 테스트 - 사용자 ID: {}, 권한: {}",
-			memberDetails.getMemberId(), memberDetails.getAuthorities());
-
 		AuthTestResponse response = AuthTestResponse.builder()
 			.memberId(memberDetails.getMemberId())
 			.username(memberDetails.getUsername())
