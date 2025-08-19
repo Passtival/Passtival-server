@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class BaseException extends Exception{
+public class BaseException extends RuntimeException {
 	private BaseResponseStatus status;
 
 	// 기본적인 예외 메세지 확인
