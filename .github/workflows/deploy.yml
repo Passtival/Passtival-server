@@ -35,16 +35,16 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/passtival-spring:latest ./backend
           docker push ${{ secrets.DOCKER_USERNAME }}/passtival-spring:latest
 
-      - name: SCP를 통해 서버에 파일 복사, docker-compose.prod.yml
+      - name: SCP를 통해 서버에 파일 복사, docker-compose.prod.yml 및 스크립트들
         uses: appleboy/scp-action@v0.1.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "backend/docker-compose.prod.yml" # GitHub 저장소 내 경로
+          source: "backend/docker-compose.prod.yml, backend/run.sh, backend/logs.sh" # GitHub 저장소 내 경로
           target: "~/deploy" # EC2 서버의 목적지 주소
 
-      - name: SSH를 통해 서버에 배포
+      - name: 스크립트 파일들에 실행 권한 부여 및 서버 배포
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -52,7 +52,8 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd ~/deploy/backend
+            chmod +x run.sh logs.sh
             docker compose -f docker-compose.prod.yml down
-            docker image prune -a -f 
+            docker image prune -a -f
             docker pull ${{ secrets.DOCKER_USERNAME }}/passtival-spring:latest
             docker compose -f docker-compose.prod.yml up -d
