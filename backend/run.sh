@@ -1,23 +1,44 @@
 #!/bin/bash
+set -euo pipefail
 
-# run.sh flow 요약
-# 1. Gradle 빌드
-# 2. 기존 Docker 컨테이너 중지 및 삭제
-# 3. docker-compose.yml 파일을 사용하여 재빌드 및 실행
+# ------- Settings -------
+ENVIRONMENT=${1:-prod}  # 기본값은 prod, 인자로 dev 전달 가능
+COMPOSE_FILE="docker-compose.${ENVIRONMENT}.yml"
+# ------------------------
 
-# dev 환경에서 실행되는 스크립트
-#echo "[dev]📦 Building Spring Boot JAR with Gradle..."
-#./gradlew clean build -x test
-#echo "[dev]🧹 Stopping and removing existing containers..."
-#docker-compose -f docker-compose.dev.yml down
-#echo "[dev]🚀 Starting Docker containers with fresh build..."
-#docker-compose -f docker-compose.dev.yml up --build -d
+# compose 명령어 자동감지 (v2 우선)
+if command -v docker &>/dev/null && docker compose version &>/dev/null; then
+  COMPOSE_CMD=(docker compose)
+elif command -v docker-compose &>/dev/null; then
+  COMPOSE_CMD=(docker-compose)
+else
+  echo "❌ docker compose/docker-compose가 설치되어 있지 않습니다."
+  echo "   Ubuntu 권장: sudo apt update && sudo apt install -y docker-compose-plugin"
+  exit 1
+fi
 
-#prod 환경에서 실행되는 스크립트
-echo "📦 Building Spring Boot JAR with Gradle..."
+# 스크립트 디렉토리로 이동
+cd "$(dirname "$0")"
+
+# 파일 체크
+if [[ ! -f "$COMPOSE_FILE" ]]; then
+  echo "❌ Compose 파일을 찾을 수 없습니다: $COMPOSE_FILE"
+  exit 1
+fi
+
+# gradlew 실행권한 보장
+if [[ -f "./gradlew" && ! -x "./gradlew" ]]; then
+  chmod +x ./gradlew
+fi
+
+echo "📦 [${ENVIRONMENT}] Building Spring Boot JAR with Gradle..."
 ./gradlew clean build -x test
-echo "🧹 Stopping and removing existing containers..."
-docker-compose -f docker-compose.prod.yml down
-echo "🚀 Starting Docker containers with fresh build..."
-docker-compose -f docker-compose.prod.yml up --build -d
+
+echo "🧹 [${ENVIRONMENT}] Stopping and removing existing containers..."
+"${COMPOSE_CMD[@]}" -f "$COMPOSE_FILE" down --remove-orphans
+
+echo "🚀 [${ENVIRONMENT}] Starting Docker containers with fresh build..."
+"${COMPOSE_CMD[@]}" -f "$COMPOSE_FILE" up --build -d
+
+echo "✅ Done. (${ENVIRONMENT})"
 
