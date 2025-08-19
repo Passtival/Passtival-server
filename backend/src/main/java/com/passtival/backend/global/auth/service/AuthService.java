@@ -2,7 +2,6 @@ package com.passtival.backend.global.auth.service;
 
 import org.springframework.stereotype.Service;
 
-import com.passtival.backend.domain.matching.service.MemberService;
 import com.passtival.backend.global.auth.jwt.JwtUtil;
 import com.passtival.backend.global.auth.model.token.RefreshTokenRequest;
 import com.passtival.backend.global.auth.model.token.TokenResponse;
@@ -22,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthService {
 
 	private final JwtUtil jwtUtil;
-	private final MemberService memberService;
 
 	/**
 	 * 리프레시 토큰을 통한 새로운 액세스 토큰 발급

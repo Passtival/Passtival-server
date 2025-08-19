@@ -16,8 +16,9 @@ public enum BaseResponseStatus {
 	INVALID_MEMBER_DATA(false, 400, "잘못된 회원 정보입니다."),
 	MATCHING_TIME_INVALID(false, 400, "매칭 신청은 매일 00:00부터 18:00까지만 가능합니다."),
 	ONBOARDING_REQUIRED(false, 400, "온보딩이 필요한 사용자입니다."),
-	INVALID_PHONE_NUMBER_FORMAT(false, 400, "전화번호 형식이 올바르지 않습니다. "
-		+ "(010-1234-5678, 010 1234 5678, 01012345678 형식만 가능)"),
+	INVALID_PHONE_NUMBER_FORMAT(false, 400, "전화번호 형식이 올바르지 않습니다."),
+	CONTACT_INFO_REQUIRED(false, 400, "전화번호 또는 인스타그램 ID 중 적어도 하나는 입력해야 합니다."),
+	GENDER_REQUIRED(false, 400, "성별을 반드시 작성해야 합니다."),
 
 	// 401: 인증 오류
 	UNAUTHORIZED(false, 401, "인증에 실패했습니다."),
@@ -45,10 +46,10 @@ public enum BaseResponseStatus {
 	DUPLICATE_REQUEST(false, 409, "이미 처리된 요청입니다."),
 	DUPLICATE_APPLICANT(false, 409, "이미 신청한 학번입니다."),
 	DUPLICATE_PHONE_NUMBER(false, 409, "이미 사용중인 전화번호입니다."),
+	DUPLICATE_INSTAGRAM_ID(false, 409, "이미 사용중인 인스타그램 ID입니다."), // 새로 추가
 	MATCHING_IN_PROGRESS(false, 409, "현재 매칭이 진행 중입니다. 내일 다시 시도해주세요."),
 	ALREADY_APPLIED_MATCHING(false, 409, "이미 매칭 신청을 완료하였습니다."),
 	DUPLICATE_SOCIAL_ID(false, 409, "이미 사용 중인 소셜 ID입니다."),
-	ONBOARDING_ALREADY_COMPLETED(false, 409, "이미 온보딩이 완료된 사용자입니다."),
 
 	// 422: 처리 불가능한 엔티티 (비즈니스 로직 오류)
 	INVALID_AUTH_KEY(false, 422, "인증키가 일치하지 않습니다."),

@@ -22,8 +22,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 	//회원 가입용 소셜 로그인으로 구현(카카오톡만 사용할때 가능)
 	boolean existsBySocialId(String socialId);
 
-	// 회원가입용 전화번호 중복 검사
-	boolean existsByPhoneNumber(String phoneNumber);
+	// 특정 회원을 제외하고 전화번호 중복 검사
+	boolean existsByPhoneNumberAndMemberIdNot(String phoneNumber, Long memberId);
+
+	// 특정 회원을 제외하고 인스타그램 ID 중복 검사
+	boolean existsByInstagramIdAndMemberIdNot(String instagramId, Long memberId);
 
 	// 특정 사용자들만 신청 상태 초기화 (매칭 신청 / 성공에 따라 별도로 실행을 통해 메모리 최적화)
 	@Modifying

@@ -59,16 +59,17 @@ public class MatchingService {
 			Member member = memberRepository.findById(memberId)
 				.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
 
-			if (!member.isOnboardingCompleted()) {
-				throw new BaseException(BaseResponseStatus.ONBOARDING_REQUIRED);
-			}
+			//아래 코드 대신 인스타 혹은 전화번호 하나는 있는지 검토
+			// if (!member.isOnboardingCompleted()) {
+			// 	throw new BaseException(BaseResponseStatus.ONBOARDING_REQUIRED);
+			// }
 
 			// 중복 신청 검증
 			if (member.isApplied()) {
 				throw new BaseException(BaseResponseStatus.ALREADY_APPLIED_MATCHING);
 			}
 
-			member.applyForMatching(matchingRequest.getInstagramId());
+			member.applyForMatching();
 
 			memberRepository.save(member);
 

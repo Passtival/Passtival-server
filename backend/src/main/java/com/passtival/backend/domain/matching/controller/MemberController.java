@@ -1,12 +1,12 @@
 package com.passtival.backend.domain.matching.controller;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.passtival.backend.domain.matching.model.request.MemberOnboardingRequest;
+import com.passtival.backend.domain.matching.model.request.MemberPatchRequest;
 import com.passtival.backend.domain.matching.service.MemberService;
 import com.passtival.backend.global.auth.model.CustomMemberDetails;
 import com.passtival.backend.global.common.BaseResponse;
@@ -50,7 +50,7 @@ public class MemberController {
 			required = true,
 			content = @Content(
 				mediaType = "application/json",
-				schema = @Schema(implementation = MemberOnboardingRequest.class),
+				schema = @Schema(implementation = MemberPatchRequest.class),
 				examples = @ExampleObject(
 					name = "온보딩 요청 예시",
 					value = """
@@ -64,13 +64,20 @@ public class MemberController {
 			)
 		)
 	)
-	@PostMapping("/profile")
-	public BaseResponse<Void> completeOnboarding(
+	@PatchMapping("/profile")
+	public BaseResponse<Void> updateProfile(
 		@AuthenticationPrincipal CustomMemberDetails memberDetails, // 1. 현재 로그인한 사용자 정보 가져오기
-		@Valid @RequestBody MemberOnboardingRequest memberOnboardingRequest) throws BaseException {
+		@Valid @RequestBody MemberPatchRequest memberPatchRequest) throws BaseException {
 
 		// 2. 서비스에 사용자 ID와 DTO 전달
-		memberService.completeOnboarding(memberDetails.getMemberId(), memberOnboardingRequest);
+		memberService.patchProfile(memberDetails.getMemberId(), memberPatchRequest);
 		return BaseResponse.success(null);
 	}
+
+	//updateProfile 구현 후 구현 예정
+	// @GetMapping("/profile")
+	// public BaseResponse<MemberResponse> getProfile() throws BaseException {
+	// 	MemberResponse response;
+	// 	return BaseResponse.success(response);
+	// }
 }

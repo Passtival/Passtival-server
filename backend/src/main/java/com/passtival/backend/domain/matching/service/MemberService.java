@@ -6,17 +6,15 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.passtival.backend.domain.matching.model.entity.Member;
-import com.passtival.backend.domain.matching.model.request.MemberOnboardingRequest;
+import com.passtival.backend.domain.matching.model.request.MemberPatchRequest;
 import com.passtival.backend.domain.matching.repository.MemberRepository;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class MemberService {
 
 	private final MemberRepository memberRepository;
@@ -24,67 +22,119 @@ public class MemberService {
 	/**
 	 * 회원 등록 (소셜 로그인 이후 추가 정보 입력)
 	 * @param memberId 회원 ID
-	 * @param memberOnboardingRequest 회원 등록 요청 정보
+	 * @param request 회원 등록 요청 정보
 	 * @throws BaseException 회원 등록 실패 시
 	 */
 	@Transactional(isolation = Isolation.REPEATABLE_READ)
-	public void completeOnboarding(Long memberId, MemberOnboardingRequest memberOnboardingRequest) throws
-		BaseException {
+	public void patchProfile(Long memberId, MemberPatchRequest request) throws BaseException {
 		try {
-			Member newMember = getMemberById(memberId);
+			Member member = memberRepository.findById(memberId)
+				.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
 
-			// 이미 온보딩 완료 사용자인지 확인
-			if (newMember.isOnboardingCompleted()) {
-				throw new BaseException(BaseResponseStatus.ONBOARDING_ALREADY_COMPLETED);
-			}
+			// 1. 사전 검증 - 모든 변경사항을 먼저 검증
+			validateAllChanges(member, request);
 
-			// 전화번호 중복 검사
-			String phoneNumber = parsePhoneNumber(memberOnboardingRequest.getPhoneNumber());
+			// 2. 검증 통과 후 일괄 업데이트
+			applyUpdates(member, request);
 
-			// 회원 정보 생성 및 저장
-			newMember.completeOnboarding(memberOnboardingRequest.getGender(), phoneNumber,
-				memberOnboardingRequest.getInstagramId());
-
-			memberRepository.save(newMember);
+			// 3. 최종 상태 검증
+			validateFinalState(member);
 
 		} catch (BaseException e) {
-			throw e; // BaseException은 그대로 전파
+			throw e;
 		} catch (DataIntegrityViolationException e) {
-			//DB unique 제약조건 위반 시 처리
 			throw new BaseException(BaseResponseStatus.DUPLICATE_PHONE_NUMBER);
 		} catch (Exception e) {
 			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
-	/**
-	 * 전화번호 중복 검사
-	 * @param phoneNumber 검사할 전화번호
-	 * @throws BaseException 전화번호가 이미 사용 중인 경우
-	 */
-	private void validatePhoneNumber(String phoneNumber) throws BaseException {
-		try {
-			if (memberRepository.existsByPhoneNumber(phoneNumber)) {
-				throw new BaseException(BaseResponseStatus.DUPLICATE_PHONE_NUMBER);
+	// 모든 변경사항을 사전 검증
+	private void validateAllChanges(Member member, MemberPatchRequest request) throws BaseException {
+		// 전화번호 검증
+		if (request.getPhoneNumber().isPresent()) {
+			String newPhoneNumber = request.getPhoneNumber().get();
+			String NormalizedPhoneNumber = newPhoneNumber.trim().isEmpty() ? null : newPhoneNumber;
+			if (!NormalizedPhoneNumber.equals(member.getPhoneNumber())) {
+				validatePhoneNumber(newPhoneNumber, member.getMemberId());
 			}
-		} catch (BaseException e) {
-			throw e; // BaseException은 그대로 전파
-		} catch (Exception e) {
-			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		// 인스타그램 ID 검증
+		if (request.getInstagramId().isPresent()) {
+			String newInstagramId = request.getInstagramId().get();
+			String NormalizedInstagramId = newInstagramId.trim().isEmpty() ? null : newInstagramId;
+			if (!NormalizedInstagramId.equals(member.getInstagramId())) {
+				validateInstagramId(newInstagramId, member.getMemberId());
+			}
 		}
 	}
 
-	// private void validateSocialId(String socialId) throws BaseException {
-	// 	try {
-	// 		if (memberRepository.existsBySocialId(socialId)) {
-	// 			throw new BaseException(BaseResponseStatus.DUPLICATE_SOCIAL_ID);
-	// 		}
-	// 	}catch (BaseException e) {
-	// 		throw e;
-	// 	}catch (Exception e) {
-	// 		throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
-	// 	}
-	// }
+	//검증 완료 후 실제 업데이트 적용
+	private void applyUpdates(Member member, MemberPatchRequest request) {
+		// 전화번호 업데이트
+		if (request.getPhoneNumber().isPresent()) {
+			member.updatePhoneNumber(request.getPhoneNumber().get());
+		}
+
+		// 인스타그램 ID 업데이트
+		if (request.getInstagramId().isPresent()) {
+			member.updateInstagramId(request.getInstagramId().get());
+		}
+
+		// 성별 업데이트 (중복 검사 불필요하므로 바로 적용)
+		if (request.getGender().isPresent()) {
+			member.updateGender(request.getGender().get());
+		}
+	}
+
+	//성별 있는가? 번호 혹은 인스타 id가 있는가?
+	private void validateFinalState(Member member) throws BaseException {
+
+		if (member.getGender() == null) {
+			throw new BaseException(BaseResponseStatus.GENDER_REQUIRED);
+		}
+		if (isContactInfoEmpty(member)) {
+			throw new BaseException(BaseResponseStatus.CONTACT_INFO_REQUIRED);
+		}
+	}
+
+	/**
+	 * 전화번호 중복 검사 (자기 자신 제외)
+	 * @param phoneNumber 검사할 전화번호
+	 * @param currentMemberId 현재 회원 ID
+	 * @throws BaseException 전화번호가 이미 사용 중인 경우
+	 */
+	private void validatePhoneNumber(String phoneNumber, Long currentMemberId) throws BaseException {
+		if (phoneNumber != null && !phoneNumber.isEmpty() &&
+			memberRepository.existsByPhoneNumberAndMemberIdNot(phoneNumber, currentMemberId)) {
+			throw new BaseException(BaseResponseStatus.DUPLICATE_PHONE_NUMBER);
+		}
+	}
+
+	/**
+	 * 인스타그램 ID 중복 검사 (자기 자신 제외)
+	 * @param instagramId 검증할 인스타그램 ID
+	 * @param currentMemberId 현재 회원 ID
+	 * @throws BaseException 중복 시 예외 발생
+	 */
+	private void validateInstagramId(String instagramId, Long currentMemberId) throws BaseException {
+		if (instagramId != null && !instagramId.isEmpty() &&
+			memberRepository.existsByInstagramIdAndMemberIdNot(instagramId, currentMemberId)) {
+			throw new BaseException(BaseResponseStatus.DUPLICATE_INSTAGRAM_ID);
+		}
+	}
+
+	/**
+	 * Member 객체의 연락처 정보가 모두 비어있는지 확인합니다.
+	 * @param member 검사할 Member 객체
+	 * @return 연락처가 모두 비어있으면 true
+	 */
+	private boolean isContactInfoEmpty(Member member) {
+		String phone = member.getPhoneNumber();
+		String instagram = member.getInstagramId();
+		return (phone == null || phone.trim().isEmpty()) && (instagram == null || instagram.trim().isEmpty());
+	}
 
 	/**
 	 * 회원 ID로 회원 조회
@@ -93,74 +143,7 @@ public class MemberService {
 	 * @throws BaseException 회원을 찾을 수 없는 경우
 	 */
 	public Member getMemberById(Long memberId) throws BaseException {
-		try {
-			return memberRepository.findById(memberId)
-				.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
-		} catch (BaseException e) {
-			throw e; // BaseException은 그대로 전파
-		} catch (Exception e) {
-			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	/**
-	 * 전화번호로 회원 조회 (화장성 고려) 사용하지 않기 때문에 주석처리
-	 * @param phoneNumber 전화번호
-	 * @return 회원 정보
-	 * @throws BaseException 회원을 찾을 수 없는 경우
-	 */
-	// public Member getMemberByPhoneNumber(String phoneNumber) throws BaseException {
-	// 	try {
-	// 		return memberRepository.findByPhoneNumber(phoneNumber)
-	// 			.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
-	// 	} catch (BaseException e) {
-	// 		throw e; // BaseException은 그대로 전파
-	// 	} catch (Exception e) {
-	// 			phoneNumber, e.getMessage(), e);
-	// 		throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
-	// 	}
-	// }
-
-	/**
-	 * 전화번호 정규화 및 중복 검사
-	 * 허용 형식: "010-1234-5678", "010 1234 5678", "01012345678"
-	 *
-	 * @param phoneNumber 검사할 전화번호
-	 * @throws BaseException 전화번호 형식이 올바르지 않거나 이미 사용 중인 경우
-	 */
-	private String parsePhoneNumber(String phoneNumber) throws BaseException {
-		try {
-			if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
-				throw new BaseException(BaseResponseStatus.INVALID_PHONE_NUMBER_FORMAT);
-			}
-
-			String trimmed = phoneNumber.trim();
-			String normalized;
-
-			// 허용되는 3가지 형태 확인 및 정규화
-			if (trimmed.matches("^010-\\d{4}-\\d{4}$")) {
-				// "010-1234-5678" 형태
-				normalized = trimmed.replaceAll("-", "");
-			} else if (trimmed.matches("^010 \\d{4} \\d{4}$")) {
-				// "010 1234 5678" 형태
-				normalized = trimmed.replaceAll(" ", "");
-			} else if (trimmed.matches("^010\\d{8}$")) {
-				// "01012345678" 형태
-				normalized = trimmed;
-			} else {
-				// 허용되지 않는 형태
-				throw new BaseException(BaseResponseStatus.INVALID_PHONE_NUMBER_FORMAT);
-			}
-
-			// 중복 검사 (정규화된 번호로)
-			if (memberRepository.existsByPhoneNumber(normalized)) {
-				throw new BaseException(BaseResponseStatus.DUPLICATE_PHONE_NUMBER);
-			}
-			return normalized;
-		} catch (BaseException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
-		}
+		return memberRepository.findById(memberId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
 	}
 }

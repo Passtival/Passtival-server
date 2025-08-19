@@ -49,7 +49,6 @@ public class MatchingTestController {
 					.instagramId("male_insta_" + i)
 					.applied(false)
 					.appliedAt(null)
-					.onboardingCompleted(true)
 					.role(Role.USER)
 					.build();
 				testMembers.add(male);
@@ -65,7 +64,6 @@ public class MatchingTestController {
 					.instagramId("female_insta_" + i)
 					.applied(false)
 					.appliedAt(null)
-					.onboardingCompleted(true)
 					.role(Role.USER)
 					.build();
 				testMembers.add(female);
@@ -91,7 +89,7 @@ public class MatchingTestController {
 			}
 
 			for (Member member : testMembers) {
-				member.applyForMatching(member.getInstagramId());
+				member.applyForMatching();
 			}
 
 			memberRepository.saveAll(testMembers);
