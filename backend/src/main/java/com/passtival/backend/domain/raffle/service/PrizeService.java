@@ -25,7 +25,7 @@ public class PrizeService {
 	 * 상품 목록 조회
 	 * @return 상품 목록
 	 */
-	public List<PrizeResponse> getAllPrizes() throws BaseException {
+	public List<PrizeResponse> getAllPrizes() {
 		List<Prize> prizes = prizeRepository.findAll();
 		if (prizes.isEmpty()) {
 			throw new BaseException(BaseResponseStatus.PRIZES_NOT_FOUND);
@@ -38,7 +38,7 @@ public class PrizeService {
 	 * @param prizeId
 	 * @return 상품 정보
 	 */
-	public PrizeResponse getPrizeById(Long prizeId) throws BaseException {
+	public PrizeResponse getPrizeById(Long prizeId) {
 		Prize prize = prizeRepository.findById(prizeId)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.PRIZE_NOT_FOUND));
 		return PrizeResponse.of(prize);

@@ -90,7 +90,7 @@ public class RaffleController {
 		)
 	)
 	@PostMapping("/applicants")
-	public BaseResponse<Void> saveApplicant(@RequestBody ApplicantRegistrationRequest request) {
+	public BaseResponse<Void> saveApplicant(@Valid @RequestBody ApplicantRegistrationRequest request) {
 		/* 1. 클라이언트로부터 신청자의 이름과 학번, 인증키 입력받는다.
 		 * 2. 신청자의 이름과 학번을 기반으로 신청자를 데이터베이스에 저장한다.
 		 * 3. 신청이 완료되면 클라이언트에게 성공 메시지를 반환한다.

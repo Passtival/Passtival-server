@@ -29,9 +29,10 @@ public class RaffleService {
 	 * 신청자 등록
 	 * @param request 신청자 등록 요청 정보
 	 */
-	public void registerApplicant(ApplicantRegistrationRequest request) throws BaseException {
+	@Transactional
+	public void registerApplicant(ApplicantRegistrationRequest request) {
 		// 1. 인증키 유효성 검사
-		validateAuthenticationKey(request.getKey());
+		validateAuthenticationKey(request.getAuthenticationKey());
 
 		// 2. 학번 중복 확인
 		if (applicantRepository.existsByStudentId(request.getStudentId())) {
@@ -52,10 +53,10 @@ public class RaffleService {
 	 * @param requestKey 요청에서 받은 인증키
 	 * @throws BaseException 인증키가 유효하지 않은 경우
 	 */
-	private void validateAuthenticationKey(String requestKey) throws BaseException {
+	private void validateAuthenticationKey(String requestKey) {
 		AuthenticationKey authKey = getCurrentAuthenticationKey();
 
-		if (!authKey.getKey().equals(requestKey)) {
+		if (!authKey.getAuthenticationKey().equals(requestKey)) {
 			throw new BaseException(BaseResponseStatus.INVALID_AUTH_KEY);
 		}
 	}
@@ -65,7 +66,7 @@ public class RaffleService {
 	 * @return 현재 인증키
 	 * @throws BaseException 인증키가 없는 경우
 	 */
-	private AuthenticationKey getCurrentAuthenticationKey() throws BaseException {
+	private AuthenticationKey getCurrentAuthenticationKey() {
 		AuthenticationKey authKey = authenticationKeyRepository.findFirstByOrderByIdAsc();
 
 		if (authKey == null) {
@@ -82,17 +83,17 @@ public class RaffleService {
 	 * @throws BaseException 인증키 검증 실패, DB 오류 시
 	 */
 	@Transactional
-	public void updateAuthenticationKey(String newKey, String oldKey) throws BaseException {
+	public void updateAuthenticationKey(String newKey, String oldKey) {
 		// 1. 현재 인증키 조회
 		AuthenticationKey currentAuthKey = getCurrentAuthenticationKey();
 
 		// 2. 기존 인증키 검증
-		if (!currentAuthKey.getKey().equals(oldKey)) {
+		if (!currentAuthKey.getAuthenticationKey().equals(oldKey)) {
 			throw new BaseException(BaseResponseStatus.INVALID_AUTH_KEY);
 		}
 
 		// 3. 새로운 키와 기존 키가 같은 경우 체크
-		if (currentAuthKey.getKey().equals(newKey)) {
+		if (currentAuthKey.getAuthenticationKey().equals(newKey)) {
 			throw new BaseException(BaseResponseStatus.SAME_AUTH_KEY);
 		}
 
