@@ -33,6 +33,7 @@ public enum BaseResponseStatus {
 	NOT_FOUND(false, 404, "요청한 리소스를 찾을 수 없습니다."),
 	PRIZE_NOT_FOUND(false, 404, "해당 ID의 상품을 찾을 수 없습니다."),
 	PRIZES_NOT_FOUND(false, 404, "등록된 상품이 없습니다."),
+	FOUND_ITEM_NOT_FOUND(false, 404, "해당 ID의 발견된 분실물을 찾을 수 없습니다."),
 	AUTH_KEY_NOT_FOUND(false, 404, "등록된 인증키가 없습니다."),
 	MEMBER_NOT_FOUND(false, 404, "회원을 찾을 수 없습니다."),
 	MATCHING_RESULT_NOT_FOUND(false, 404, "오늘 매칭 결과가 없습니다."),
