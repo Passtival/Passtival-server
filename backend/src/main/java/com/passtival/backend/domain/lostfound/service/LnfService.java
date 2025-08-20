@@ -41,4 +41,14 @@ public class LnfService {
 	public String getUploadUrl(String fileName) {
 		return s3Service.generatePresignedUrl(fileName);
 	}
+
+	@Transactional
+	public void deleteFoundItem(Long id) {
+
+		if (!lnfRepository.existsById(id)) {
+			throw new BaseException(BaseResponseStatus.FOUND_ITEM_NOT_FOUND);
+		}
+
+		lnfRepository.deleteById(id);
+	}
 }
