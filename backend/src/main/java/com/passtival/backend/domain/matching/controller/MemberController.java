@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/me")
+@RequestMapping("/api/matches")
 @RequiredArgsConstructor
 @Tag(name = "Member-API", description = "회원 관리 API")
 public class MemberController {
@@ -41,8 +41,9 @@ public class MemberController {
 	//소셜 로그인 이후에 추가 정보를 얻는 로직 추가 예정
 	@Operation(
 		summary = "온보딩 (추가 정보 입력)",
-		description = "소셜 로그인으로 가입된 사용자가 추가 정보(성별, 전화번호)를 입력하여 가입을 완료합니다. **인증 토큰이 필요합니다.**"
-			+ "전화번호 허용 형식: \"010-1234-5678\", \"010 1234 5678\", \"01012345678\""
+		description = "소셜 로그인으로 가입된 사용자가 추가 정보(성별, 전화번호)를 입력 **인증 토큰이 필요합니다.**\n"
+			+ "성별 (필수): db에 성별이 없으면 실패"
+			+ "전화번호 허용 형식: \"010-1234-5678\""
 			+ "인스타그램 Id 선택 사항",
 		security = @SecurityRequirement(name = "jwtAuth"),
 		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -56,7 +57,7 @@ public class MemberController {
 					value = """
 						{
 						  "gender": "MALE",
-						  "phoneNumber": "01012345678"
+						  "phoneNumber": "010-1234-5678",
 						  "instagramId": "one_112"
 						}
 						"""
@@ -64,7 +65,7 @@ public class MemberController {
 			)
 		)
 	)
-	@PatchMapping("/profile")
+	@PatchMapping("/me")
 	public BaseResponse<Void> updateProfile(
 		@AuthenticationPrincipal CustomMemberDetails memberDetails, // 1. 현재 로그인한 사용자 정보 가져오기
 		@Valid @RequestBody MemberPatchRequest memberPatchRequest) throws BaseException {
@@ -75,7 +76,7 @@ public class MemberController {
 	}
 
 	//updateProfile 구현 후 구현 예정
-	// @GetMapping("/profile")
+	// @GetMapping("/me")
 	// public BaseResponse<MemberResponse> getProfile() throws BaseException {
 	// 	MemberResponse response;
 	// 	return BaseResponse.success(response);

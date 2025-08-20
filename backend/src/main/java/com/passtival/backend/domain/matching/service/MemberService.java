@@ -88,7 +88,7 @@ public class MemberService {
 		}
 	}
 
-	//성별 있는가? 번호 혹은 인스타 id가 있는가?
+	// 성별 있는가? 번호 혹은 인스타 id가 있는가?
 	private void validateFinalState(Member member) throws BaseException {
 
 		if (member.getGender() == null) {
