@@ -22,17 +22,13 @@ public class AuthenticationKey extends BaseEntity {
 	private Long id;
 
 	@Column(name = "authentication_key", nullable = false, unique = true)
-	private String key; // 인증 키 값
+	private String authenticationKey; // 인증 키 값
 
 	public AuthenticationKey(String key) {
-		this.key = key;
+		this.authenticationKey = key;
 	}
 
-	/**
-	 * 인증 키를 업데이트합니다.
-	 * @param newKey 새로운 인증 키
-	 */
 	public void updateKey(String newKey) {
-		this.key = newKey;
+		this.authenticationKey = newKey;
 	}
 }
