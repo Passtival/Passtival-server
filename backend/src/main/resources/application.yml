@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev # 기본값 : dev, 배포 시 prod로 오버라이드
+    active: prod # 기본값 : dev, 배포 시 prod로 오버라이드
   servlet:
     multipart:
       enabled: true

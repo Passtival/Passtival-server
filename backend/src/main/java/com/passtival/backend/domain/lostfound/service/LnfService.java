@@ -9,6 +9,7 @@ import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 import com.passtival.backend.global.s3.S3Service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,7 +21,8 @@ public class LnfService {
 	private final LnfRepository lnfRepository;
 	private final S3Service s3Service;
 
-	public void createFoundItem(FoundItemRequest request) throws BaseException {
+	@Transactional
+	public void createFoundItem(FoundItemRequest request) {
 		// FoundItem 엔티티 생성
 		try {
 			FoundItem foundItem = FoundItem.builder()
@@ -38,5 +40,15 @@ public class LnfService {
 
 	public String getUploadUrl(String fileName) {
 		return s3Service.generatePresignedUrl(fileName);
+	}
+
+	@Transactional
+	public void deleteFoundItem(Long id) {
+
+		if (!lnfRepository.existsById(id)) {
+			throw new BaseException(BaseResponseStatus.FOUND_ITEM_NOT_FOUND);
+		}
+
+		lnfRepository.deleteById(id);
 	}
 }

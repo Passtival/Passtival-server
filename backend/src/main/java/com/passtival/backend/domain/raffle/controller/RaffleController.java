@@ -1,7 +1,6 @@
 package com.passtival.backend.domain.raffle.controller;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,14 +10,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.passtival.backend.domain.raffle.model.entity.Prize;
 import com.passtival.backend.domain.raffle.model.request.ApplicantRegistrationRequest;
 import com.passtival.backend.domain.raffle.model.request.UpdateAuthenticationKeyRequest;
 import com.passtival.backend.domain.raffle.model.response.PrizeResponse;
 import com.passtival.backend.domain.raffle.service.PrizeService;
 import com.passtival.backend.domain.raffle.service.RaffleService;
 import com.passtival.backend.global.common.BaseResponse;
-import com.passtival.backend.global.exception.BaseException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -41,28 +38,16 @@ public class RaffleController {
 	private final RaffleService raffleService;
 	private final PrizeService prizeService;
 
-	/**
-	 * 상품 목록 조회 API
-	 * @return 상품 목록 응답
-	 */
 	@Operation(
 		summary = "상품 목록 조회",
 		description = "등록된 상품의 목록을 조회합니다."
 	)
 	@GetMapping("/prizes")
-	public BaseResponse<List<PrizeResponse>> getPrizes() throws BaseException {
-		List<Prize> prizes = prizeService.getAllPrizes();
-		List<PrizeResponse> prizeResponses = prizes.stream()
-			.map(PrizeResponse::of)
-			.collect(Collectors.toList());
-		return BaseResponse.success(prizeResponses);
+	public BaseResponse<List<PrizeResponse>> getPrizes() {
+		List<PrizeResponse> responses = prizeService.getAllPrizes();
+		return BaseResponse.success(responses);
 	}
 
-	/**
-	 * 상품 ID로 상품 조회 API
-	 * @param prizeId 상품 ID
-	 * @return 상품 정보 응답
-	 */
 	@Operation(
 		summary = "상품 조회",
 		description = "상품 ID로 특정 상품의 정보를 조회합니다.",
@@ -77,17 +62,11 @@ public class RaffleController {
 		}
 	)
 	@GetMapping("/prizes/{prizeId}")
-	public BaseResponse<PrizeResponse> getPrizeById(@PathVariable("prizeId") Long prizeId) throws BaseException {
-		Prize prize = prizeService.getPrizeById(prizeId);
-		PrizeResponse prizeResponse = PrizeResponse.of(prize);
-		return BaseResponse.success(prizeResponse);
+	public BaseResponse<PrizeResponse> getPrizeById(@PathVariable("prizeId") Long prizeId) {
+		PrizeResponse response = prizeService.getPrizeById(prizeId);
+		return BaseResponse.success(response);
 	}
 
-	/**
-	 * 신청자 등록 API
-	 * @param request 신청자 등록 요청 정보
-	 * @return 신청자 등록 응답 정보
-	 */
 	@Operation(
 		summary = "신청자 등록",
 		description = "신청자의 이름과 학번, 인증키를 입력받아 신청자를 등록합니다.",
@@ -100,33 +79,27 @@ public class RaffleController {
 				examples = @ExampleObject(
 					name = "신청자 등록 요청 예시",
 					value = """
-				{
-				  "applicantName": "박준선",
-				  "studentId": "2021U2317",
-				  "authenticationKey": "1234"
-				}
-				"""
+						{
+						  "applicantName": "박준선",
+						  "studentId": "2021U2317",
+						  "authenticationKey": "1234"
+						}
+						"""
 				)
 			)
 		)
 	)
 	@PostMapping("/applicants")
-	public BaseResponse<Void> saveApplicant(@RequestBody ApplicantRegistrationRequest request) throws BaseException {
+	public BaseResponse<Void> saveApplicant(@Valid @RequestBody ApplicantRegistrationRequest request) {
 		/* 1. 클라이언트로부터 신청자의 이름과 학번, 인증키 입력받는다.
-		* 2. 신청자의 이름과 학번을 기반으로 신청자를 데이터베이스에 저장한다.
-		* 3. 신청이 완료되면 클라이언트에게 성공 메시지를 반환한다.
-		* 4. 만약 신청자의 이름과 학번이 같은 경우, 이미 신청한 것으로 간주하고 에러 메시지를 반환한다.
+		 * 2. 신청자의 이름과 학번을 기반으로 신청자를 데이터베이스에 저장한다.
+		 * 3. 신청이 완료되면 클라이언트에게 성공 메시지를 반환한다.
+		 * 4. 만약 신청자의 이름과 학번이 같은 경우, 이미 신청한 것으로 간주하고 에러 메시지를 반환한다.
 		 */
 		raffleService.registerApplicant(request);
 		return BaseResponse.success(null);
 	}
 
-
-	/**
-	 * 인증키 변경 API
-	 * @param request 인증키 변경 요청 정보(oldKey, newKey)
-	 * @return 변경 완료 응답
-	 */
 	@Operation(
 		summary = "인증키 변경",
 		description = "기존 인증키를 검증하고 새로운 인증키로 변경합니다.",
@@ -139,17 +112,17 @@ public class RaffleController {
 				examples = @ExampleObject(
 					name = "인증키 변경 요청",
 					value = """
-                {
-                  "oldKey": "1234",
-                  "newKey": "5678"
-                }
-                """
+						{
+						  "oldKey": "1234",
+						  "newKey": "5678"
+						}
+						"""
 				)
 			)
 		)
 	)
 	@PutMapping("/authentication-key")
-	public BaseResponse<Void> updateAuthenticationKey(@Valid @RequestBody UpdateAuthenticationKeyRequest request) throws BaseException{
+	public BaseResponse<Void> updateAuthenticationKey(@Valid @RequestBody UpdateAuthenticationKeyRequest request) {
 		raffleService.updateAuthenticationKey(request.getNewKey(), request.getOldKey());
 		return BaseResponse.success(null);
 	}

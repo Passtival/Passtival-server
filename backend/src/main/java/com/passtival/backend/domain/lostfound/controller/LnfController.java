@@ -1,6 +1,8 @@
 package com.passtival.backend.domain.lostfound.controller;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.passtival.backend.domain.lostfound.model.request.FoundItemRequest;
 import com.passtival.backend.domain.lostfound.service.LnfService;
 import com.passtival.backend.global.common.BaseResponse;
-import com.passtival.backend.global.exception.BaseException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,23 +20,21 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/foundItem")
+@RequestMapping("/api/found-items")
 @Tag(name = "Lost and Found API", description = "분실물 관리 API")
 public class LnfController {
 
 	private final LnfService lnfService;
 
-	/**
-	 * 이미지 업로드 URL 조회 API
-	 * @param fileName 업로드할 파일명
-	 * @return S3 Presigned Upload URL
-	 */
 	@Operation(
 		summary = "이미지 업로드 URL 조회",
 		description = "클라이언트가 S3에 직접 이미지를 업로드하기 위한 Presigned URL을 생성합니다.",
@@ -50,16 +49,16 @@ public class LnfController {
 		}
 	)
 	@GetMapping("/upload-url")
-	public BaseResponse<String> getUploadUrl(@RequestParam String fileName) throws BaseException {
+	public BaseResponse<String> getUploadUrl(
+		@RequestParam
+		@NotBlank(message = "파일명은 필수입니다.")
+		@Pattern(regexp = "^[a-zA-Z0-9._-]+\\.(jpg|jpeg|png|gif)$",
+			message = "유효한 이미지 파일명이어야 합니다.")
+		String fileName) {
 		String uploadUrl = lnfService.getUploadUrl(fileName);
 		return BaseResponse.success(uploadUrl);
 	}
 
-	/**
-	 * 분실물 등록 API
-	 * @param request 분실물 등록 요청 정보
-	 * @return 등록 완료 응답
-	 */
 	@Operation(
 		summary = "분실물 등록",
 		description = "습득한 분실물의 정보를 등록합니다. 이미지는 사전에 업로드하고 해당 URL을 포함해야 합니다.",
@@ -83,9 +82,28 @@ public class LnfController {
 			)
 		)
 	)
-	@PostMapping("/create")
-	public BaseResponse<Void> createFoundItem(@RequestBody FoundItemRequest request) throws BaseException {
+	@PostMapping
+	public BaseResponse<Void> createFoundItem(@Valid @RequestBody FoundItemRequest request) {
 		lnfService.createFoundItem(request);
+		return BaseResponse.success(null);
+	}
+
+	@Operation(
+		summary = "분실물 삭제",
+		description = "등록된 분실물을 ID로 삭제합니다.",
+		parameters = {
+			@Parameter(
+				name = "id",
+				description = "삭제할 분실물의 ID",
+				required = true,
+				in = ParameterIn.PATH,
+				example = "1"
+			)
+		}
+	)
+	@DeleteMapping("/{id}")
+	public BaseResponse<Void> deleteFoundItem(@PathVariable Long id) {
+		lnfService.deleteFoundItem(id);
 		return BaseResponse.success(null);
 	}
 
