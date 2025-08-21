@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/festival")
-@Tag(name = "Booth-API", description = "공연 조회 API")
+@Tag(name = "Performance-API", description = "공연 조회 API")
 public class PerformanceController {
 
 	private final PerformanceService performanceService;
