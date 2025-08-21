@@ -19,11 +19,13 @@ import com.passtival.backend.global.exception.BaseException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/festival")
+@Tag(name = "Booth-API", description = "공연 조회 API")
 public class PerformanceController {
 
 	private final PerformanceService performanceService;
