@@ -17,11 +17,13 @@ import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/festival")
+@Tag(name = "Performance-API", description = "공연 조회 API")
 public class PerformanceController {
 
 	private final PerformanceService performanceService;
