@@ -56,7 +56,7 @@ public class BoothController {
 	 * 사이즈 변경 요청 : GET /booth/cursor?size=10
 	 */
 	@GetMapping("booth/cursor")
-	public BaseResponse<?> getBooths(
+	public BaseResponse<?> getBoothsCursor(
 		@RequestParam(required = false) Long cursor,
 		@RequestParam(defaultValue = "5") int size) {
 		return BaseResponse.success(boothService.getBooths(cursor, size));
