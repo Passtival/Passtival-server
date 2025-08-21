@@ -27,59 +27,59 @@ public class PerformanceDevSeeder implements ApplicationRunner {
 	@Override
 	@Transactional
 	public void run(ApplicationArguments args) {
-		List<Performance> seeds = List.of(
-			build(
-				"신석기", "글로벌경영학과", "아리관", "images/opening.jpg",
-				LocalDateTime.of(2025, 8, 30, 17, 0),
-				LocalDateTime.of(2025, 8, 30, 18, 0),
-				"축제 시작을 알리는 퍼포먼스",
-				1,
-				List.of(songSpec("아이유", "좋은 날"), songSpec("블랙핑크", "붐바야"))
-			),
-			build(
-				"밴드 무대", "기타동아리", "야외무대 A", "images/band.jpg",
-				LocalDateTime.of(2025, 8, 30, 18, 30),
-				LocalDateTime.of(2025, 8, 30, 19, 30),
-				"동아리 밴드의 라이브 공연",
-				2,
-				List.of(songSpec("Coldplay", "Viva La Vida"), songSpec("잔나비", "주저하는 연인들을 위해"))
-			),
-			build(
-				"댄스 공연", "무용학과", "메인 광장", "images/dance.jpg",
-				LocalDateTime.of(2025, 8, 30, 20, 0),
-				LocalDateTime.of(2025, 8, 30, 21, 0),
-				"화려한 댄스 퍼포먼스",
-				3,
-				List.of(songSpec("BTS", "Dynamite"), songSpec("NewJeans", "Super Shy"))
-			),
-			build(
-				"연극 무대", "연극영화과", "소극장", "images/play.jpg",
-				LocalDateTime.of(2025, 8, 31, 14, 0),
-				LocalDateTime.of(2025, 8, 31, 16, 0),
-				"학생들이 직접 준비한 연극 공연",
-				4,
-				List.of(songSpec("뮤지컬팀", "오페라의 유령 OST"))
-			),
-			build(
-				"피날레", "축제준비위원회", "운동장", "images/finale.jpg",
-				LocalDateTime.of(2025, 8, 31, 20, 0),
-				LocalDateTime.of(2025, 8, 31, 21, 30),
-				"불꽃놀이와 함께하는 마지막 무대",
-				5,
-				List.of(songSpec("싸이", "강남스타일"), songSpec("Queen", "We Are The Champions"))
-			)
-		);
+		// List<Performance> seeds = List.of(
+		// 	build(
+		// 		"신석기", "글로벌경영학과", "아리관", "images/opening.jpg",
+		// 		LocalDateTime.of(2025, 8, 30, 17, 0),
+		// 		LocalDateTime.of(2025, 8, 30, 18, 0),
+		// 		"축제 시작을 알리는 퍼포먼스",
+		// 		1,
+		// 		List.of(songSpec("아이유", "좋은 날"), songSpec("블랙핑크", "붐바야"))
+		// 	),
+		// 	build(
+		// 		"밴드 무대", "기타동아리", "야외무대 A", "images/band.jpg",
+		// 		LocalDateTime.of(2025, 8, 30, 18, 30),
+		// 		LocalDateTime.of(2025, 8, 30, 19, 30),
+		// 		"동아리 밴드의 라이브 공연",
+		// 		2,
+		// 		List.of(songSpec("Coldplay", "Viva La Vida"), songSpec("잔나비", "주저하는 연인들을 위해"))
+		// 	),
+		// 	build(
+		// 		"댄스 공연", "무용학과", "메인 광장", "images/dance.jpg",
+		// 		LocalDateTime.of(2025, 8, 30, 20, 0),
+		// 		LocalDateTime.of(2025, 8, 30, 21, 0),
+		// 		"화려한 댄스 퍼포먼스",
+		// 		3,
+		// 		List.of(songSpec("BTS", "Dynamite"), songSpec("NewJeans", "Super Shy"))
+		// 	),
+		// 	build(
+		// 		"연극 무대", "연극영화과", "소극장", "images/play.jpg",
+		// 		LocalDateTime.of(2025, 8, 31, 14, 0),
+		// 		LocalDateTime.of(2025, 8, 31, 16, 0),
+		// 		"학생들이 직접 준비한 연극 공연",
+		// 		4,
+		// 		List.of(songSpec("뮤지컬팀", "오페라의 유령 OST"))
+		// 	),
+		// 	build(
+		// 		"피날레", "축제준비위원회", "운동장", "images/finale.jpg",
+		// 		LocalDateTime.of(2025, 8, 31, 20, 0),
+		// 		LocalDateTime.of(2025, 8, 31, 21, 30),
+		// 		"불꽃놀이와 함께하는 마지막 무대",
+		// 		5,
+		// 		List.of(songSpec("싸이", "강남스타일"), songSpec("Queen", "We Are The Champions"))
+		// 	)
+		// );
 
 
-		for (Performance p : seeds) {
-			boolean exists = performanceRepository
-				.findByTitleAndDay(p.getTitle(), p.getDay())
-				.isPresent();
-			if (!exists) {
-				performanceRepository.save(p);
-			}
-		}
-		performanceRepository.flush();
+		// for (Performance p : seeds) {
+		// 	boolean exists = performanceRepository
+		// 		.findByTitleAndDay(p.getTitle(), p.getDay())
+		// 		.isPresent();
+		// 	if (!exists) {
+		// 		performanceRepository.save(p);
+		// 	}
+		// }
+		// performanceRepository.flush();
 	}
 
 	private Performance build(
