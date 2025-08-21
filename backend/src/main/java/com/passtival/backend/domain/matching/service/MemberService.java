@@ -52,20 +52,20 @@ public class MemberService {
 
 	// 모든 변경사항을 사전 검증
 	private void validateAllChanges(Member member, MemberPatchRequest request) throws BaseException {
-		// 전화번호 검증
-		if (request.getPhoneNumber().isPresent()) {
-			String newPhoneNumber = request.getPhoneNumber().get();
-			String NormalizedPhoneNumber = newPhoneNumber.trim().isEmpty() ? null : newPhoneNumber;
-			if (!NormalizedPhoneNumber.equals(member.getPhoneNumber())) {
+		// 전화번호 검증 (null이 아닌 경우만 - null은 수정하지 않음을 의미)
+		if (request.getPhoneNumber() != null) {
+			String newPhoneNumber = request.getPhoneNumber();
+			String normalizedPhoneNumber = newPhoneNumber.trim().isEmpty() ? null : newPhoneNumber;
+			if (!java.util.Objects.equals(normalizedPhoneNumber, member.getPhoneNumber())) {
 				validatePhoneNumber(newPhoneNumber, member.getMemberId());
 			}
 		}
 
-		// 인스타그램 ID 검증
-		if (request.getInstagramId().isPresent()) {
-			String newInstagramId = request.getInstagramId().get();
-			String NormalizedInstagramId = newInstagramId.trim().isEmpty() ? null : newInstagramId;
-			if (!NormalizedInstagramId.equals(member.getInstagramId())) {
+		// 인스타그램 ID 검증 (null이 아닌 경우만 - null은 수정하지 않음을 의미)
+		if (request.getInstagramId() != null) {
+			String newInstagramId = request.getInstagramId();
+			String normalizedInstagramId = newInstagramId.trim().isEmpty() ? null : newInstagramId;
+			if (!java.util.Objects.equals(normalizedInstagramId, member.getInstagramId())) {
 				validateInstagramId(newInstagramId, member.getMemberId());
 			}
 		}
@@ -73,19 +73,19 @@ public class MemberService {
 
 	//검증 완료 후 실제 업데이트 적용
 	private void applyUpdates(Member member, MemberPatchRequest request) {
-		// 전화번호 업데이트
-		if (request.getPhoneNumber().isPresent()) {
-			member.updatePhoneNumber(request.getPhoneNumber().get());
+		// 전화번호 업데이트 (null이 아닌 경우만)
+		if (request.getPhoneNumber() != null) {
+			member.updatePhoneNumber(request.getPhoneNumber());
 		}
 
-		// 인스타그램 ID 업데이트
-		if (request.getInstagramId().isPresent()) {
-			member.updateInstagramId(request.getInstagramId().get());
+		// 인스타그램 ID 업데이트 (null이 아닌 경우만)
+		if (request.getInstagramId() != null) {
+			member.updateInstagramId(request.getInstagramId());
 		}
 
-		// 성별 업데이트 (중복 검사 불필요하므로 바로 적용)
-		if (request.getGender().isPresent()) {
-			member.updateGender(request.getGender().get());
+		// 성별 업데이트 (null이 아닌 경우만 - 중복 검사 불필요하므로 바로 적용)
+		if (request.getGender() != null) {
+			member.updateGender(request.getGender());
 		}
 	}
 

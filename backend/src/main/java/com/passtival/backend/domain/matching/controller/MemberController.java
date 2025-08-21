@@ -68,7 +68,7 @@ public class MemberController {
 		)
 	)
 	@PatchMapping("/me")
-	public BaseResponse<Void> updateProfile(
+	public BaseResponse<Void> patchProfile(
 		@AuthenticationPrincipal CustomMemberDetails memberDetails, // 1. 현재 로그인한 사용자 정보 가져오기
 		@Valid @RequestBody MemberPatchRequest memberPatchRequest) throws BaseException {
 
