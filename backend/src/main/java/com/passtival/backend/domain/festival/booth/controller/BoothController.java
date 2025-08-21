@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/festival")
-@Tag(name = "Booth-API", description = "부스 조회 API")
+@Tag(name = "Booth-Menu-API", description = "부스 & 메뉴 조회 API")
 public class BoothController {
 
 	private final BoothService boothService;
