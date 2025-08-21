@@ -27,7 +27,7 @@ public class PerformanceService {
 	 * 값이 비었을 때 : PERFORMANCE_NOT_FOUND에러 메시지
 	 * @return Page<Performance>
 	 */
-	public Page<Performance> getAllPerformances(Pageable pageable) throws BaseException {
+	public Page<Performance> getAllPerformances(Pageable pageable) {
 		Page<Performance> page = performanceRepository.findAll(pageable);
 		if (page.isEmpty()) {
 			throw new BaseException(BaseResponseStatus.PERFORMANCE_NOT_FOUND);
@@ -36,7 +36,7 @@ public class PerformanceService {
 	}
 
 	// 공연 이름 조회
-	public PerformanceDetailResponse getPerformanceByTitle(String title) throws BaseException {
+	public PerformanceDetailResponse getPerformanceByTitle(String title) {
 		Optional<Performance> performanceOpt = performanceRepository.findByTitle(title);
 		if (performanceOpt.isEmpty()) {
 			throw new BaseException(BaseResponseStatus.PERFORMANCE_NOT_FOUND);
