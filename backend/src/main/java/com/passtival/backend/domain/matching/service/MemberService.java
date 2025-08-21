@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.passtival.backend.domain.matching.model.entity.Member;
 import com.passtival.backend.domain.matching.model.request.MemberPatchRequest;
+import com.passtival.backend.domain.matching.model.response.MemberResponse;
 import com.passtival.backend.domain.matching.repository.MemberRepository;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
@@ -145,5 +146,31 @@ public class MemberService {
 	public Member getMemberById(Long memberId) throws BaseException {
 		return memberRepository.findById(memberId)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
+	}
+
+	/**
+	 * 회원 프로필 조회
+	 * @param memberId 회원 ID
+	 * @return 회원 프로필 정보
+	 * @throws BaseException 회원을 찾을 수 없는 경우
+	 */
+	public MemberResponse getProfile(Long memberId) throws BaseException {
+		try {
+			Member member = memberRepository.findById(memberId)
+				.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
+
+			return MemberResponse.builder()
+				.MemberId(member.getMemberId())
+				.MemberName(member.getName())
+				.MemberGender(member.getGender())
+				.MemberPhoneNumber(member.getPhoneNumber())
+				.MemberInstagramId(member.getInstagramId())
+				.build();
+
+		} catch (BaseException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 }

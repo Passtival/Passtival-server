@@ -1,12 +1,14 @@
 package com.passtival.backend.domain.matching.controller;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.passtival.backend.domain.matching.model.request.MemberPatchRequest;
+import com.passtival.backend.domain.matching.model.response.MemberResponse;
 import com.passtival.backend.domain.matching.service.MemberService;
 import com.passtival.backend.global.auth.model.CustomMemberDetails;
 import com.passtival.backend.global.common.BaseResponse;
@@ -75,10 +77,16 @@ public class MemberController {
 		return BaseResponse.success(null);
 	}
 
-	//updateProfile 구현 후 구현 예정
-	// @GetMapping("/me")
-	// public BaseResponse<MemberResponse> getProfile() throws BaseException {
-	// 	MemberResponse response;
-	// 	return BaseResponse.success(response);
-	// }
+	@Operation(
+		summary = "내 프로필 조회",
+		description = "현재 로그인한 사용자의 프로필 정보를 조회합니다. **인증 토큰이 필요합니다.**",
+		security = @SecurityRequirement(name = "jwtAuth")
+	)
+	@GetMapping("/me")
+	public BaseResponse<MemberResponse> getProfile(
+		@AuthenticationPrincipal CustomMemberDetails memberDetails) throws BaseException {
+
+		MemberResponse response = memberService.getProfile(memberDetails.getMemberId());
+		return BaseResponse.success(response);
+	}
 }
