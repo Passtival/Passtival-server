@@ -1,4 +1,4 @@
-package com.passtival.backend.domain.raffle.repository;
+package com.passtival.backend.domain.authentication.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

@@ -5,13 +5,11 @@ import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.passtival.backend.domain.raffle.model.request.ApplicantRegistrationRequest;
-import com.passtival.backend.domain.raffle.model.request.UpdateAuthenticationKeyRequest;
 import com.passtival.backend.domain.raffle.model.response.PrizeResponse;
 import com.passtival.backend.domain.raffle.service.PrizeService;
 import com.passtival.backend.domain.raffle.service.RaffleService;
@@ -97,33 +95,6 @@ public class RaffleController {
 		 * 4. 만약 신청자의 이름과 학번이 같은 경우, 이미 신청한 것으로 간주하고 에러 메시지를 반환한다.
 		 */
 		raffleService.registerApplicant(request);
-		return BaseResponse.success(null);
-	}
-
-	@Operation(
-		summary = "인증키 변경",
-		description = "기존 인증키를 검증하고 새로운 인증키로 변경합니다.",
-		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-			description = "인증키 변경 요청 정보",
-			required = true,
-			content = @Content(
-				mediaType = "application/json",
-				schema = @Schema(implementation = UpdateAuthenticationKeyRequest.class),
-				examples = @ExampleObject(
-					name = "인증키 변경 요청",
-					value = """
-						{
-						  "oldKey": "1234",
-						  "newKey": "5678"
-						}
-						"""
-				)
-			)
-		)
-	)
-	@PutMapping("/authentication-key")
-	public BaseResponse<Void> updateAuthenticationKey(@Valid @RequestBody UpdateAuthenticationKeyRequest request) {
-		raffleService.updateAuthenticationKey(request.getNewKey(), request.getOldKey());
 		return BaseResponse.success(null);
 	}
 }

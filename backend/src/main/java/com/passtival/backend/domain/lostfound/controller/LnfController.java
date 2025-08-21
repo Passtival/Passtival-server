@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -91,7 +92,7 @@ public class LnfController {
 
 	@Operation(
 		summary = "분실물 삭제",
-		description = "등록된 분실물을 ID로 삭제합니다.",
+		description = "등록된 분실물을 ID로 삭제합니다. 삭제 시 관리자 인증키가 필요합니다.",
 		parameters = {
 			@Parameter(
 				name = "id",
@@ -99,12 +100,21 @@ public class LnfController {
 				required = true,
 				in = ParameterIn.PATH,
 				example = "1"
+			),
+			@Parameter(
+				name = "X-Authentication-Key",
+				description = "관리자 인증키",
+				required = true,
+				in = ParameterIn.HEADER,
+				example = "admin-auth-key"
 			)
 		}
 	)
 	@DeleteMapping("/{id}")
-	public BaseResponse<Void> deleteFoundItem(@PathVariable Long id) {
-		lnfService.deleteFoundItem(id);
+	public BaseResponse<Void> deleteFoundItem(
+		@PathVariable Long id,
+		@RequestHeader("X-Authentication-Key") String authenticationKey) {
+		lnfService.deleteFoundItem(id, authenticationKey);
 		return BaseResponse.success(null);
 	}
 
