@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.passtival.backend.domain.matching.model.entity.Matching;
 import com.passtival.backend.domain.matching.model.entity.Member;
-import com.passtival.backend.domain.matching.model.request.MatchingRequest;
 import com.passtival.backend.domain.matching.model.response.MatchingResponse;
 import com.passtival.backend.domain.matching.repository.MatchingRepository;
 import com.passtival.backend.domain.matching.repository.MemberRepository;
@@ -39,7 +38,7 @@ public class MatchingService {
 	private static final int MATCHING_APPLICATION_DEADLINE_HOUR = 18;
 
 	@Transactional
-	public void applyMatching(Long memberId, MatchingRequest matchingRequest)
+	public void applyMatching(Long memberId)
 		throws BaseException {
 		try {
 			if (matchingScheduler.isMatchingInProgress()) {
@@ -47,11 +46,10 @@ public class MatchingService {
 			}
 
 			LocalTime now = LocalTime.now(ZoneId.of("Asia/Seoul"));
-			LocalTime startTime = LocalTime.of(0, 0);   // 00:00
 			LocalTime endTime = LocalTime.of(MATCHING_APPLICATION_DEADLINE_HOUR, 0);
 
 			// 신청 가능 시간: 00:00 ~ 18:00
-			if (now.isBefore(startTime) || now.isAfter(endTime)) {
+			if (now.isAfter(endTime)) {
 				throw new BaseException(BaseResponseStatus.MATCHING_TIME_INVALID);
 			}
 
@@ -59,10 +57,9 @@ public class MatchingService {
 			Member member = memberRepository.findById(memberId)
 				.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
 
-			//아래 코드 대신 인스타 혹은 전화번호 하나는 있는지 검토
-			// if (!member.isOnboardingCompleted()) {
-			// 	throw new BaseException(BaseResponseStatus.ONBOARDING_REQUIRED);
-			// }
+			if (member.getGender() == null) {
+				throw new BaseException(BaseResponseStatus.ONBOARDING_REQUIRED);
+			}
 
 			// 중복 신청 검증
 			if (member.isApplied()) {

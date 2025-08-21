@@ -15,7 +15,7 @@ public enum BaseResponseStatus {
 	INCOMPLETE_MEMBER_INFO(false, 400, "회원 정보가 불완전합니다."),
 	INVALID_MEMBER_DATA(false, 400, "잘못된 회원 정보입니다."),
 	MATCHING_TIME_INVALID(false, 400, "매칭 신청은 매일 00:00부터 18:00까지만 가능합니다."),
-	ONBOARDING_REQUIRED(false, 400, "온보딩이 필요한 사용자입니다."),
+	ONBOARDING_REQUIRED(false, 400, "추가 정보가 필요한 사용자입니다."),
 	INVALID_PHONE_NUMBER_FORMAT(false, 400, "전화번호 형식이 올바르지 않습니다."),
 	CONTACT_INFO_REQUIRED(false, 400, "전화번호 또는 인스타그램 ID 중 적어도 하나는 입력해야 합니다."),
 	GENDER_REQUIRED(false, 400, "성별을 반드시 작성해야 합니다."),
