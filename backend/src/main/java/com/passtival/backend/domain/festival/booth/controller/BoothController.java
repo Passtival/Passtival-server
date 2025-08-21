@@ -8,6 +8,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.passtival.backend.domain.festival.booth.model.response.BoothDetailResponse;
@@ -21,11 +22,13 @@ import com.passtival.backend.global.exception.BaseException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/festival")
+@Tag(name = "Booth-API", description = "부스 조회 API")
 public class BoothController {
 
 	private final BoothService boothService;
@@ -45,6 +48,20 @@ public class BoothController {
 		Page<BoothResponse> page = boothService.getAllBooths(pageable);
 		return BaseResponse.success(page);
 	}
+
+	/**
+	 * 커서기반 페이지네이션
+	 * 첫 페이지 요청 (cursor 없음) : GET /booth/cursor
+	 * 다음 페이지 요청 (cursor 사용) : GET /booth/cursor?cursor=6&size=5
+	 * 사이즈 변경 요청 : GET /booth/cursor?size=10
+	 */
+	@GetMapping("booth/cursor")
+	public BaseResponse<?> getBooths(
+		@RequestParam(required = false) Long cursor,
+		@RequestParam(defaultValue = "5") int size) {
+		return BaseResponse.success(boothService.getBooths(cursor, size));
+	}
+
 
 	/**
 	 * 부스 이름으로 조회
