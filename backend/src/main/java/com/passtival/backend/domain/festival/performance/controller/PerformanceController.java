@@ -17,11 +17,16 @@ import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/festival")
+@Tag(name = "Booth-API", description = "공연 조회 API")
 public class PerformanceController {
 
 	private final PerformanceService performanceService;
@@ -31,9 +36,14 @@ public class PerformanceController {
 	 * 예: /api/performances?page=0&size=10&sort=date,desc
 	 * @return 모든 공연 정보 응답
 	 */
+	@Operation(
+		summary = "공연 목록 조회",
+		description = "공연전체 목록을 조회합니다."
+	)
+
 	@GetMapping("/performance")
 	public BaseResponse<?> getPerformances(
-		@PageableDefault(size = 5) Pageable pageable) throws BaseException {
+		@PageableDefault(size = 5) Pageable pageable) {
 		Page<Performance> page = performanceService.getAllPerformances(pageable);
 		Page<PerformanceResponse> dtoPage = page.map(PerformanceResponse::of);
 		return BaseResponse.success(dtoPage);
@@ -57,9 +67,23 @@ public class PerformanceController {
 	 * @param performanceTitle 공연 이름
 	 * @return 공연 이름으로 정보 응답
 	 */
+	@Operation(
+		summary = "공연 이름으로 조회",
+		description = "공연 performanceName으로 특정 공연의 정보를 조회합니다.",
+		parameters = {
+			@Parameter(
+				name = "{name}",
+				description = "조회할 공연의 이름",
+				required = true,
+				in = ParameterIn.PATH,
+				example = "으랏챠"
+			)
+		}
+	)
+
 	@GetMapping("/performance/{performanceTitle}")
 	public BaseResponse<PerformanceDetailResponse> getPerformanceByTitle(
-		@PathVariable String performanceTitle) throws BaseException {
+		@PathVariable String performanceTitle) {
 		PerformanceDetailResponse detail = performanceService.getPerformanceByTitle(performanceTitle);
 		return BaseResponse.success(detail);
 	}
