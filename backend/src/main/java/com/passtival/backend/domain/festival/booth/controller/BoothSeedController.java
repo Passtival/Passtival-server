@@ -18,11 +18,13 @@ import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/admin/seed")
 @RequiredArgsConstructor
+@Tag(name = "Booth-Menu-Seeder-API", description = "부스 & 메뉴 데이터 삽입 API")
 public class BoothSeedController {
 
 	private final BoothRepository boothRepository;
