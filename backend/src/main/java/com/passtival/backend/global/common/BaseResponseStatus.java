@@ -51,6 +51,7 @@ public enum BaseResponseStatus {
 	ALREADY_APPLIED_MATCHING(false, 409, "이미 매칭 신청을 완료하였습니다."),
 	DUPLICATE_SOCIAL_ID(false, 409, "이미 사용 중인 소셜 ID입니다."),
 	ONBOARDING_ALREADY_COMPLETED(false, 409, "이미 온보딩이 완료된 사용자입니다."),
+	DUPLICATE_PERFORMANCE_TITLE(false, 409, "이미 존재하는 공연 주제입니다."),
 
 	// 422: 처리 불가능한 엔티티 (비즈니스 로직 오류)
 	INVALID_AUTH_KEY(false, 422, "인증키가 일치하지 않습니다."),
