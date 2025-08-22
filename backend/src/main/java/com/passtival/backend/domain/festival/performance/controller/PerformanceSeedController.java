@@ -44,6 +44,11 @@ public class PerformanceSeedController {
 
 		validateKey(key);
 
+		// 요청 리스트 비어있을 때
+		if (performanceRequests == null || performanceRequests.isEmpty()) {
+			throw new BaseException(BaseResponseStatus.REQUEST_BODY_EMPTY);
+		}
+
 		for (PerformanceRequest req : performanceRequests) {
 
 			if (performanceRepository.existsByTitle(req.getTitle())) {
@@ -73,7 +78,7 @@ public class PerformanceSeedController {
 			performanceRepository.save(perf);
 		}
 
-		return BaseResponse.success("Performances inserted!");
+		return BaseResponse.success("Performances 데이터 삽입 성공!");
 	}
 
 
