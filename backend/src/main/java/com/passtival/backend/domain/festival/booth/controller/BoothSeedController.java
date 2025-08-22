@@ -38,14 +38,17 @@ public class BoothSeedController {
 	}
 
 	@PostMapping("/booths")
-	public ResponseEntity<?> insertBooths(
+	public BaseResponse<String> insertBooths(
 		@RequestHeader("X-ADMIN-KEY") String key,
 		@RequestBody List<BoothRequest> boothRequests) {
 
 		validateKey(key);
 
-		for (BoothRequest req : boothRequests) {
+		if (boothRequests == null || boothRequests.isEmpty()) {
+			throw new BaseException(BaseResponseStatus.REQUEST_BODY_EMPTY);
+		}
 
+		for (BoothRequest req : boothRequests) {
 			if (boothRepository.existsByName(req.getName())) {
 				throw new BaseException(BaseResponseStatus.DUPLICATE_BOOTH_NAME);
 			}
@@ -75,8 +78,6 @@ public class BoothSeedController {
 			boothRepository.save(booth);
 		}
 
-		return ResponseEntity.ok(BaseResponse.success("Booths inserted!"));
+		return BaseResponse.success("Booths 데이터 삽입 성공!");
 	}
-
-
 }

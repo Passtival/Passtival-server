@@ -42,6 +42,7 @@ public enum BaseResponseStatus {
 	NAME_INVALID(false, 404, "이름으로 등록된 데이터가 없습니다."),
 	PERFORMANCE_NOT_FOUND(false, 404, "등록된 공연이 없습니다."),
 	BOOTH_NOT_FOUND(false, 404, "부스이름으로 등록된 데이터가 없습니다."),
+	REQUEST_BODY_EMPTY(false, 404, "요청 데이터가 없습니다."),
 
 	// 409: 충돌
 	DUPLICATE_REQUEST(false, 409, "이미 처리된 요청입니다."),

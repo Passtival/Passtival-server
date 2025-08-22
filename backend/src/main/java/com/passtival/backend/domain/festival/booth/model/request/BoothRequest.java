@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,17 +16,29 @@ import lombok.NoArgsConstructor;
 @Builder
 public class BoothRequest {
 
-	@NotBlank
+	@NotBlank(message = "부스 이름은 필수 입력값입니다.")
 	private final String name;
 
+	@NotBlank(message = "부스 유형은 필수 입력값입니다.")
 	private final String type;
+
 	private final String department;
+
+	@NotNull(message = "운영 시작 시간은 필수 입력값입니다.")
 	private final LocalDateTime operatingStart;
+
+	@NotNull(message = "운영 종료 시간은 필수 입력값입니다.")
 	private final LocalDateTime operatingEnd;
+
+	@NotBlank(message = "부스 위치는 필수 입력값입니다.")
 	private final String location;
+
 	private final String info;
+
 	private final String imagePath;
+
 	private final String locationImagePath;
+
 	private final List<MenuRequest> menus;
 
 	@Getter
