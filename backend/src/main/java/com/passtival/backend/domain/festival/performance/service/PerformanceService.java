@@ -1,11 +1,14 @@
 package com.passtival.backend.domain.festival.performance.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.passtival.backend.domain.festival.performance.model.response.CursorPageResponse;
 import com.passtival.backend.domain.festival.performance.model.response.PerformanceDetailResponse;
 import com.passtival.backend.domain.festival.performance.model.response.PerformanceResponse;
 import com.passtival.backend.domain.festival.performance.model.entity.Performance;
@@ -33,6 +36,25 @@ public class PerformanceService {
 			throw new BaseException(BaseResponseStatus.PERFORMANCE_NOT_FOUND);
 		}
 		return page;
+	}
+
+	/**
+	 * 커서기반 페이지네이션
+	 */
+	public CursorPageResponse<PerformanceResponse> getPerformances(Long cursorId, int size) {
+		Pageable pageable = PageRequest.of(0, size); // offset=0 고정
+		List<Performance> performances = performanceRepository.findPageByCursor(cursorId, pageable);
+
+		if (performances.isEmpty()) {
+			throw new BaseException(BaseResponseStatus.BOOTH_NOT_FOUND); // 부스 없음 예외
+		}
+
+		Long nextCursor = performances.isEmpty() ? null : performances.get(performances.size() - 1).getId();
+
+		return new CursorPageResponse<>(
+			performances.stream().map(PerformanceResponse::of).toList(),
+			nextCursor
+		);
 	}
 
 	// 공연 이름 조회
