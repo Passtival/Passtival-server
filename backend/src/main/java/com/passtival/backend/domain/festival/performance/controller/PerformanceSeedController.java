@@ -17,12 +17,14 @@ import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/admin/seed")
 @RequiredArgsConstructor
+@Tag(name = "Performance-Seeder-API", description = "공연 데이터 삽입 API")
 public class PerformanceSeedController {
 
 	private final PerformanceRepository performanceRepository;
