@@ -19,6 +19,7 @@ import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -42,7 +43,7 @@ public class BoothSeedController {
 	@PostMapping("/booths")
 	public BaseResponse<String> insertBooths(
 		@RequestHeader("X-ADMIN-KEY") String key,
-		@RequestBody List<BoothRequest> boothRequests) {
+		@RequestBody @Valid List<BoothRequest> boothRequests) {
 
 		validateKey(key);
 

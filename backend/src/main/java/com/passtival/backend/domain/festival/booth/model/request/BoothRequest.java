@@ -3,6 +3,7 @@ package com.passtival.backend.domain.festival.booth.model.request;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class BoothRequest {
 
+	@Column(unique = true)
 	@NotBlank(message = "부스 이름은 필수 입력값입니다.")
 	private final String name;
 
