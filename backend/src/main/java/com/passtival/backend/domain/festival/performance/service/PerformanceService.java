@@ -60,7 +60,7 @@ public class PerformanceService {
 	// 공연 이름 id로 조회
 	public PerformanceDetailResponse getPerformanceById(Long performanceId) {
 		Performance performance = performanceRepository.findById(performanceId)
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND));
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.PERFORMANCE_NOT_FOUND));
 		return PerformanceDetailResponse.of(performance);
 	}
 
