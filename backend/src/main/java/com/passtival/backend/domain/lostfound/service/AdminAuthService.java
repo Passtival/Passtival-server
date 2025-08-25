@@ -23,10 +23,10 @@ public class AdminAuthService {
 
 	public TokenResponse login(AdminLoginRequest requestDto) {
 		// 관리자 조회
-		Admin admin = adminRepository.findByLoginId(requestDto.getLoginId())
+		Admin admin = adminRepository.findByLoginId(requestDto.getAdminId())
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.ADMIN_LOGIN_FAILED));
 
-		// 인증키 검증
+		// 인증키(다른 로그인 기준 password) 검증
 		if (!passwordEncoder.matches(requestDto.getAuthKey(), admin.getAuthKey())) {
 			throw new BaseException(BaseResponseStatus.ADMIN_LOGIN_FAILED);
 		}

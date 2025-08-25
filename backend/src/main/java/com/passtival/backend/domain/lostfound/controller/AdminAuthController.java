@@ -15,14 +15,44 @@ import com.passtival.backend.domain.lostfound.service.AdminAuthService;
 import com.passtival.backend.global.auth.model.token.TokenResponse;
 import com.passtival.backend.global.common.BaseResponse;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
+@Tag(name = "Lost-and-Found-Login", description = "분실물 관리자 로그인")
 public class AdminAuthController {
 	private final AdminAuthService adminAuthService;
+
+	@Operation(
+		summary = "관리자 로그인",
+		description = "분실물 관리자 계정으로 로그인하여 JWT 토큰을 발급받습니다.",
+		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+			description = "관리자 로그인 요청 정보",
+			required = true,
+			content = @Content(
+				mediaType = "application/json",
+				schema = @Schema(implementation = AdminLoginRequest.class),
+				examples = @ExampleObject(
+					name = "관리자 로그인 요청 예시",
+					value = """
+						{
+						  {
+						    "adminId": "admin",
+						    "authKey": "String"
+						  }
+						}
+						"""
+				)
+			)
+		)
+	)
 
 	@PostMapping("/login")
 	public BaseResponse<TokenResponse> login(

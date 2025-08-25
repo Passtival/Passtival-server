@@ -23,6 +23,7 @@ public enum BaseResponseStatus {
 	REFRESH_TOKEN_REQUIRED(false, 401, "리프레시 토큰은 필수입니다."),
 	SOCIAL_ID_NOTFOUND(false, 401, "소셜 ID가 존재하지 않습니다."),
 	INVALID_SOCIAL_ID(false, 401, "잘못된 소셜 ID 형식입니다."),
+	ADMIN_LOGIN_FAILED(false, 401, "관리자 ID 혹은 인증키가 올바르지 못합니다."),
 
 	// 403: 접근 권한 오류
 	ACCESS_DENIED(false, 403, "해당 리소스에 접근할 수 없습니다."),

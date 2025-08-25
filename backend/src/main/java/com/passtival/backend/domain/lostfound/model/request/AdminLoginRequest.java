@@ -9,7 +9,7 @@ import lombok.Getter;
 public class AdminLoginRequest {
 
 	@NotBlank(message = "관리자 id를 입력하세요")
-	private String loginId;
+	private String adminId;
 
 	@NotBlank(message = "관리자 인증키를 입력하세요")
 	private String authKey;
