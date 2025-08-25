@@ -18,6 +18,7 @@ public enum BaseResponseStatus {
 	ONBOARDING_REQUIRED(false, 400, "온보딩이 필요한 사용자입니다."),
 	INVALID_PHONE_NUMBER_FORMAT(false, 400, "전화번호 형식이 올바르지 않습니다. "
 		+ "(010-1234-5678, 010 1234 5678, 01012345678 형식만 가능)"),
+	ADMIN_LOGIN_FAILED(false, 400, "관리자 로그인을 실패했습니다."),
 
 	// 401: 인증 오류
 	UNAUTHORIZED(false, 401, "인증에 실패했습니다."),
