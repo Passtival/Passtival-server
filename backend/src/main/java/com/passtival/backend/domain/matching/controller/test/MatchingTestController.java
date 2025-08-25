@@ -1,4 +1,4 @@
-package com.passtival.backend.global.test.controller;
+package com.passtival.backend.domain.matching.controller.test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/test/matching")
 @RequiredArgsConstructor
@@ -45,11 +43,10 @@ public class MatchingTestController {
 					.socialId("test_male_" + String.format("%03d", i))
 					.name("테스트남성" + i)
 					.gender(Gender.MALE)
-					.phoneNumber("0101111111" + i)
+					.phoneNumber("010-1111-" + String.format("%04d", 1111 + i - 1))
 					.instagramId("male_insta_" + i)
 					.applied(false)
 					.appliedAt(null)
-					.onboardingCompleted(true)
 					.role(Role.USER)
 					.build();
 				testMembers.add(male);
@@ -61,11 +58,10 @@ public class MatchingTestController {
 					.socialId("test_female_" + String.format("%03d", i))
 					.name("테스트여성" + i)
 					.gender(Gender.FEMALE)
-					.phoneNumber("0102222222" + i)
+					.phoneNumber("010-2222-" + String.format("%04d", 1111 + i - 1))
 					.instagramId("female_insta_" + i)
 					.applied(false)
 					.appliedAt(null)
-					.onboardingCompleted(true)
 					.role(Role.USER)
 					.build();
 				testMembers.add(female);
@@ -73,10 +69,9 @@ public class MatchingTestController {
 
 			memberRepository.saveAll(testMembers);
 
-			return BaseResponse.success("테스트 회원 6명(남성3명, 여성3명) 생성 완료!");
+			return BaseResponse.success("테스트 회원 생성 완료!");
 
 		} catch (Exception e) {
-			log.error("테스트 회원 생성 실패: {}", e.getMessage(), e);
 			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 생성 실패: " + e.getMessage());
 		}
 	}
@@ -92,7 +87,7 @@ public class MatchingTestController {
 			}
 
 			for (Member member : testMembers) {
-				member.applyForMatching(member.getInstagramId());
+				member.applyForMatching();
 			}
 
 			memberRepository.saveAll(testMembers);
@@ -100,7 +95,6 @@ public class MatchingTestController {
 			return BaseResponse.success(testMembers.size() + "명의 테스트 회원이 매칭에 신청했습니다!");
 
 		} catch (Exception e) {
-			log.error("테스트 회원 매칭 신청 실패: {}", e.getMessage(), e);
 			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 매칭 신청 실패: " + e.getMessage());
 		}
 	}
@@ -121,12 +115,9 @@ public class MatchingTestController {
 			throw new BaseException(BaseResponseStatus.BAD_REQUEST);
 		}
 
-		log.info("수동 매칭 실행 요청");
-
 		// 매칭 스케줄러의 dailyMatching 메서드 호출
 		matchingScheduler.dailyMatching();
 
-		log.info("수동 매칭 실행 완료");
 		return BaseResponse.success("매칭이 성공적으로 실행되었습니다.");
 	}
 
@@ -140,13 +131,11 @@ public class MatchingTestController {
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
 	@GetMapping("/cleanup")
-	public BaseResponse<String> manualCleanup() throws BaseException {
-		log.info("수동 매칭 데이터 정리 요청");
+	public BaseResponse<String> manualCleanup() {
 
 		// 매칭 스케줄러의 dailyCleanup 메서드 호출
 		matchingScheduler.dailyCleanup();
 
-		log.info("수동 매칭 데이터 정리 완료");
 		return BaseResponse.success("매칭 데이터가 성공적으로 정리되었습니다.");
 	}
 
@@ -166,7 +155,6 @@ public class MatchingTestController {
 			return BaseResponse.success(memberInfo);
 
 		} catch (Exception e) {
-			log.error("테스트 회원 목록 조회 실패: {}", e.getMessage(), e);
 			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 목록 조회 실패: " + e.getMessage());
 		}
 	}

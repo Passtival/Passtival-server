@@ -1,4 +1,4 @@
-package com.passtival.backend.global.auth.config;
+package com.passtival.backend.global.config;
 
 import java.util.Arrays;
 import java.util.Collections;
