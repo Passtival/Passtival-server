@@ -36,7 +36,7 @@ public class BoothSeedController {
 	// 인증키 확인
 	private void validateKey(String key) {
 		if (!seedKey.equals(key)) {
-			throw new SecurityException("Invalid seed key");
+			throw new BaseException(BaseResponseStatus.INVALID_AUTH_KEY);
 		}
 	}
 
