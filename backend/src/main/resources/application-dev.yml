@@ -55,3 +55,7 @@ jwt:
   secret: ${JWT_SECRET_KEY}
   access-token-expiration: ${JWT_ACCESS_EXPIRATION}
   refresh-token-expiration: ${JWT_REFRESH_EXPIRATION}
+
+app:
+  admin:
+    seed-key: ${APP_ADMIN_SEED_KEY}
