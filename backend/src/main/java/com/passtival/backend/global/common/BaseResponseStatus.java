@@ -35,6 +35,7 @@ public enum BaseResponseStatus {
 	MATCHING_RESULT_NOT_FOUND(false, 404, "오늘 매칭 결과가 없습니다."),
 	PERFORMANCE_NOT_FOUND(false, 404, "등록된 공연이 없습니다."),
 	BOOTH_NOT_FOUND(false, 404, "부스이름으로 등록된 데이터가 없습니다."),
+	REQUEST_BODY_EMPTY(false, 404, "요청 데이터가 없습니다."),
 
 	// 409: 충돌
 	DUPLICATE_REQUEST(false, 409, "이미 처리된 요청입니다."),
@@ -43,7 +44,11 @@ public enum BaseResponseStatus {
 	DUPLICATE_INSTAGRAM_ID(false, 409, "이미 사용중인 인스타그램 ID입니다."),
 	MATCHING_IN_PROGRESS(false, 409, "현재 매칭이 진행 중입니다. 내일 다시 시도해주세요."),
 	ALREADY_APPLIED_MATCHING(false, 409, "이미 매칭 신청을 완료하였습니다."),
-
+	DUPLICATE_SOCIAL_ID(false, 409, "이미 사용 중인 소셜 ID입니다."),
+	ONBOARDING_ALREADY_COMPLETED(false, 409, "이미 온보딩이 완료된 사용자입니다."),
+	DUPLICATE_BOOTH_NAME(false, 409, "이미 존재하는 부스이름입니다."),
+	DUPLICATE_PERFORMANCE_TITLE(false, 409, "이미 존재하는 공연 주제입니다."),
+  
 	// 422: 처리 불가능한 엔티티 (비즈니스 로직 오류)
 	INVALID_AUTH_KEY(false, 422, "인증키가 일치하지 않습니다."),
 	SAME_AUTH_KEY(false, 422, "기존 인증키와 동일한 키로는 변경할 수 없습니다."),
