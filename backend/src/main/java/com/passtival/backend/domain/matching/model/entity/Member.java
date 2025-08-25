@@ -46,7 +46,7 @@ public class Member extends BaseEntity {
 	@Column(name = "phone_number", unique = true, length = 20)
 	private String phoneNumber; // 제공자에 따른 형태를 0101235678로 정규화 후 저장
 
-	@Column(name = "instagram_id", length = 35)
+	@Column(name = "instagram_id", unique = true, length = 35)
 	private String instagramId; // 인스타그램 ID
 
 	@Column(name = "applied", nullable = false)
@@ -54,10 +54,6 @@ public class Member extends BaseEntity {
 
 	@Column(name = "applied_at")
 	private LocalDateTime appliedAt; // applied가 true로 바뀐 시간 (선착순 기준)
-
-	//회원가입만 하고 온보딩을 끝내지 않은 사용자 체크
-	@Column(name = "onboarding_completed")
-	private boolean onboardingCompleted;
 
 	@Column(nullable = false, length = 10)
 	@Enumerated(EnumType.STRING)
@@ -73,34 +69,26 @@ public class Member extends BaseEntity {
 			.instagramId(null)
 			.applied(false)
 			.appliedAt(null)
-			.onboardingCompleted(false)
 			.role(Role.USER)
 			.build();
 	}
 
-	//온보딩 완료 처리
-	public void completeOnboarding(Gender gender, String phoneNumber, String instagramId) {
+	//== 비즈니스 로직 (상태 변경 메서드) ==//
+	public void updateGender(Gender gender) {
 		this.gender = gender;
-		this.phoneNumber = phoneNumber;
-
-		// 인스타그램 ID 처리 (null이나 빈 문자열은 빈 문자열로 저장)
-		if (instagramId == null || instagramId.trim().isEmpty()) {
-			this.instagramId = "";
-		} else {
-			this.instagramId = instagramId.trim();
-		}
-
-		this.onboardingCompleted = true;
 	}
 
-	public void applyForMatching(String instagramId) {
-		// 인스타그램 ID 선택 입력 처리
-		if (instagramId == null || instagramId.trim().isEmpty()) {
-			this.instagramId = "";
-		} else {
-			this.instagramId = instagramId.trim();
-		}
+	public void updatePhoneNumber(String phoneNumber) {
+		// 빈 문자열을 NULL로 변환
+		this.phoneNumber = (phoneNumber == null || phoneNumber.trim().isEmpty()) ? null : phoneNumber;
+	}
 
+	public void updateInstagramId(String instagramId) {
+		// 인스타그램 ID도 동일하게 처리
+		this.instagramId = (instagramId == null || instagramId.trim().isEmpty()) ? null : instagramId;
+	}
+
+	public void applyForMatching() {
 		// 매칭 신청 상태 및 시간 업데이트
 		this.applied = true;
 		this.appliedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));

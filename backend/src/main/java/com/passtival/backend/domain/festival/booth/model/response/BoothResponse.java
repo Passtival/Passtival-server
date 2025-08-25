@@ -11,6 +11,7 @@ import lombok.Getter;
 @Builder
 public class BoothResponse {
 
+	private final Long id;
 	private final String name;
 	private final String type;
 	private final String department;
@@ -31,6 +32,7 @@ public class BoothResponse {
 	public static BoothResponse of(Booth booth) {
 
 		return BoothResponse.builder()
+			.id(booth.getId())
 			.name(booth.getName())
 			.type(booth.getType())
 			.department(booth.getDepartment())

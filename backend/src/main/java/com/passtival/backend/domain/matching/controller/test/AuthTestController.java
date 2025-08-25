@@ -1,4 +1,4 @@
-package com.passtival.backend.global.test.controller;
+package com.passtival.backend.domain.matching.controller.test;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +11,6 @@ import com.passtival.backend.domain.matching.service.MemberService;
 import com.passtival.backend.global.auth.jwt.JwtUtil;
 import com.passtival.backend.global.auth.model.CustomMemberDetails;
 import com.passtival.backend.global.common.BaseResponse;
-import com.passtival.backend.global.exception.BaseException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -45,9 +44,6 @@ public class AuthTestController {
 	@GetMapping("/auth")
 	public BaseResponse<AuthTestResponse> testAuth(
 		@AuthenticationPrincipal CustomMemberDetails memberDetails) {
-
-		log.info("JWT 인증 테스트 - 사용자 ID: {}, 권한: {}",
-			memberDetails.getMemberId(), memberDetails.getAuthorities());
 
 		AuthTestResponse response = AuthTestResponse.builder()
 			.memberId(memberDetails.getMemberId())
@@ -125,7 +121,7 @@ public class AuthTestController {
 		description = "memberId를 받아서 해당 회원의 JWT 토큰을 발급합니다. (테스트 전용)"
 	)
 	@GetMapping("/token/{memberId}")
-	public BaseResponse<String> issueTestToken(@PathVariable Long memberId) throws BaseException {
+	public BaseResponse<String> issueTestToken(@PathVariable Long memberId) {
 
 		// 회원 존재 여부 확인
 		Member member = memberService.getMemberById(memberId);

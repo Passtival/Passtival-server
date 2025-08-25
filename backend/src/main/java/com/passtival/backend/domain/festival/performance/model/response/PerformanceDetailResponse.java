@@ -16,6 +16,7 @@ import lombok.Getter;
 @Builder
 public class PerformanceDetailResponse {
 
+	private final Long id;
 	private final String title;
 	private final String artist;
 	private final LocalDateTime startTime;
@@ -46,6 +47,7 @@ public class PerformanceDetailResponse {
 			.collect(Collectors.toList());
 
 		return PerformanceDetailResponse.builder()
+			.id(performance.getId())
 			.title(performance.getTitle())
 			.artist(performance.getArtist())
 			.startTime(performance.getStartTime())

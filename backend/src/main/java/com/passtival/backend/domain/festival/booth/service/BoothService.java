@@ -60,19 +60,18 @@ public class BoothService {
 		);
 	}
 
-
-	// 부스 이름 조회
-	public BoothDetailResponse getBoothDetailByName(String name) {
-		Optional<Booth> optBooth = boothRepository.findByName(name);
+	// 부스 ID 조회
+	public BoothDetailResponse getBoothDetailById(Long boothId) {
+		Optional<Booth> optBooth = boothRepository.findById(boothId);
 		if (optBooth.isEmpty()) {
 			throw new BaseException(BaseResponseStatus.BOOTH_NOT_FOUND);
 		}
 		return BoothDetailResponse.of(optBooth.get());
 	}
 
-	// 부스 이름으로 메뉴 조회
-	public List<MenuResponse> getMenusByBoothName(String boothName) {
-		Optional<Booth> boothOpt = boothRepository.findByName(boothName);
+	// 부스 ID로 메뉴 조회
+	public List<MenuResponse> getMenusByBoothId(Long boothId) {
+		Optional<Booth> boothOpt = boothRepository.findById(boothId);
 		if (boothOpt.isEmpty()) {
 			throw new BaseException(BaseResponseStatus.BOOTH_NOT_FOUND);
 		}
@@ -86,4 +85,5 @@ public class BoothService {
 			.map(MenuResponse::from)
 			.collect(Collectors.toList());
 	}
+
 }
