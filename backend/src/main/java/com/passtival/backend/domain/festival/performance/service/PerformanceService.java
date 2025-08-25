@@ -57,13 +57,12 @@ public class PerformanceService {
 		);
 	}
 
-	// 공연 이름 조회
-	public PerformanceDetailResponse getPerformanceByTitle(String title) {
-		Optional<Performance> performanceOpt = performanceRepository.findByTitle(title);
-		if (performanceOpt.isEmpty()) {
-			throw new BaseException(BaseResponseStatus.PERFORMANCE_NOT_FOUND);
-		}
-		return PerformanceDetailResponse.of(performanceOpt.get());
+	// 공연 이름 id로 조회
+	public PerformanceDetailResponse getPerformanceById(Long performanceId) {
+		Performance performance = performanceRepository.findById(performanceId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.NOT_FOUND));
+		return PerformanceDetailResponse.of(performance);
 	}
+
 
 }
