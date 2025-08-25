@@ -21,6 +21,8 @@ public enum BaseResponseStatus {
 	TOKEN_INVALID(false, 401, "유효하지 않은 토큰입니다."),
 	LOGIN_REQUIRED(false, 401, "로그인이 필요합니다."),
 	REFRESH_TOKEN_REQUIRED(false, 401, "리프레시 토큰은 필수입니다."),
+	SOCIAL_ID_NOTFOUND(false, 401, "소셜 ID가 존재하지 않습니다."),
+	INVALID_SOCIAL_ID(false, 401, "잘못된 소셜 ID 형식입니다."),
 
 	// 403: 접근 권한 오류
 	ACCESS_DENIED(false, 403, "해당 리소스에 접근할 수 없습니다."),
@@ -48,7 +50,7 @@ public enum BaseResponseStatus {
 	ONBOARDING_ALREADY_COMPLETED(false, 409, "이미 온보딩이 완료된 사용자입니다."),
 	DUPLICATE_BOOTH_NAME(false, 409, "이미 존재하는 부스이름입니다."),
 	DUPLICATE_PERFORMANCE_TITLE(false, 409, "이미 존재하는 공연 주제입니다."),
-  
+
 	// 422: 처리 불가능한 엔티티 (비즈니스 로직 오류)
 	INVALID_AUTH_KEY(false, 422, "인증키가 일치하지 않습니다."),
 	SAME_AUTH_KEY(false, 422, "기존 인증키와 동일한 키로는 변경할 수 없습니다."),
