@@ -23,4 +23,6 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
 	List<Performance> findPageByCursor(@Param("cursorId") Long cursorId,
 		Pageable pageable);
 
+	boolean existsByTitle(String title);
+
 }
