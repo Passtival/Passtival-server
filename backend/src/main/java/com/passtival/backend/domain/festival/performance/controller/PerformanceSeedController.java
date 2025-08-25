@@ -35,7 +35,7 @@ public class PerformanceSeedController {
 	// 인증키 검증
 	private void validateKey(String key) {
 		if (!seedKey.equals(key)) {
-			throw new SecurityException("Invalid seed key");
+			throw new BaseException(BaseResponseStatus.INVALID_AUTH_KEY);
 		}
 	}
 
