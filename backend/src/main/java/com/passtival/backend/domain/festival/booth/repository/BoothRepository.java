@@ -22,4 +22,6 @@ public interface BoothRepository extends JpaRepository<Booth, Long> {
 	List<Booth> findPageByCursor(@Param("cursorId") Long cursorId,
 		Pageable pageable);
 
+	boolean existsByName(String name);
+
 }
