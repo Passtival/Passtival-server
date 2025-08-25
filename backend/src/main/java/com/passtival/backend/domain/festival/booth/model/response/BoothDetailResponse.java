@@ -44,6 +44,7 @@ public class BoothDetailResponse {
 			.collect(Collectors.toList());
 
 		return BoothDetailResponse.builder()
+			.id(booth.getId())
 			.name(booth.getName())
 			.type(booth.getType())
 			.department(booth.getDepartment())

@@ -62,52 +62,50 @@ public class BoothController {
 		return BaseResponse.success(boothService.getBooths(cursor, size));
 	}
 
-
 	/**
-	 * 부스 이름으로 조회
-	 * @param {name} 부스 이름 요청 정보
+	 * 부스 id로 조회
+	 * @param {boothId} 부스 id 요청 정보
 	 * @return BoothResponse
 	 */
 	@Operation(
-		summary = "부스 이름으로 조회",
-		description = "상품 boothName으로 특정 부스의 정보를 조회합니다.",
+		summary = "부스 id로 조회",
+		description = "상품 boothId으로 특정 부스의 정보를 조회합니다.",
 		parameters = {
 			@Parameter(
-				name = "{name}",
-				description = "조회할 부스의 이름",
+				name = "{boothId}",
+				description = "조회할 부스의 id",
 				required = true,
 				in = ParameterIn.PATH,
-				example = "신석기"
+				example = "1"
 			)
 		}
 	)
 
-	@GetMapping("/booth/{boothName}")
-	public BaseResponse<BoothDetailResponse> getBoothDetail(@PathVariable String boothName) {
-		BoothDetailResponse boothDetail = boothService.getBoothDetailByName(boothName);
+	@GetMapping("/booth/{boothId}")
+	public BaseResponse<BoothDetailResponse> getBoothDetail(@PathVariable Long boothId) {
+		BoothDetailResponse boothDetail = boothService.getBoothDetailById(boothId);
 		return BaseResponse.success(boothDetail);
 	}
 
 	/**
-	 * 부스 이름으로 해당 부스의 메뉴 조회
+	 * 부스 ID로 해당 부스의 메뉴 조회
 	 */
 	@Operation(
-		summary = "부스 이름으로 해당 부스의 메뉴 조회",
-		description = "부스 이름으로 특정 부스의 메뉴들을 조회합니다.",
+		summary = "부스 ID로 해당 부스의 메뉴 조회",
+		description = "부스 ID로 특정 부스의 메뉴들을 조회합니다.",
 		parameters = {
 			@Parameter(
-				name = "{boothName}",
-				description = "조회할 부스의 name",
+				name = "boothId",
+				description = "조회할 부스의 ID",
 				required = true,
 				in = ParameterIn.PATH,
-				example = "신석기"
+				example = "1"
 			)
 		}
 	)
-
-	@GetMapping("/{boothName}/menus")
-	public BaseResponse<List<MenuResponse>> getMenusByBoothName(@PathVariable String boothName) {
-		List<MenuResponse> menus = boothService.getMenusByBoothName(boothName);
+	@GetMapping("/{boothId}/menus")
+	public BaseResponse<List<MenuResponse>> getMenusByBoothId(@PathVariable Long boothId) {
+		List<MenuResponse> menus = boothService.getMenusByBoothId(boothId);
 		return BaseResponse.success(menus);
 	}
 }
