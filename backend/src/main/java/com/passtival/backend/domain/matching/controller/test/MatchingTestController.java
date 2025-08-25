@@ -131,7 +131,7 @@ public class MatchingTestController {
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
 	@GetMapping("/cleanup")
-	public BaseResponse<String> manualCleanup() throws BaseException {
+	public BaseResponse<String> manualCleanup() {
 
 		// 매칭 스케줄러의 dailyCleanup 메서드 호출
 		matchingScheduler.dailyCleanup();
