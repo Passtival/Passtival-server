@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.passtival.backend.domain.lostfound.model.entity.Admin;
@@ -21,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 public class AdminInitializer implements ApplicationRunner {
 
 	private final AdminRepository adminRepository;
-	private final PasswordEncoder passwordEncoder;
 
 	@Value("${admin.initial.login-id}")
 	private String initialLoginId;
@@ -40,9 +38,7 @@ public class AdminInitializer implements ApplicationRunner {
 			return;
 		}
 
-		String hashedAuthKey = passwordEncoder.encode(initialAuthKey);
-
-		Admin admin = Admin.createAdmin(initialLoginId, hashedAuthKey);
+		Admin admin = Admin.createAdmin(initialLoginId, initialAuthKey);
 		adminRepository.save(admin);
 
 	}

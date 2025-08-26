@@ -1,6 +1,5 @@
 package com.passtival.backend.domain.lostfound.service;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.passtival.backend.domain.lostfound.model.entity.Admin;
@@ -18,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 public class AdminAuthService {
 
 	private final AdminRepository adminRepository;
-	private final PasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtil;
 
 	public TokenResponse login(AdminLoginRequest requestDto) {
@@ -27,7 +25,7 @@ public class AdminAuthService {
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.ADMIN_LOGIN_FAILED));
 
 		// 인증키(다른 로그인 기준 password) 검증
-		if (!passwordEncoder.matches(requestDto.getAuthKey(), admin.getAuthKey())) {
+		if (requestDto.getAuthKey().equals(admin.getAuthKey())) {
 			throw new BaseException(BaseResponseStatus.ADMIN_LOGIN_FAILED);
 		}
 
