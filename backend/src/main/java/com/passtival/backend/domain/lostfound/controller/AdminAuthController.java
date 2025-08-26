@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,10 +44,8 @@ public class AdminAuthController {
 					name = "관리자 로그인 요청 예시",
 					value = """
 						{
-						  {
 						    "adminId": "admin",
 						    "authKey": "String"
-						  }
 						}
 						"""
 				)
@@ -62,6 +61,11 @@ public class AdminAuthController {
 		return BaseResponse.success(tokenResponse);
 	}
 
+	@Operation(
+		summary = "관리자 인증 테스트",
+		description = "현재 인증된 관리자 정보를 확인합니다.",
+		security = @SecurityRequirement(name = "jwtAuth")  // 이 부분 추가
+	)
 	@GetMapping("/test")
 	public BaseResponse<Map<String, Object>> test(Authentication authentication) {
 		Map<String, Object> result = new HashMap<>();
