@@ -25,7 +25,7 @@ public class AdminAuthService {
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.ADMIN_LOGIN_FAILED));
 
 		// 인증키(다른 로그인 기준 password) 검증
-		if (requestDto.getAuthKey().equals(admin.getAuthKey())) {
+		if (!requestDto.getAuthKey().equals(admin.getAuthKey())) {
 			throw new BaseException(BaseResponseStatus.ADMIN_LOGIN_FAILED);
 		}
 
