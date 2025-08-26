@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import com.passtival.backend.domain.lostfound.model.entity.Admin;
 import com.passtival.backend.domain.lostfound.model.request.AdminLoginRequest;
 import com.passtival.backend.domain.lostfound.repository.AdminRepository;
-import com.passtival.backend.global.auth.jwt.JwtUtil;
 import com.passtival.backend.global.auth.model.token.TokenResponse;
+import com.passtival.backend.global.auth.util.JwtUtil;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 

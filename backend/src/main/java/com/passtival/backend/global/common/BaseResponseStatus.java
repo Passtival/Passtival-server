@@ -15,6 +15,7 @@ public enum BaseResponseStatus {
 	MATCHING_TIME_INVALID(false, 400, "매칭 신청은 매일 00:00부터 17:30까지만 가능합니다."),
 	CONTACT_INFO_REQUIRED(false, 400, "전화번호 또는 인스타그램 ID 중 적어도 하나는 입력해야 합니다."),
 	GENDER_REQUIRED(false, 400, "성별을 반드시 작성해야 합니다."),
+	UNSUPPORTED_PROVIDER(false, 400, "지원하지 않는 제공자입니다."),
 
 	// 401: 인증 오류
 	TOKEN_EXPIRED(false, 401, "토큰이 만료되었습니다."),
@@ -24,6 +25,7 @@ public enum BaseResponseStatus {
 	SOCIAL_ID_NOTFOUND(false, 401, "소셜 ID가 존재하지 않습니다."),
 	INVALID_SOCIAL_ID(false, 401, "잘못된 소셜 ID 형식입니다."),
 	ADMIN_LOGIN_FAILED(false, 401, "관리자 ID 혹은 인증키가 올바르지 못합니다."),
+	OAUTH2_PROCESSING_ERROR(false, 401, "OAuth2 인증 처리 중 오류가 발생했습니다."),
 
 	// 403: 접근 권한 오류
 	ACCESS_DENIED(false, 403, "해당 리소스에 접근할 수 없습니다."),
@@ -51,6 +53,7 @@ public enum BaseResponseStatus {
 	ONBOARDING_ALREADY_COMPLETED(false, 409, "이미 온보딩이 완료된 사용자입니다."),
 	DUPLICATE_BOOTH_NAME(false, 409, "이미 존재하는 부스이름입니다."),
 	DUPLICATE_PERFORMANCE_TITLE(false, 409, "이미 존재하는 공연 주제입니다."),
+	SOCIAL_ID_VERIFICATION_FAILED(false, 409, "소셜 ID 검증 중 오류가 발생했습니다"),
 
 	// 422: 처리 불가능한 엔티티 (비즈니스 로직 오류)
 	INVALID_AUTH_KEY(false, 422, "인증키가 일치하지 않습니다."),
@@ -58,6 +61,9 @@ public enum BaseResponseStatus {
 
 	// 500: 서버 오류
 	INTERNAL_SERVER_ERROR(false, 500, "서버에서 오류가 발생하였습니다."),
+	MEMBER_PROCESSING_ERROR(false, 500, "회원 정보 처리 중 오류가 발생했습니다."),
+	NEW_MEMBER_PROCESSING_ERROR(false, 500, "신규 회원 정보 처리 중 오류가 발생했습니다"),
+	MEMBER_DETAILS_CREATION_ERROR(false, 500, "사용자 인증 정보 생성 중 오류가 발생했습니다."),
 	DATABASE_ERROR(false, 500, "데이터베이스 오류가 발생했습니다.");
 
 	private final boolean isSuccess; // 요청 성공 여부

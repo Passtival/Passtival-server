@@ -17,8 +17,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import com.passtival.backend.global.auth.filter.JwtAuthenticationFilter;
+import com.passtival.backend.global.auth.handler.OAuth2SuccessHandler;
 import com.passtival.backend.global.auth.service.CustomOAuth2UserService;
-import com.passtival.backend.global.auth.service.OAuth2SuccessHandler;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -90,6 +90,9 @@ public class SecurityConfig {
 
 			// 토큰 관련 API (공개)
 			.requestMatchers("/api/auth/**").permitAll()
+
+			// Swagger UI 및 OpenAPI 문서 (공개)
+			.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
 
 			// 회원가입 완료 API (공개) (소셜 로그인 후 호출)
 			.requestMatchers("/api/me/profile").authenticated()

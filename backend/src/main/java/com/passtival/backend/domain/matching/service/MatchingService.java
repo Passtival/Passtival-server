@@ -33,7 +33,7 @@ public class MatchingService {
 	private final MatchingScheduler matchingScheduler;
 
 	//소개팅 신청 제한 시간
-	private static final int MATCHING_APPLICATION_DEADLINE_HOUR = 17;
+	private static final int MATCHING_APPLICATION_DEADLINE_HOUR = 23;
 
 	@Transactional
 	public void applyMatching(Long memberId) {

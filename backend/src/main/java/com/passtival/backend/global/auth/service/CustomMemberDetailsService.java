@@ -1,5 +1,6 @@
 package com.passtival.backend.global.auth.service;
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -8,15 +9,12 @@ import org.springframework.stereotype.Service;
 import com.passtival.backend.domain.matching.model.entity.Member;
 import com.passtival.backend.domain.matching.repository.MemberRepository;
 import com.passtival.backend.global.auth.model.CustomMemberDetails;
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class CustomMemberDetailsService implements UserDetailsService {
 
 	private final MemberRepository memberRepository;
@@ -44,12 +42,13 @@ public class CustomMemberDetailsService implements UserDetailsService {
 	 */
 	private void validateSocialId(String socialId) {
 		if (socialId == null || socialId.trim().isEmpty()) {
-			throw new BaseException(BaseResponseStatus.SOCIAL_ID_NOTFOUND);
+			// BaseException 대신 BadCredentialsException 사용
+			throw new BadCredentialsException("소셜 ID가 비어있습니다.");
 		}
 
-		// 소셜 ID 형식 검증 (provider_id 형태)
 		if (!socialId.contains("_")) {
-			throw new BaseException(BaseResponseStatus.INVALID_SOCIAL_ID);
+			// BaseException 대신 BadCredentialsException 사용
+			throw new BadCredentialsException("잘못된 소셜 ID 형식입니다: " + socialId);
 		}
 	}
 
@@ -61,6 +60,6 @@ public class CustomMemberDetailsService implements UserDetailsService {
 	 */
 	private Member findMemberBySocialId(String socialId) {
 		return memberRepository.findBySocialId(socialId.trim())
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new UsernameNotFoundException("해당하는 회원을 찾을 수 없습니다: " + socialId));
 	}
 }
