@@ -16,8 +16,6 @@ import com.passtival.backend.domain.festival.booth.model.response.BoothResponse;
 import com.passtival.backend.domain.festival.booth.service.BoothService;
 import com.passtival.backend.domain.festival.menu.model.response.MenuResponse;
 import com.passtival.backend.global.common.BaseResponse;
-import com.passtival.backend.global.common.BaseResponseStatus;
-import com.passtival.backend.global.exception.BaseException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/festival")
-@Tag(name = "Booth-Menu-API", description = "부스 & 메뉴 조회 API")
+@Tag(name = "부스 관련 API", description = "부스, 메뉴 조회")
 public class BoothController {
 
 	private final BoothService boothService;

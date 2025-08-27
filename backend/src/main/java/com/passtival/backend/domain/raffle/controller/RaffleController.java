@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/api/raffle")
 @RequiredArgsConstructor
-@Tag(name = "Raffle-API", description = "응모권 API")
+@Tag(name = "응모권 관련 API", description = "상품 조회, 신청자 등록")
 public class RaffleController {
 
 	private final RaffleService raffleService;

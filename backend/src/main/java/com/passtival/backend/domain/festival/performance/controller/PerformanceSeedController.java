@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/admin/seed")
 @RequiredArgsConstructor
-@Tag(name = "Performance-Seeder-API", description = "공연 데이터 삽입 API")
+@Tag(name = "데이터 주입 API", description = "공연, 부스, 메뉴 데이터 주입")
 public class PerformanceSeedController {
 
 	private final PerformanceRepository performanceRepository;
@@ -82,6 +82,5 @@ public class PerformanceSeedController {
 
 		return BaseResponse.success("Performances 데이터 삽입 성공!");
 	}
-
 
 }

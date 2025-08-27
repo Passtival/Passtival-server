@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.passtival.backend.domain.festival.performance.model.entity.Performance;
 import com.passtival.backend.domain.festival.performance.model.response.PerformanceDetailResponse;
 import com.passtival.backend.domain.festival.performance.model.response.PerformanceResponse;
-import com.passtival.backend.domain.festival.performance.model.entity.Performance;
 import com.passtival.backend.domain.festival.performance.service.PerformanceService;
 import com.passtival.backend.global.common.BaseResponse;
 
@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/festival")
-@Tag(name = "Performance-API", description = "공연 목록 조회 API")
+@Tag(name = "공연 관련 API", description = "공연 조회")
 public class PerformanceController {
 
 	private final PerformanceService performanceService;
@@ -63,7 +63,5 @@ public class PerformanceController {
 		PerformanceDetailResponse detail = performanceService.getPerformanceById(performanceId);
 		return BaseResponse.success(detail);
 	}
-
-
 
 }
