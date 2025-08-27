@@ -15,6 +15,8 @@ import com.passtival.backend.global.auth.model.AuthUserDto;
 import com.passtival.backend.global.auth.model.CustomOAuth2User;
 import com.passtival.backend.global.auth.model.KakaoResponse;
 import com.passtival.backend.global.auth.model.Oauth2Response;
+import com.passtival.backend.global.common.BaseResponseStatus;
+import com.passtival.backend.global.exception.BaseException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,12 +36,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	 */
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+		Oauth2Response oAuth2Response = null;
+
 		try {
 			// 1. 상위 클래스에서 OAuth2User 정보 가져오기
 			OAuth2User oAuth2User = super.loadUser(userRequest);
 
 			// 2. OAuth2 제공자별 응답 파싱
-			Oauth2Response oAuth2Response = parseOAuth2Response(userRequest, oAuth2User);
+			oAuth2Response = parseOAuth2Response(userRequest, oAuth2User);
 
 			// 3. 소셜 ID 검증
 			validateSocialId(oAuth2Response);
@@ -51,10 +55,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			return createCustomOAuth2User(member, oAuth2Response);
 
 		} catch (OAuth2AuthenticationException e) {
-			// OAuth2AuthenticationException은 그대로 전파 (Spring Security 표준)
 			throw e;
 		} catch (Exception e) {
-			// 수정: OAuth2Error 객체 사용
 			OAuth2Error error = new OAuth2Error(
 				"oauth2_processing_error",
 				"OAuth2 로그인 처리 중 오류가 발생했습니다",
@@ -74,23 +76,36 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	private Oauth2Response parseOAuth2Response(OAuth2UserRequest userRequest, OAuth2User oAuth2User)
 		throws OAuth2AuthenticationException {
 		try {
+
 			String registrationId = userRequest.getClientRegistration().getRegistrationId();
 
 			if ("kakao".equals(registrationId)) {
-				return new KakaoResponse(oAuth2User.getAttributes());
-			} else {
-				throw new OAuth2AuthenticationException("지원하지 않는 로그인 제공자입니다: " + registrationId);
-			}
 
-		} catch (OAuth2AuthenticationException e) {
-			throw e;
+				return new KakaoResponse(oAuth2User.getAttributes());
+
+			} else {
+
+				BaseException cause = new BaseException(BaseResponseStatus.UNSUPPORTED_PROVIDER);
+
+				OAuth2Error error = new OAuth2Error(
+					"unsupported_provider",
+					cause.getMessage(),
+					null);
+
+				throw new OAuth2AuthenticationException(error, cause);
+			}
 		} catch (Exception e) {
+
+			BaseException cause = new BaseException(BaseResponseStatus.OAUTH2_PROCESSING_ERROR);
+
+			log.error("parseOAuth2Response 중 예외 발생", e);
+
 			OAuth2Error error = new OAuth2Error(
 				"oauth2_parsing_error",
-				"OAuth2 응답 파싱 중 오류가 발생했습니다",
-				null
-			);
-			throw new OAuth2AuthenticationException(error, e);
+				cause.getMessage(),
+				null);
+
+			throw new OAuth2AuthenticationException(error, cause);
 		}
 	}
 
@@ -101,22 +116,37 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	 */
 	private void validateSocialId(Oauth2Response oAuth2Response) throws OAuth2AuthenticationException {
 		try {
+
 			String socialId = oAuth2Response.getSocialId();
 
 			if (socialId == null || socialId.trim().isEmpty()) {
 				log.warn("소셜 ID를 가져올 수 없음: provider={}", oAuth2Response.getProvider());
-				throw new OAuth2AuthenticationException("소셜 ID를 가져올 수 없습니다");
-			}
 
+				BaseException cause = new BaseException(BaseResponseStatus.SOCIAL_ID_NOTFOUND);
+
+				OAuth2Error error = new OAuth2Error(
+					"invalid_social_id",
+					cause.getMessage(),
+					null
+				);
+
+				throw new OAuth2AuthenticationException(error, cause);
+			}
 		} catch (OAuth2AuthenticationException e) {
 			throw e;
 		} catch (Exception e) {
+
+			log.error("validateSocialId 중 예외 발생", e);
+
+			BaseException cause = new BaseException(BaseResponseStatus.SOCIAL_ID_VERIFICATION_FAILED);
+
 			OAuth2Error error = new OAuth2Error(
 				"social_id_validation_error",
-				"소셜 ID 검증 중 오류가 발생했습니다",
+				cause.getMessage(),
 				null
 			);
-			throw new OAuth2AuthenticationException(error, e);
+
+			throw new OAuth2AuthenticationException(error, cause);
 		}
 	}
 
@@ -128,6 +158,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	 */
 	private Member processUserMembership(Oauth2Response oAuth2Response) throws OAuth2AuthenticationException {
 		try {
+
 			String socialId = oAuth2Response.getSocialId();
 			Optional<Member> existingMember = memberRepository.findBySocialId(socialId);
 
@@ -143,12 +174,18 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		} catch (OAuth2AuthenticationException e) {
 			throw e;
 		} catch (Exception e) {
+
+			log.error("회원 정보 처리 중 예외 발생, socialId: {}", oAuth2Response.getSocialId(), e);
+
+			BaseException cause = new BaseException(BaseResponseStatus.MEMBER_PROCESSING_ERROR);
+
 			OAuth2Error error = new OAuth2Error(
 				"member_processing_error",
-				"회원 정보 처리 중 오류가 발생했습니다",
+				cause.getMessage(), // 메시지도 cause의 것으로 통일
 				null
 			);
-			throw new OAuth2AuthenticationException(error, e);
+
+			throw new OAuth2AuthenticationException(error, cause);
 		}
 	}
 
@@ -160,6 +197,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	 */
 	private Member createNewMember(Oauth2Response oAuth2Response) throws OAuth2AuthenticationException {
 		try {
+
 			Member newMember = Member.createSocialMember(
 				oAuth2Response.getSocialId(),
 				oAuth2Response.getName()
@@ -170,12 +208,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			return savedMember;
 
 		} catch (Exception e) {
+
+			BaseException cause = new BaseException(BaseResponseStatus.NEW_MEMBER_PROCESSING_ERROR);
+
+			log.error("createNewMember 중 예외 발생, socialId: {}", oAuth2Response.getSocialId(), e);
+
 			OAuth2Error error = new OAuth2Error(
 				"member_creation_error",
-				"신규 회원 생성 중 오류가 발생했습니다",
+				cause.getMessage(),
 				null
 			);
-			throw new OAuth2AuthenticationException(error, e);
+			throw new OAuth2AuthenticationException(error, cause);
 		}
 	}
 
@@ -201,13 +244,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			return new CustomOAuth2User(authUserDto);
 
 		} catch (Exception e) {
+			BaseException cause = new BaseException(BaseResponseStatus.MEMBER_DETAILS_CREATION_ERROR);
+
+			log.error("createCustomOAuth2User 중 오류가 발생했습니다, socialId: {}", oAuth2Response.getSocialId(), e);
+
 			OAuth2Error error = new OAuth2Error(
 				"oauth2_user_creation_error",
-				"사용자 인증 정보 생성 중 오류가 발생했습니다",
+				cause.getMessage(),
 				null
 			);
-			throw new OAuth2AuthenticationException(error, e);
+			throw new OAuth2AuthenticationException(error, cause);
 		}
 	}
-
 }

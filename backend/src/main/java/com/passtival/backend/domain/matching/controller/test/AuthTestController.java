@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.passtival.backend.domain.matching.model.entity.Member;
 import com.passtival.backend.domain.matching.service.MemberService;
-import com.passtival.backend.global.auth.jwt.JwtUtil;
 import com.passtival.backend.global.auth.model.CustomMemberDetails;
+import com.passtival.backend.global.auth.util.JwtUtil;
 import com.passtival.backend.global.common.BaseResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
