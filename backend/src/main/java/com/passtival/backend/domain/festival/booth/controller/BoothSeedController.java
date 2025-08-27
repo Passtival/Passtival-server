@@ -73,6 +73,8 @@ public class BoothSeedController {
 					booth.addMenu(Menu.builder()
 						.type(menuReq.getType())
 						.name(menuReq.getName())
+						.introduction(menuReq.getIntroduction())
+						.imagePath(menuReq.getImagePath())
 						.price(menuReq.getPrice())
 						.build());
 				}
