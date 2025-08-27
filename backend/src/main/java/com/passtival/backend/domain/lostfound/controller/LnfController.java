@@ -53,8 +53,8 @@ public class LnfController {
 	@GetMapping("/upload-url")
 	public BaseResponse<String> getUploadUrl(
 		@RequestParam
-		@NotBlank(message = "파일명은 필수입니다.")
-		@Pattern(regexp = "^[a-zA-Z0-9._-]+\\.(jpg|jpeg|png|gif)$",
+		@NotBlank(message = "파일명은 한글, 영문, 숫자, ., _, - 문자로 이루어져야 하며, 공백일 수 없으며, jpg, jpeg, png, gif, heic, webp 확장자를 포함해야 합니다.")
+		@Pattern(regexp = "^[\\w가-힣._-]+\\.(jpg|jpeg|png|gif|heic|webp)$",
 			message = "유효한 이미지 파일명이어야 합니다.")
 		String fileName) {
 		String uploadUrl = lnfService.getUploadUrl(fileName);

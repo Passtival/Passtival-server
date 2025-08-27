@@ -53,16 +53,17 @@ public class PerformanceController {
 	}
 
 	/**
-	 * 공연 이름으로 단일 조회
-	 * @param performanceTitle 공연 이름
-	 * @return 공연 이름으로 정보 응답
+	 * 공연 id로 단일 조회
+	 * @param performanceId 공연 이름
+	 * @return 공연 id로 정보 응답
 	 */
-	@GetMapping("/performance/{performanceTitle}")
-	public BaseResponse<PerformanceDetailResponse> getPerformanceByTitle(
-		@PathVariable String performanceTitle) {
-		PerformanceDetailResponse detail = performanceService.getPerformanceByTitle(performanceTitle);
+	@GetMapping("/performance/{performanceId}")
+	public BaseResponse<PerformanceDetailResponse> getPerformanceById(
+		@PathVariable Long performanceId) {
+		PerformanceDetailResponse detail = performanceService.getPerformanceById(performanceId);
 		return BaseResponse.success(detail);
 	}
+
 
 
 }

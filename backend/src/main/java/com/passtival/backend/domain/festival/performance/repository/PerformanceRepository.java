@@ -13,10 +13,6 @@ import com.passtival.backend.domain.festival.performance.model.entity.Performanc
 
 public interface PerformanceRepository extends JpaRepository<Performance, Long> {
 
-	Optional<Performance> findByTitle(String title);
-
-	Optional<Performance> findByTitleAndDay(String title, Integer day);
-
 	@Query("SELECT p FROM Performance p " +
 		"WHERE (:cursorId IS NULL OR p.id < :cursorId) " +
 		"ORDER BY p.id DESC")

@@ -1,4 +1,4 @@
-package com.passtival.backend.global.auth.jwt;
+package com.passtival.backend.global.auth.util;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -12,10 +12,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import lombok.extern.slf4j.Slf4j;
 
 @Component
-@Slf4j
 public class JwtUtil {
 
 	private SecretKey secretKey;

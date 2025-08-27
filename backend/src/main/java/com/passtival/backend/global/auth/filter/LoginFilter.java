@@ -12,9 +12,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.passtival.backend.global.auth.jwt.JwtUtil;
 import com.passtival.backend.global.auth.model.CustomMemberDetails;
 import com.passtival.backend.global.auth.model.token.TokenResponse;
+import com.passtival.backend.global.auth.util.JwtUtil;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
 
@@ -48,8 +48,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		String memberName = obtainUsername(request);
 		String password = obtainPassword(request);
 
-		log.info("로그인 시도: username = {}", memberName);
-
 		// 2. 인증 토큰 생성
 		UsernamePasswordAuthenticationToken authToken =
 			new UsernamePasswordAuthenticationToken(memberName, password, null);
@@ -65,8 +63,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		CustomMemberDetails memberDetails = (CustomMemberDetails)authentication.getPrincipal();
 		Long memberId = memberDetails.getMemberId(); // PhoneMatchUser의 userId
 		String role = extractRole(authentication.getAuthorities());
-
-		log.info("로그인 성공: memberId = {}, role = {}", memberId, role);
 
 		// 2. JWT 토큰 생성
 		String accessToken = jwtUtil.createAccessToken(memberId, role);
@@ -92,7 +88,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException failed) throws IOException {
-		log.warn("로그인 실패: {}", failed.getMessage());
 
 		// BaseResponse를 활용한 에러 응답
 		response.setStatus(BaseResponseStatus.LOGIN_REQUIRED.getCode());

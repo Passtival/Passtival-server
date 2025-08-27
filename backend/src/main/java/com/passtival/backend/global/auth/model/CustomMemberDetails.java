@@ -14,20 +14,17 @@ public class CustomMemberDetails implements UserDetails {
 	private final Long memberId;
 	private final String role;
 	private final String socialId;           // 소셜 로그인 ID
-	private final boolean onboardingCompleted; // 온보딩 완료 여부
 
 	public CustomMemberDetails(Member member) {
 		this.memberId = member.getMemberId();
 		this.role = "ROLE_" + member.getRole();
 		this.socialId = member.getSocialId();
-		this.onboardingCompleted = member.isOnboardingCompleted();
 	}
 
 	public CustomMemberDetails(Long memberId, String role) {
 		this.memberId = memberId;
 		this.role = role;
 		this.socialId = null;
-		this.onboardingCompleted = false;
 	}
 
 	public Long getMemberId() {

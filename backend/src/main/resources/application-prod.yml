@@ -61,3 +61,5 @@ jwt:
 app:
   admin:
     seed-key: ${APP_ADMIN_SEED_KEY}
+    login-id: ${ADMIN_INITIAL_LOGIN_ID}
+    auth-key: ${ADMIN_INITIAL_AUTH_KEY}
