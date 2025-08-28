@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
  * 매칭 관련 API를 처리하는 컨트롤러
  * 프로젝트의 BaseResponse 응답 규격화를 따라 일관된 응답 구조 제공
  */
-@Tag(name = "Matching-API", description = "매칭 관리 API")
+@Tag(name = "번호팅 관련 API", description = "매칭 신청 및 결과 조회")
 @RestController
 @RequestMapping("/api/matching")
 @RequiredArgsConstructor

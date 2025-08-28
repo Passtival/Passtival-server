@@ -2,12 +2,12 @@ package com.passtival.backend.domain.lostfound.controller;
 
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -32,13 +33,13 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/found-items")
-@Tag(name = "Lost and Found API", description = "분실물 관리 API")
+@Tag(name = "분실물 관련 API", description = "분실물 등록, 조회, 삭제 API")
 public class LnfController {
 
 	private final LnfService lnfService;
 
 	@Operation(
-		summary = "이미지 업로드 URL 조회",
+		summary = "이미지 업로드 URL(PreSignedURL) 조회",
 		description = "클라이언트가 S3에 직접 이미지를 업로드하기 위한 Presigned URL을 생성합니다.",
 		parameters = {
 			@Parameter(
@@ -63,7 +64,8 @@ public class LnfController {
 
 	@Operation(
 		summary = "분실물 등록",
-		description = "습득한 분실물의 정보를 등록합니다. 이미지는 사전에 업로드하고 해당 URL을 포함해야 합니다.",
+		description = "습득한 분실물의 정보를 등록합니다. 이미지는 사전에 업로드하고 해당 URL을 포함해야 합니다. **관리자 권한이 필요합니다.**",
+		security = @SecurityRequirement(name = "jwtAuth"),
 		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
 			description = "분실물 등록 요청 정보",
 			required = true,
@@ -85,6 +87,7 @@ public class LnfController {
 		)
 	)
 	@PostMapping
+	@PreAuthorize("hasRole('ADMIN')")
 	public BaseResponse<Void> createFoundItem(@Valid @RequestBody FoundItemRequest request) {
 		lnfService.createFoundItem(request);
 		return BaseResponse.success(null);
@@ -93,6 +96,7 @@ public class LnfController {
 	@Operation(
 		summary = "분실물 삭제",
 		description = "등록된 분실물을 ID로 삭제합니다. 삭제 시 관리자 인증키가 필요합니다.",
+		security = @SecurityRequirement(name = "jwtAuth"),
 		parameters = {
 			@Parameter(
 				name = "id",
@@ -100,21 +104,13 @@ public class LnfController {
 				required = true,
 				in = ParameterIn.PATH,
 				example = "1"
-			),
-			@Parameter(
-				name = "X-Authentication-Key",
-				description = "관리자 인증키",
-				required = true,
-				in = ParameterIn.HEADER,
-				example = "admin-auth-key"
 			)
 		}
 	)
 	@DeleteMapping("/{id}")
-	public BaseResponse<Void> deleteFoundItem(
-		@PathVariable Long id,
-		@RequestHeader("X-Authentication-Key") String authenticationKey) {
-		lnfService.deleteFoundItem(id, authenticationKey);
+	@PreAuthorize("hasRole('ADMIN')")
+	public BaseResponse<Void> deleteFoundItem(@PathVariable Long id) {
+		lnfService.deleteFoundItem(id);
 		return BaseResponse.success(null);
 	}
 

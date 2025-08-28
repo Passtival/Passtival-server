@@ -3,7 +3,6 @@ package com.passtival.backend.domain.festival.booth.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -25,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/admin/seed")
 @RequiredArgsConstructor
-@Tag(name = "Booth-Menu-Seeder-API", description = "부스 & 메뉴 데이터 삽입 API")
+@Tag(name = "데이터 주입 API", description = "공연, 부스, 메뉴 데이터 주입")
 public class BoothSeedController {
 
 	private final BoothRepository boothRepository;
