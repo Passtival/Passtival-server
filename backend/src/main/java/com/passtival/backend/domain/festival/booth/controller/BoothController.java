@@ -33,14 +33,14 @@ public class BoothController {
 
 	/**
 	 * 부스 페이지 단위 전체 목록 조회 (페이징/정렬 지원)
-	 * 예: /api/festival/booth?page=2&pageSize=5&type=동아리&sort=operatingStart,desc&sort=name,asc
+	 * 예: /api/festival/booths?page=2&pageSize=5&type=동아리&sort=operatingStart,desc&sort=name,asc
 	 * @return BoothResponse
 	 */
 	@Operation(
 		summary = "부스 목록 조회",
 		description = "부스전체 목록을 조회합니다."
 	)
-	@GetMapping("/booth")
+	@GetMapping("/booths")
 	public BaseResponse<?> getBooths(
 		@PageableDefault(size = 5) Pageable pageable) {
 		Page<BoothResponse> page = boothService.getAllBooths(pageable);
@@ -49,11 +49,11 @@ public class BoothController {
 
 	/**
 	 * 커서기반 페이지네이션
-	 * 첫 페이지 요청 (cursor 없음) : GET /booth/cursor
-	 * 다음 페이지 요청 (cursor 사용) : GET /booth/cursor?cursor=6&size=5
-	 * 사이즈 변경 요청 : GET /booth/cursor?size=10
+	 * 첫 페이지 요청 (cursor 없음) : GET /booths/cursor
+	 * 다음 페이지 요청 (cursor 사용) : GET /booths/cursor?cursor=6&size=5
+	 * 사이즈 변경 요청 : GET /booths/cursor?size=10
 	 */
-	@GetMapping("booth/cursor")
+	@GetMapping("booths/cursor")
 	public BaseResponse<?> getBoothsCursor(
 		@RequestParam(required = false) Long cursor,
 		@RequestParam(defaultValue = "5") int size) {
@@ -70,7 +70,7 @@ public class BoothController {
 		description = "상품 boothId으로 특정 부스의 정보를 조회합니다.",
 		parameters = {
 			@Parameter(
-				name = "{boothId}",
+				name = "boothId",
 				description = "조회할 부스의 id",
 				required = true,
 				in = ParameterIn.PATH,
@@ -79,7 +79,7 @@ public class BoothController {
 		}
 	)
 
-	@GetMapping("/booth/{boothId}")
+	@GetMapping("/booths/{boothId}")
 	public BaseResponse<BoothDetailResponse> getBoothDetail(@PathVariable Long boothId) {
 		BoothDetailResponse boothDetail = boothService.getBoothDetailById(boothId);
 		return BaseResponse.success(boothDetail);
