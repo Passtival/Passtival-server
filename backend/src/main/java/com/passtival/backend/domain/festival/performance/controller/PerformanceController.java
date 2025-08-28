@@ -15,6 +15,9 @@ import com.passtival.backend.domain.festival.performance.model.entity.Performanc
 import com.passtival.backend.domain.festival.performance.service.PerformanceService;
 import com.passtival.backend.global.common.BaseResponse;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +34,10 @@ public class PerformanceController {
 	 * 예: /api/performances?page=0&size=10&sort=date,desc
 	 * @return 모든 공연 정보 응답
 	 */
+	@Operation(
+		summary = "공연 목록 조회",
+		description = "모든 공연을 페이지 단위로 조회합니다. 기본 페이지 크기는 5입니다."
+	)
 	@GetMapping("/performance")
 	public BaseResponse<?> getPerformances(
 		@PageableDefault(size = 5) Pageable pageable) {
@@ -45,6 +52,11 @@ public class PerformanceController {
 	 * 다음 페이지 요청 (cursor 사용) : GET /performance/cursor?cursor=6&size=5
 	 * 사이즈 변경 요청 : GET /performance/cursor?size=10
 	 */
+	@Operation(
+		summary = "공연 목록 조회 (커서 기반)",
+		description = "커서 기반으로 공연 목록을 조회합니다. " +
+			"첫 요청은 cursor 없이, 이후 요청은 cursor와 size 지정"
+	)
 	@GetMapping("/performance/cursor")
 	public BaseResponse<?> getPerformancesCursor(
 		@RequestParam(required = false) Long cursor,
@@ -57,6 +69,19 @@ public class PerformanceController {
 	 * @param performanceId 공연 이름
 	 * @return 공연 id로 정보 응답
 	 */
+	@Operation(
+		summary = "공연 단일 조회",
+		description = "공연 ID로 특정 공연의 상세 정보를 조회합니다.",
+		parameters = {
+			@Parameter(
+				name = "performanceId",
+				description = "조회할 공연 ID",
+				required = true,
+				in = ParameterIn.PATH,
+				example = "1"
+			)
+		}
+	)
 	@GetMapping("/performance/{performanceId}")
 	public BaseResponse<PerformanceDetailResponse> getPerformanceById(
 		@PathVariable Long performanceId) {
