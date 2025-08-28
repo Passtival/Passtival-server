@@ -69,7 +69,8 @@ public class SecurityConfig {
 
 			// 회원가입 완료 API (공개) (소셜 로그인 후 호출)
 			.requestMatchers("/api/me/profile").authenticated()
-
+			//소셜 로그인 허용
+			.requestMatchers("/api/matching/members/login/**").permitAll()
 			// 매칭 관련 로직 로그인한 사용자만 (유저)
 			.requestMatchers("/api/matching/**").hasRole("USER")
 
