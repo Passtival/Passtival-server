@@ -85,7 +85,7 @@ public class SecurityConfig {
 			.requestMatchers("/api/authentication/**").hasRole("ADMIN")
 
 			//축제 정보 관련 로직 (공개)
-			.requestMatchers("/api/festival**").permitAll()
+			.requestMatchers("/api/festival/**").permitAll()
 
 			// 추첨 API (공개)
 			.requestMatchers("/api/raffle/**").permitAll()

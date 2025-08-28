@@ -31,14 +31,14 @@ public class PerformanceController {
 
 	/**
 	 * 공연 목록 조회 (페이징/정렬 지원)
-	 * 예: /api/performances?page=0&size=10&sort=date,desc
+	 * 예: /performances?page=0&size=10&sort=day,desc
 	 * @return 모든 공연 정보 응답
 	 */
 	@Operation(
 		summary = "공연 목록 조회",
 		description = "모든 공연을 페이지 단위로 조회합니다. 기본 페이지 크기는 5입니다."
 	)
-	@GetMapping("/performance")
+	@GetMapping("/performances")
 	public BaseResponse<?> getPerformances(
 		@PageableDefault(size = 5) Pageable pageable) {
 		Page<Performance> page = performanceService.getAllPerformances(pageable);
@@ -48,16 +48,16 @@ public class PerformanceController {
 
 	/**
 	 * 커서기반 페이지네이션
-	 * 첫 페이지 요청 (cursor 없음) : GET /performance/cursor
-	 * 다음 페이지 요청 (cursor 사용) : GET /performance/cursor?cursor=6&size=5
-	 * 사이즈 변경 요청 : GET /performance/cursor?size=10
+	 * 첫 페이지 요청 (cursor 없음) : GET /performances/cursor
+	 * 다음 페이지 요청 (cursor 사용) : GET /performances/cursor?cursor=6&size=5
+	 * 사이즈 변경 요청 : GET /performances/cursor?size=10
 	 */
 	@Operation(
 		summary = "공연 목록 조회 (커서 기반)",
 		description = "커서 기반으로 공연 목록을 조회합니다. " +
 			"첫 요청은 cursor 없이, 이후 요청은 cursor와 size 지정"
 	)
-	@GetMapping("/performance/cursor")
+	@GetMapping("/performances/cursor")
 	public BaseResponse<?> getPerformancesCursor(
 		@RequestParam(required = false) Long cursor,
 		@RequestParam(defaultValue = "5") int size) {
@@ -66,7 +66,7 @@ public class PerformanceController {
 
 	/**
 	 * 공연 id로 단일 조회
-	 * @param performanceId 공연 이름
+	 * @param performanceId 공연 ID
 	 * @return 공연 id로 정보 응답
 	 */
 	@Operation(
@@ -82,7 +82,7 @@ public class PerformanceController {
 			)
 		}
 	)
-	@GetMapping("/performance/{performanceId}")
+	@GetMapping("/performances/{performanceId}")
 	public BaseResponse<PerformanceDetailResponse> getPerformanceById(
 		@PathVariable Long performanceId) {
 		PerformanceDetailResponse detail = performanceService.getPerformanceById(performanceId);
