@@ -23,7 +23,4 @@ public class FoundItemRequest {
 	private LocalDateTime foundDateTime;
 
 	private String imagePath;
-
-	@NotBlank(message = "인증키 입력은 필수입니다.")
-	private String authenticationKey;
 }
