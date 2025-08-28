@@ -24,7 +24,6 @@ public class BoothResponse {
 
 	/**
 	 * Booth 엔티티를 BoothResponseDTO로 변환하는 정적 팩토리 메서드
-	 *
 	 * @param booth Booth 엔티티
 	 * @return BoothResponseDTO 객체
 	 * @throws IllegalArgumentException booth가 null인 경우
