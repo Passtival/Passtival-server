@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.passtival.backend.domain.authentication.service.AuthenticationService;
 import com.passtival.backend.domain.lostfound.model.entity.FoundItem;
 import com.passtival.backend.domain.lostfound.model.request.FoundItemRequest;
 import com.passtival.backend.domain.lostfound.model.response.FoundItemResponse;
@@ -23,14 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 public class LnfService {
 
 	private final LnfRepository lnfRepository;
-	private final AuthenticationService authenticationService;
 	private final S3Service s3Service;
 
 	@Transactional
 	public void createFoundItem(FoundItemRequest request) {
-		// 인증키 유효성 검사
-		authenticationService.validateAuthenticationKey(request.getAuthenticationKey());
-
 		FoundItem foundItem = FoundItem.builder()
 			.title(request.getTitle())
 			.area(request.getArea())
@@ -39,7 +34,6 @@ public class LnfService {
 			.build();
 
 		lnfRepository.save(foundItem);
-
 	}
 
 	public String getUploadUrl(String fileName) {
@@ -47,10 +41,7 @@ public class LnfService {
 	}
 
 	@Transactional
-	public void deleteFoundItem(Long id, String authenticationKey) {
-
-		// 인증키 유효성 검사
-		authenticationService.validateAuthenticationKey(authenticationKey);
+	public void deleteFoundItem(Long id) {
 
 		if (!lnfRepository.existsById(id)) {
 			throw new BaseException(BaseResponseStatus.FOUND_ITEM_NOT_FOUND);

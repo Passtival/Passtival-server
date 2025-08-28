@@ -11,6 +11,7 @@ import com.passtival.backend.global.auth.service.AuthService;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.exception.BaseException;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "인증/인가 관련 API", description = "토큰 갱신")
 public class AuthController {
 
 	private final AuthService authService;

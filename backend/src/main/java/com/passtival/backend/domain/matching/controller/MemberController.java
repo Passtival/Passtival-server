@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/matching/members")
 @RequiredArgsConstructor
-@Tag(name = "Member-API", description = "회원 관리 API")
+@Tag(name = "번호팅 회원 관련 API", description = "번호팅 정보 수집, 프로필 조회")
 public class MemberController {
 
 	private final MemberService memberService;
@@ -38,7 +38,7 @@ public class MemberController {
 
 	//소셜 로그인 이후에 추가 정보를 얻는 로직 추가 예정
 	@Operation(
-		summary = "온보딩 (추가 정보 입력)",
+		summary = "정보 저장 (추가 정보 입력)",
 		description = "소셜 로그인으로 가입된 사용자가 추가 정보(성별, 전화번호)를 입력 **인증 토큰이 필요합니다.**\n"
 			+ "성별 (필수): db에 성별이 없으면 실패"
 			+ "전화번호 허용 형식: \"010-1234-5678\""
