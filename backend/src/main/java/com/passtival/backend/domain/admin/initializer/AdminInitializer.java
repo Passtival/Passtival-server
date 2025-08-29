@@ -1,4 +1,4 @@
-package com.passtival.backend.domain.lostfound.initializer;
+package com.passtival.backend.domain.admin.initializer;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -6,8 +6,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import com.passtival.backend.domain.lostfound.model.entity.Admin;
-import com.passtival.backend.domain.lostfound.repository.AdminRepository;
+import com.passtival.backend.domain.admin.model.entity.Admin;
+import com.passtival.backend.domain.admin.repository.AdminRepository;
 
 import lombok.RequiredArgsConstructor;
 

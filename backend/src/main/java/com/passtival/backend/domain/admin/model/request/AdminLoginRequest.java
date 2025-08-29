@@ -1,4 +1,4 @@
-package com.passtival.backend.domain.lostfound.model.request;
+package com.passtival.backend.domain.admin.model.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
