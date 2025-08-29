@@ -1,4 +1,4 @@
-package com.passtival.backend.domain.festival.performance.model.request;
+package com.passtival.backend.domain.admin.model.request;
 
 import java.time.LocalDateTime;
 import java.util.List;
