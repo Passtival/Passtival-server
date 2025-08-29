@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
-@Tag(name = "로그인 관련 API", description = "분실물 관리자 로그인, 번호팅 카카오 로그인")
+@Tag(name = "관리자 API")
 public class AdminAuthController {
 	private final AdminAuthService adminAuthService;
 
