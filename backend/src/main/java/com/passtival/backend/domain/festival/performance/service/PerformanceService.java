@@ -1,7 +1,6 @@
 package com.passtival.backend.domain.festival.performance.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -63,6 +62,5 @@ public class PerformanceService {
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.PERFORMANCE_NOT_FOUND));
 		return PerformanceDetailResponse.of(performance);
 	}
-
 
 }

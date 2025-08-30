@@ -9,7 +9,7 @@ import com.passtival.backend.domain.lostfound.model.response.FoundItemResponse;
 import com.passtival.backend.domain.lostfound.repository.LnfRepository;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
-import com.passtival.backend.global.s3.S3Service;
+import com.passtival.backend.global.s3.service.S3Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

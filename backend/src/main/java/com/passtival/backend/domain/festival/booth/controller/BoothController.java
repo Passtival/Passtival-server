@@ -16,6 +16,7 @@ import com.passtival.backend.domain.festival.booth.model.response.BoothResponse;
 import com.passtival.backend.domain.festival.booth.service.BoothService;
 import com.passtival.backend.domain.festival.menu.model.response.MenuResponse;
 import com.passtival.backend.global.common.BaseResponse;
+import com.passtival.backend.global.s3.service.S3Service;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -106,4 +107,5 @@ public class BoothController {
 		List<MenuResponse> menus = boothService.getMenusByBoothId(boothId);
 		return BaseResponse.success(menus);
 	}
+
 }
