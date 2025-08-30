@@ -19,7 +19,6 @@ import com.passtival.backend.domain.festival.menu.model.entity.Menu;
 import com.passtival.backend.domain.festival.menu.model.response.MenuResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
-import com.passtival.backend.global.s3.service.S3Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 public class BoothService {
 
 	private final BoothRepository boothRepository;
-	private final S3Service s3Service;
 
 	/**
 	 * 모든 부스 목록 조회 (페이징 가능)
@@ -86,10 +84,6 @@ public class BoothService {
 		return menus.stream()
 			.map(MenuResponse::from)
 			.collect(Collectors.toList());
-	}
-
-	public String getUploadUrl(String fileName) {
-		return s3Service.generatePresignedUrl(fileName);
 	}
 
 }
