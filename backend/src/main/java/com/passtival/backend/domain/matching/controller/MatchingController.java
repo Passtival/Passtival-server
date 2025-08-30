@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Tag(name = "번호팅 관련 API", description = "매칭 신청 및 결과 조회")
 @RestController
-@RequestMapping("/api/matching")
+@RequestMapping("/api/member/matching")
 @RequiredArgsConstructor
 public class MatchingController {
 
