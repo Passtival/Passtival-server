@@ -1,4 +1,4 @@
-package com.passtival.backend.global.s3;
+package com.passtival.backend.global.s3.service;
 
 import java.net.URL;
 import java.time.Duration;
