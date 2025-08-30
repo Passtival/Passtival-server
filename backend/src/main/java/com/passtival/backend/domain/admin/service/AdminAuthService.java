@@ -1,10 +1,10 @@
-package com.passtival.backend.domain.lostfound.service;
+package com.passtival.backend.domain.admin.service;
 
 import org.springframework.stereotype.Service;
 
-import com.passtival.backend.domain.lostfound.model.entity.Admin;
-import com.passtival.backend.domain.lostfound.model.request.AdminLoginRequest;
-import com.passtival.backend.domain.lostfound.repository.AdminRepository;
+import com.passtival.backend.domain.admin.model.entity.Admin;
+import com.passtival.backend.domain.admin.model.request.AdminLoginRequest;
+import com.passtival.backend.domain.admin.repository.AdminRepository;
 import com.passtival.backend.global.auth.model.token.TokenResponse;
 import com.passtival.backend.global.auth.util.JwtUtil;
 import com.passtival.backend.global.common.BaseResponseStatus;
