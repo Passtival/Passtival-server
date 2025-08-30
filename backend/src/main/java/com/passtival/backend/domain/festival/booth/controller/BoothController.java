@@ -16,11 +16,14 @@ import com.passtival.backend.domain.festival.booth.model.response.BoothResponse;
 import com.passtival.backend.domain.festival.booth.service.BoothService;
 import com.passtival.backend.domain.festival.menu.model.response.MenuResponse;
 import com.passtival.backend.global.common.BaseResponse;
+import com.passtival.backend.global.s3.service.S3Service;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -30,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class BoothController {
 
 	private final BoothService boothService;
+	private final S3Service s3Service;
 
 	/**
 	 * 부스 페이지 단위 전체 목록 조회 (페이징/정렬 지원)
@@ -106,4 +110,5 @@ public class BoothController {
 		List<MenuResponse> menus = boothService.getMenusByBoothId(boothId);
 		return BaseResponse.success(menus);
 	}
+
 }

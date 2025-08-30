@@ -15,6 +15,7 @@ import com.passtival.backend.domain.festival.performance.model.entity.Performanc
 import com.passtival.backend.domain.festival.performance.repository.PerformanceRepository;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
+import com.passtival.backend.global.s3.service.S3Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class PerformanceService {
 
 	private final PerformanceRepository performanceRepository;
+	private final S3Service s3Service;
 
 	/**
 	 * 모든 공연 목록 조회 (페이징 가능)
@@ -64,5 +66,7 @@ public class PerformanceService {
 		return PerformanceDetailResponse.of(performance);
 	}
 
-
+	public String getUploadUrl(String fileName) {
+		return s3Service.generatePresignedUrl(fileName);
+	}
 }
