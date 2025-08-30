@@ -23,10 +23,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/matching/members")
+@RequestMapping("/api/member/matching")
 @RequiredArgsConstructor
 @Tag(name = "번호팅 회원 관련 API", description = "번호팅 정보 수집, 프로필 조회")
-public class MemberController {
+public class MemberMatchingController {
 
 	private final MemberService memberService;
 
