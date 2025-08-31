@@ -6,8 +6,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.passtival.backend.domain.matching.model.entity.Member;
-import com.passtival.backend.domain.matching.repository.MemberRepository;
+import com.passtival.backend.domain.matching.model.entity.MatchingApplicant;
+import com.passtival.backend.domain.matching.repository.MatchingApplicantRepository;
 import com.passtival.backend.global.auth.model.CustomMemberDetails;
 import com.passtival.backend.global.exception.BaseException;
 
@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomMemberDetailsService implements UserDetailsService {
 
-	private final MemberRepository memberRepository;
+	private final MatchingApplicantRepository matchingApplicantRepository;
 
 	/**
 	 * 소셜 ID로 사용자 정보 조회 (Spring Security 표준 인터페이스)
@@ -30,9 +30,9 @@ public class CustomMemberDetailsService implements UserDetailsService {
 		// 1. 입력 검증
 		validateSocialId(socialId);
 		// 2. 회원 조회
-		Member member = findMemberBySocialId(socialId);
+		MatchingApplicant matchingApplicant = findMemberBySocialId(socialId);
 		// 3. CustomMemberDetails 생성 및 반환
-		return new CustomMemberDetails(member);
+		return new CustomMemberDetails(matchingApplicant);
 	}
 
 	/**
@@ -58,8 +58,8 @@ public class CustomMemberDetailsService implements UserDetailsService {
 	 * @return Member 회원 정보
 	 * @throws BaseException 회원을 찾을 수 없는 경우
 	 */
-	private Member findMemberBySocialId(String socialId) {
-		return memberRepository.findBySocialId(socialId.trim())
+	private MatchingApplicant findMemberBySocialId(String socialId) {
+		return matchingApplicantRepository.findBySocialId(socialId.trim())
 			.orElseThrow(() -> new UsernameNotFoundException("해당하는 회원을 찾을 수 없습니다: " + socialId));
 	}
 }
