@@ -1,4 +1,4 @@
-package com.passtival.backend.global.auth.handler;
+package com.passtival.backend.global.handler;
 
 import java.io.IOException;
 
@@ -7,7 +7,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
-import com.passtival.backend.global.auth.util.ResponseUtil;
+import com.passtival.backend.global.security.util.ResponseUtil;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 

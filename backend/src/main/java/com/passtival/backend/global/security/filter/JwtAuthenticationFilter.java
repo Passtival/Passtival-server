@@ -1,4 +1,4 @@
-package com.passtival.backend.global.auth.filter;
+package com.passtival.backend.global.security.filter;
 
 import java.io.IOException;
 
@@ -7,9 +7,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.passtival.backend.global.auth.model.CustomMemberDetails;
-import com.passtival.backend.global.auth.util.JwtUtil;
-import com.passtival.backend.global.auth.util.ResponseUtil;
+import com.passtival.backend.global.security.model.CustomMemberDetails;
+import com.passtival.backend.global.security.util.JwtUtil;
+import com.passtival.backend.global.security.util.ResponseUtil;
 import com.passtival.backend.global.common.BaseResponseStatus;
 
 import io.jsonwebtoken.ExpiredJwtException;

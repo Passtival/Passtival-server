@@ -1,10 +1,10 @@
-package com.passtival.backend.global.auth.service;
+package com.passtival.backend.global.security.service;
 
 import org.springframework.stereotype.Service;
 
-import com.passtival.backend.global.auth.model.token.RefreshTokenRequest;
-import com.passtival.backend.global.auth.model.token.TokenResponse;
-import com.passtival.backend.global.auth.util.JwtUtil;
+import com.passtival.backend.global.security.model.token.RefreshTokenRequest;
+import com.passtival.backend.global.security.model.token.TokenResponse;
+import com.passtival.backend.global.security.util.JwtUtil;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AuthService {
+public class TokenService {
 
 	private final JwtUtil jwtUtil;
 

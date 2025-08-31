@@ -1,4 +1,4 @@
-package com.passtival.backend.global.auth.filter;
+package com.passtival.backend.global.security.filter;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -12,9 +12,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.passtival.backend.global.auth.model.CustomMemberDetails;
-import com.passtival.backend.global.auth.model.token.TokenResponse;
-import com.passtival.backend.global.auth.util.JwtUtil;
+import com.passtival.backend.global.security.model.CustomMemberDetails;
+import com.passtival.backend.global.security.model.token.TokenResponse;
+import com.passtival.backend.global.security.util.JwtUtil;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
 

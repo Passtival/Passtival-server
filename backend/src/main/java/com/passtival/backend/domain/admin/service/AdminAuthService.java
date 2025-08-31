@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import com.passtival.backend.domain.admin.model.entity.Admin;
 import com.passtival.backend.domain.admin.model.request.AdminLoginRequest;
 import com.passtival.backend.domain.admin.repository.AdminRepository;
-import com.passtival.backend.global.auth.model.token.TokenResponse;
-import com.passtival.backend.global.auth.util.JwtUtil;
+import com.passtival.backend.global.security.model.token.TokenResponse;
+import com.passtival.backend.global.security.util.JwtUtil;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 

@@ -1,4 +1,4 @@
-package com.passtival.backend.global.auth.model;
+package com.passtival.backend.global.security.model;
 
 import java.util.ArrayList;
 import java.util.Collection;

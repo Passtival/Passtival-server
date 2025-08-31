@@ -1,4 +1,4 @@
-package com.passtival.backend.global.auth.model.token;
+package com.passtival.backend.global.security.model.token;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

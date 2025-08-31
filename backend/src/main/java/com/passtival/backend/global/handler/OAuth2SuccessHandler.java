@@ -1,4 +1,4 @@
-package com.passtival.backend.global.auth.handler;
+package com.passtival.backend.global.handler;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -10,10 +10,10 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.passtival.backend.global.auth.model.CustomOAuth2User;
-import com.passtival.backend.global.auth.model.token.TokenResponse;
-import com.passtival.backend.global.auth.util.JwtUtil;
-import com.passtival.backend.global.auth.util.ResponseUtil;
+import com.passtival.backend.global.security.model.CustomOAuth2User;
+import com.passtival.backend.global.security.model.token.TokenResponse;
+import com.passtival.backend.global.security.util.JwtUtil;
+import com.passtival.backend.global.security.util.ResponseUtil;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
 

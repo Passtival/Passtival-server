@@ -1,4 +1,4 @@
-package com.passtival.backend.global.auth.service;
+package com.passtival.backend.global.security.service;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.passtival.backend.domain.matching.model.entity.Member;
 import com.passtival.backend.domain.matching.repository.MemberRepository;
-import com.passtival.backend.global.auth.model.CustomMemberDetails;
+import com.passtival.backend.global.security.model.CustomMemberDetails;
 import com.passtival.backend.global.exception.BaseException;
 
 import lombok.RequiredArgsConstructor;

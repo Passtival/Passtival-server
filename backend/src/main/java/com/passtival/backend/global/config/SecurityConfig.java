@@ -10,9 +10,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.passtival.backend.global.auth.filter.JwtAuthenticationFilter;
-import com.passtival.backend.global.auth.handler.OAuth2SuccessHandler;
-import com.passtival.backend.global.auth.service.CustomOAuth2UserService;
+import com.passtival.backend.global.security.filter.JwtAuthenticationFilter;
+import com.passtival.backend.global.handler.OAuth2SuccessHandler;
+import com.passtival.backend.global.security.service.CustomOAuth2UserService;
 
 @Configuration
 @EnableWebSecurity
