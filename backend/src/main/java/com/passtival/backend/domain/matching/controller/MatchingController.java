@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Tag(name = "번호팅 관련 API", description = "매칭 신청 및 결과 조회")
 @RestController
-@RequestMapping("/api/member/matching")
+@RequestMapping("/api/matching")
 @RequiredArgsConstructor
 public class MatchingController {
 
@@ -40,7 +40,7 @@ public class MatchingController {
 		security = @SecurityRequirement(name = "jwtAuth")
 		// requestBody 관련 어노테이션 모두 제거
 	)
-	@PostMapping("/application")
+	@PostMapping()
 	@PreAuthorize("hasRole('USER')")
 	public BaseResponse<Void> applyMatching(@AuthenticationPrincipal CustomMemberDetails memberDetails) {
 		matchingService.applyMatching(memberDetails.getMemberId());

@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.passtival.backend.domain.matching.model.entity.MatchingProfile;
+import com.passtival.backend.domain.matching.model.entity.MatchingApplicant;
 import com.passtival.backend.domain.matching.model.enums.Gender;
-import com.passtival.backend.domain.matching.repository.MatchingProfileRepository;
+import com.passtival.backend.domain.matching.repository.MatchingApplicantRepository;
 import com.passtival.backend.domain.matching.service.MatchingScheduler;
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
@@ -28,18 +28,18 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Matching-Test-API", description = "매칭 테스트용 API")
 public class MatchingTestController {
 
-	private final MatchingProfileRepository matchingProfileRepository;
+	private final MatchingApplicantRepository matchingApplicantRepository;
 	private final MatchingScheduler matchingScheduler;
 
 	@Operation(summary = "테스트 회원 데이터 생성", description = "매칭 테스트를 위한 남성/여성 회원 데이터를 생성합니다.")
 	@GetMapping("/create-test-members")
 	public BaseResponse<String> createTestMembers() {
 		try {
-			List<MatchingProfile> testMatchingProfiles = new ArrayList<>();
+			List<MatchingApplicant> testMatchingApplicants = new ArrayList<>();
 
 			// 남성 회원 3명 생성
 			for (int i = 1; i <= 34; i++) {
-				MatchingProfile male = MatchingProfile.builder()
+				MatchingApplicant male = MatchingApplicant.builder()
 					.socialId("test_male_" + String.format("%03d", i))
 					.name("테스트남성" + i)
 					.gender(Gender.MALE)
@@ -49,12 +49,12 @@ public class MatchingTestController {
 					.appliedAt(null)
 					.role(Role.USER)
 					.build();
-				testMatchingProfiles.add(male);
+				testMatchingApplicants.add(male);
 			}
 
 			// 여성 회원 3명 생성
 			for (int i = 1; i <= 30; i++) {
-				MatchingProfile female = MatchingProfile.builder()
+				MatchingApplicant female = MatchingApplicant.builder()
 					.socialId("test_female_" + String.format("%03d", i))
 					.name("테스트여성" + i)
 					.gender(Gender.FEMALE)
@@ -64,10 +64,10 @@ public class MatchingTestController {
 					.appliedAt(null)
 					.role(Role.USER)
 					.build();
-				testMatchingProfiles.add(female);
+				testMatchingApplicants.add(female);
 			}
 
-			matchingProfileRepository.saveAll(testMatchingProfiles);
+			matchingApplicantRepository.saveAll(testMatchingApplicants);
 
 			return BaseResponse.success("테스트 회원 생성 완료!");
 
@@ -80,19 +80,19 @@ public class MatchingTestController {
 	@PostMapping("/apply-all-test-members")
 	public BaseResponse<String> applyAllTestMembers() {
 		try {
-			List<MatchingProfile> testMatchingProfiles = matchingProfileRepository.findByNameStartingWith("테스트");
+			List<MatchingApplicant> testMatchingApplicants = matchingApplicantRepository.findByNameStartingWith("테스트");
 
-			if (testMatchingProfiles.isEmpty()) {
+			if (testMatchingApplicants.isEmpty()) {
 				return BaseResponse.fail(BaseResponseStatus.BAD_REQUEST, "테스트 회원이 없습니다. 먼저 테스트 회원을 생성해주세요.");
 			}
 
-			for (MatchingProfile matchingProfile : testMatchingProfiles) {
-				matchingProfile.applyForMatching();
+			for (MatchingApplicant matchingApplicant : testMatchingApplicants) {
+				matchingApplicant.applyForMatching();
 			}
 
-			matchingProfileRepository.saveAll(testMatchingProfiles);
+			matchingApplicantRepository.saveAll(testMatchingApplicants);
 
-			return BaseResponse.success(testMatchingProfiles.size() + "명의 테스트 회원이 매칭에 신청했습니다!");
+			return BaseResponse.success(testMatchingApplicants.size() + "명의 테스트 회원이 매칭에 신청했습니다!");
 
 		} catch (Exception e) {
 			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 매칭 신청 실패: " + e.getMessage());
@@ -143,12 +143,12 @@ public class MatchingTestController {
 	@GetMapping("/test-members")
 	public BaseResponse<List<String>> getTestMembers() {
 		try {
-			List<MatchingProfile> testMatchingProfiles = matchingProfileRepository.findByNameStartingWith("테스트");
+			List<MatchingApplicant> testMatchingApplicants = matchingApplicantRepository.findByNameStartingWith("테스트");
 			List<String> memberInfo = new ArrayList<>();
 
-			for (MatchingProfile matchingProfile : testMatchingProfiles) {
+			for (MatchingApplicant matchingApplicant : testMatchingApplicants) {
 				String info = String.format("%s (%s) - 신청여부: %s",
-					matchingProfile.getName(), matchingProfile.getGender(), matchingProfile.isApplied());
+					matchingApplicant.getName(), matchingApplicant.getGender(), matchingApplicant.isApplied());
 				memberInfo.add(info);
 			}
 

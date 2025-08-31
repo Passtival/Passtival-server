@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.passtival.backend.domain.matching.model.request.MatchingProfilePatchRequest;
-import com.passtival.backend.domain.matching.model.response.MatchingProfileResponse;
-import com.passtival.backend.domain.matching.service.MatchingProfileService;
+import com.passtival.backend.domain.matching.model.request.MatchingApplicantPatchRequest;
+import com.passtival.backend.domain.matching.model.response.MatchingApplicantResponse;
+import com.passtival.backend.domain.matching.service.MatchingApplicantService;
 import com.passtival.backend.global.auth.model.CustomMemberDetails;
 import com.passtival.backend.global.common.BaseResponse;
 
@@ -23,12 +23,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/member/matching")
+@RequestMapping("/api/matching")
 @RequiredArgsConstructor
 @Tag(name = "번호팅 회원 관련 API", description = "번호팅 정보 수집, 프로필 조회")
-public class MatchingProfileController {
+public class MatchingApplicantController {
 
-	private final MatchingProfileService matchingProfileService;
+	private final MatchingApplicantService matchingApplicantService;
 
 	/**
 	 * 회원가입 API (소셜 로그인 이후 추가 정보 입력)
@@ -49,7 +49,7 @@ public class MatchingProfileController {
 			required = true,
 			content = @Content(
 				mediaType = "application/json",
-				schema = @Schema(implementation = MatchingProfilePatchRequest.class),
+				schema = @Schema(implementation = MatchingApplicantPatchRequest.class),
 				examples = @ExampleObject(
 					name = "온보딩 요청 예시",
 					value = """
@@ -66,10 +66,10 @@ public class MatchingProfileController {
 	@PatchMapping("/me")
 	public BaseResponse<Void> patchProfile(
 		@AuthenticationPrincipal CustomMemberDetails memberDetails, // 1. 현재 로그인한 사용자 정보 가져오기
-		@Valid @RequestBody MatchingProfilePatchRequest matchingProfilePatchRequest) {
+		@Valid @RequestBody MatchingApplicantPatchRequest applicantPatchRequest) {
 
 		// 2. 서비스에 사용자 ID와 DTO 전달
-		matchingProfileService.patchProfile(memberDetails.getMemberId(), matchingProfilePatchRequest);
+		matchingApplicantService.patchProfile(memberDetails.getMemberId(), applicantPatchRequest);
 		return BaseResponse.success(null);
 	}
 
@@ -79,10 +79,10 @@ public class MatchingProfileController {
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
 	@GetMapping("/me")
-	public BaseResponse<MatchingProfileResponse> getProfile(
+	public BaseResponse<MatchingApplicantResponse> getProfile(
 		@AuthenticationPrincipal CustomMemberDetails memberDetails) {
 
-		MatchingProfileResponse response = matchingProfileService.getProfile(memberDetails.getMemberId());
+		MatchingApplicantResponse response = matchingApplicantService.getProfile(memberDetails.getMemberId());
 		return BaseResponse.success(response);
 	}
 }

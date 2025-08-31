@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.passtival.backend.domain.matching.model.entity.Matching;
-import com.passtival.backend.domain.matching.model.entity.MatchingProfile;
+import com.passtival.backend.domain.matching.model.entity.MatchingApplicant;
 import com.passtival.backend.domain.matching.model.response.MatchingResponse;
-import com.passtival.backend.domain.matching.repository.MatchingProfileRepository;
+import com.passtival.backend.domain.matching.repository.MatchingApplicantRepository;
 import com.passtival.backend.domain.matching.repository.MatchingRepository;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MatchingService {
 
-	private final MatchingProfileRepository matchingProfileRepository;
+	private final MatchingApplicantRepository matchingApplicantRepository;
 	private final MatchingRepository matchingRepository;
 	private final MatchingScheduler matchingScheduler;
 
@@ -51,21 +51,21 @@ public class MatchingService {
 		}
 
 		// 사용자 존재 여부 확인
-		MatchingProfile matchingProfile = matchingProfileRepository.findById(memberId)
+		MatchingApplicant matchingApplicant = matchingApplicantRepository.findById(memberId)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
 
-		if (matchingProfile.getGender() == null) {
+		if (matchingApplicant.getGender() == null) {
 			throw new BaseException(BaseResponseStatus.INCOMPLETE_MEMBER_INFO);
 		}
 
 		// 중복 신청 검증
-		if (matchingProfile.isApplied()) {
+		if (matchingApplicant.isApplied()) {
 			throw new BaseException(BaseResponseStatus.ALREADY_APPLIED_MATCHING);
 		}
 
-		matchingProfile.applyForMatching();
+		matchingApplicant.applyForMatching();
 
-		matchingProfileRepository.save(matchingProfile);
+		matchingApplicantRepository.save(matchingApplicant);
 	}
 
 	public MatchingResponse getMatchingResult(Long memberId) {
@@ -89,37 +89,37 @@ public class MatchingService {
 			? matching.getFemaleId() : matching.getMaleId();
 
 		// 사용자(나와 파트너) 정보 조회
-		List<MatchingProfile> matchingProfiles = matchingProfileRepository
+		List<MatchingApplicant> matchingApplicants = matchingApplicantRepository
 			.findByMemberIdIn(Arrays.asList(myMemberId, partnerMemberId));
 
-		if (matchingProfiles.size() != 2) {
+		if (matchingApplicants.size() != 2) {
 			throw new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND);
 		}
 
 		// 내 정보와 상대방 정보 분리
-		MatchingProfile myMatchingProfile = matchingProfiles.stream()
+		MatchingApplicant myMatchingApplicant = matchingApplicants.stream()
 			.filter(member -> member.getMemberId().equals(myMemberId))
 			.findFirst()
 			.orElse(null);
 
-		MatchingProfile partnerMatchingProfile = matchingProfiles.stream()
+		MatchingApplicant partnerMatchingApplicant = matchingApplicants.stream()
 			.filter(member -> member.getMemberId().equals(partnerMemberId))
 			.findFirst()
 			.orElse(null);
 
-		if (myMatchingProfile == null || partnerMatchingProfile == null) {
+		if (myMatchingApplicant == null || partnerMatchingApplicant == null) {
 			throw new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND);
 		}
 
 		// DTO 생성
 		MatchingResponse.MemberInfo myInfo = MatchingResponse.MemberInfo.builder()
-			.phoneNumber(myMatchingProfile.getPhoneNumber())
-			.instagramId(myMatchingProfile.getInstagramId())
+			.phoneNumber(myMatchingApplicant.getPhoneNumber())
+			.instagramId(myMatchingApplicant.getInstagramId())
 			.build();
 
 		MatchingResponse.MemberInfo partnerInfo = MatchingResponse.MemberInfo.builder()
-			.phoneNumber(partnerMatchingProfile.getPhoneNumber())
-			.instagramId(partnerMatchingProfile.getInstagramId())
+			.phoneNumber(partnerMatchingApplicant.getPhoneNumber())
+			.instagramId(partnerMatchingApplicant.getInstagramId())
 			.build();
 
 		MatchingResponse response = MatchingResponse.builder()

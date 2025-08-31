@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class MatchingProfileResponse {
+public class MatchingApplicantResponse {
 	private Long MemberId;
 
 	private String MemberName;

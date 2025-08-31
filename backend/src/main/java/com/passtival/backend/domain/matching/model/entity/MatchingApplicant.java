@@ -22,12 +22,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "matching_profiles")
+@Table(name = "matching_applicant")
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class MatchingProfile extends BaseEntity {
+public class MatchingApplicant extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,8 +60,8 @@ public class MatchingProfile extends BaseEntity {
 	private Role role;
 
 	//, Gender gender, String phoneNumber, String name(현재는 닉네임을 넣는중)
-	public static MatchingProfile createSocialMember(String socialId, String name) {
-		return MatchingProfile.builder()
+	public static MatchingApplicant createSocialMember(String socialId, String name) {
+		return MatchingApplicant.builder()
 			.socialId(socialId)
 			.name(name)
 			//.gender(gender)

@@ -10,14 +10,14 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.passtival.backend.domain.matching.model.entity.MatchingProfile;
+import com.passtival.backend.domain.matching.model.entity.MatchingApplicant;
 import com.passtival.backend.domain.matching.model.enums.Gender;
 
-public interface MatchingProfileRepository extends JpaRepository<MatchingProfile, Long> {
+public interface MatchingApplicantRepository extends JpaRepository<MatchingApplicant, Long> {
 	// 회원 구분 기준을 전화번호로 한다.
-	Optional<MatchingProfile> findByPhoneNumber(String phoneNumber);
+	Optional<MatchingApplicant> findByPhoneNumber(String phoneNumber);
 
-	Optional<MatchingProfile> findBySocialId(String socialId);
+	Optional<MatchingApplicant> findBySocialId(String socialId);
 
 	//회원 가입용 소셜 로그인으로 구현(카카오톡만 사용할때 가능)
 	boolean existsBySocialId(String socialId);
@@ -30,29 +30,29 @@ public interface MatchingProfileRepository extends JpaRepository<MatchingProfile
 
 	// 특정 사용자들만 신청 상태 초기화 (매칭 신청 / 성공에 따라 별도로 실행을 통해 메모리 최적화)
 	@Modifying
-	@Query("UPDATE MatchingProfile u SET u.applied = false, u.appliedAt = null WHERE u.memberId IN :memberIds")
+	@Query("UPDATE MatchingApplicant u SET u.applied = false, u.appliedAt = null WHERE u.memberId IN :memberIds")
 	void resetApplicationsByMemberIds(@Param("memberIds") List<Long> memberIds);
 
 	// 모든 사용자 신청 상태 초기화 (매칭 가능자가 없을 때 사용: 한쪽 성별 0명 일 때)
 	@Modifying
-	@Query("UPDATE MatchingProfile u SET u.applied = false, u.appliedAt = null")
+	@Query("UPDATE MatchingApplicant u SET u.applied = false, u.appliedAt = null")
 	void resetAllApplications();
 
 	// 파트너와 나의 정보를 조회하는 메서드 추가
-	List<MatchingProfile> findByMemberIdIn(List<Long> memberIds);
+	List<MatchingApplicant> findByMemberIdIn(List<Long> memberIds);
 
 	//신청한 인원을 성별 기준으로 확인
 	long countByAppliedTrueAndGender(Gender gender);
 
 	// 제한된 수만 조회 (Pageable 활용 자르기)
-	List<MatchingProfile> findByAppliedTrueAndGenderOrderByAppliedAtAsc(Gender gender, Pageable pageable);
+	List<MatchingApplicant> findByAppliedTrueAndGenderOrderByAppliedAtAsc(Gender gender, Pageable pageable);
 
 	//신청했던 사람들 id를 전달 받아 초기화
 	@Modifying
-	@Query("UPDATE MatchingProfile m SET m.applied = false, m.appliedAt = null WHERE m.applied = true AND m.memberId NOT IN :matchedIds")
+	@Query("UPDATE MatchingApplicant m SET m.applied = false, m.appliedAt = null WHERE m.applied = true AND m.memberId NOT IN :matchedIds")
 	void resetApplicationsForUnmatched(@Param("matchedIds") Set<Long> matchedIds);
 
 	// 테스트용 메서드들
-	List<MatchingProfile> findByNameStartingWith(String namePrefix);
+	List<MatchingApplicant> findByNameStartingWith(String namePrefix);
 
 }

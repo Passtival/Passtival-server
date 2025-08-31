@@ -7,7 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.passtival.backend.domain.matching.model.entity.MatchingProfile;
+import com.passtival.backend.domain.matching.model.entity.MatchingApplicant;
 
 public class CustomMemberDetails implements UserDetails {
 
@@ -15,10 +15,10 @@ public class CustomMemberDetails implements UserDetails {
 	private final String role;
 	private final String socialId;           // 소셜 로그인 ID
 
-	public CustomMemberDetails(MatchingProfile matchingProfile) {
-		this.memberId = matchingProfile.getMemberId();
-		this.role = "ROLE_" + matchingProfile.getRole();
-		this.socialId = matchingProfile.getSocialId();
+	public CustomMemberDetails(MatchingApplicant matchingApplicant) {
+		this.memberId = matchingApplicant.getMemberId();
+		this.role = "ROLE_" + matchingApplicant.getRole();
+		this.socialId = matchingApplicant.getSocialId();
 	}
 
 	public CustomMemberDetails(Long memberId, String role) {
