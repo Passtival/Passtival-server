@@ -1,4 +1,4 @@
-package com.passtival.backend.global.s3;
+package com.passtival.backend.global.s3.service;
 
 import java.net.URL;
 import java.time.Duration;
@@ -41,6 +41,10 @@ public class S3Service {
 		URL presignedUrl = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
 
 		return presignedUrl.toString();
+	}
+
+	public String getUploadUrl(String fileName) {
+		return generatePresignedUrl(fileName);
 	}
 
 }
