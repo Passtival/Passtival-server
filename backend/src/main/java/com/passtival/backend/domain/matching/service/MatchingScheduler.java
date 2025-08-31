@@ -18,10 +18,10 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.passtival.backend.domain.matching.model.entity.Matching;
-import com.passtival.backend.domain.matching.model.entity.Member;
+import com.passtival.backend.domain.matching.model.entity.MatchingApplicant;
 import com.passtival.backend.domain.matching.model.enums.Gender;
+import com.passtival.backend.domain.matching.repository.MatchingApplicantRepository;
 import com.passtival.backend.domain.matching.repository.MatchingRepository;
-import com.passtival.backend.domain.matching.repository.MemberRepository;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MatchingScheduler {
 
-	private final MemberRepository memberRepository;
+	private final MatchingApplicantRepository matchingApplicantRepository;
 	private final MatchingRepository matchingRepository;
 
 	//최대 1000쌍 제한
@@ -84,8 +84,8 @@ public class MatchingScheduler {
 			}
 
 			// 3. 매칭 대상자 선별
-			List<Member> selectedMales = selectMembersByGender(Gender.MALE, matchingCount);
-			List<Member> selectedFemales = selectMembersByGender(Gender.FEMALE, matchingCount);
+			List<MatchingApplicant> selectedMales = selectMembersByGender(Gender.MALE, matchingCount);
+			List<MatchingApplicant> selectedFemales = selectMembersByGender(Gender.FEMALE, matchingCount);
 
 			// 4. 랜덤 매칭 실행
 			List<Matching> matchings = performRandomMatching(selectedMales, selectedFemales, matchingCount);
@@ -139,7 +139,7 @@ public class MatchingScheduler {
 	 * @return 신청자 수
 	 */
 	private long countApplicantsByGender(Gender gender) {
-		return memberRepository.countByAppliedTrueAndGender(gender);
+		return matchingApplicantRepository.countByAppliedTrueAndGender(gender);
 	}
 
 	/**
@@ -159,9 +159,9 @@ public class MatchingScheduler {
 	 * @param count 선별할 인원 수
 	 * @return 선별된 회원 목록
 	 */
-	private List<Member> selectMembersByGender(Gender gender, int count) {
+	private List<MatchingApplicant> selectMembersByGender(Gender gender, int count) {
 		Pageable pageable = PageRequest.of(0, count);
-		return memberRepository.findByAppliedTrueAndGenderOrderByAppliedAtAsc(gender, pageable);
+		return matchingApplicantRepository.findByAppliedTrueAndGenderOrderByAppliedAtAsc(gender, pageable);
 	}
 
 	/**
@@ -171,7 +171,8 @@ public class MatchingScheduler {
 	 * @param matchingCount 매칭 수
 	 * @return 매칭 결과 목록
 	 */
-	private List<Matching> performRandomMatching(List<Member> selectedMales, List<Member> selectedFemales,
+	private List<Matching> performRandomMatching(List<MatchingApplicant> selectedMales,
+		List<MatchingApplicant> selectedFemales,
 		int matchingCount) {
 		try {
 			// 랜덤 매칭을 위한 여성 목록 셔플
@@ -179,8 +180,8 @@ public class MatchingScheduler {
 
 			List<Matching> matchings = new ArrayList<>();
 			for (int i = 0; i < matchingCount; i++) {
-				Member male = selectedMales.get(i);
-				Member female = selectedFemales.get(i);
+				MatchingApplicant male = selectedMales.get(i);
+				MatchingApplicant female = selectedFemales.get(i);
 
 				Matching matching = Matching.createMatching(male.getMemberId(), female.getMemberId());
 				matchings.add(matching);
@@ -213,7 +214,7 @@ public class MatchingScheduler {
 	 * @param selectedFemales 매칭된 여성 목록
 	 */
 	private void handleFailedApplicants(long maleCount, long femaleCount,
-		List<Member> selectedMales, List<Member> selectedFemales) {
+		List<MatchingApplicant> selectedMales, List<MatchingApplicant> selectedFemales) {
 		// 모든 신청자가 매칭된 경우 - 실패자 처리 생략
 		if (selectedMales.size() == maleCount && selectedFemales.size() == femaleCount) {
 			return;
@@ -230,10 +231,10 @@ public class MatchingScheduler {
 		// 매칭 실패자들의 신청 상태 초기화
 		if (matchedIds.isEmpty()) {
 			// 매칭된 회원이 없는 경우 모든 신청자 초기화
-			memberRepository.resetAllApplications();
+			matchingApplicantRepository.resetAllApplications();
 		} else if (failedCount > 0) {
 			// 매칭 실패자만 초기화 (matchedIds가 비어있지 않을 때만 실행)
-			memberRepository.resetApplicationsForUnmatched(matchedIds);
+			matchingApplicantRepository.resetApplicationsForUnmatched(matchedIds);
 		}
 
 	}
@@ -242,7 +243,7 @@ public class MatchingScheduler {
 	 * 모든 신청자의 신청 상태 초기화
 	 */
 	private void resetAllApplications() {
-		memberRepository.resetAllApplications();
+		matchingApplicantRepository.resetAllApplications();
 	}
 
 	/**
@@ -274,7 +275,7 @@ public class MatchingScheduler {
 	 * @param matchedMemberIds 매칭된 회원 ID 목록
 	 */
 	private void resetApplicationsForMatchedMembers(List<Long> matchedMemberIds) {
-		memberRepository.resetApplicationsByMemberIds(matchedMemberIds);
+		matchingApplicantRepository.resetApplicationsByMemberIds(matchedMemberIds);
 	}
 
 	/**

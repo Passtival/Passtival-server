@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.passtival.backend.domain.matching.model.entity.Member;
-import com.passtival.backend.domain.matching.service.MemberService;
 import com.passtival.backend.global.security.model.CustomMemberDetails;
 import com.passtival.backend.global.security.util.JwtUtil;
+import com.passtival.backend.domain.matching.model.entity.MatchingApplicant;
+import com.passtival.backend.domain.matching.service.MatchingApplicantService;
 import com.passtival.backend.global.common.BaseResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Tag(name = "Test-API", description = "테스트용 API")
 public class AuthTestController {
 	private final JwtUtil jwtUtil;
-	private final MemberService memberService;
+	private final MatchingApplicantService matchingApplicantService;
 
 	/**
 	 * JWT 토큰 인증 테스트
@@ -124,10 +124,10 @@ public class AuthTestController {
 	public BaseResponse<String> issueTestToken(@PathVariable Long memberId) {
 
 		// 회원 존재 여부 확인
-		Member member = memberService.getMemberById(memberId);
+		MatchingApplicant matchingApplicant = matchingApplicantService.getMemberById(memberId);
 
 		// JWT 토큰 생성
-		String accessToken = jwtUtil.createAccessToken(memberId, member.getRole().getAuthority());
+		String accessToken = jwtUtil.createAccessToken(memberId, matchingApplicant.getRole().getAuthority());
 
 		return BaseResponse.success(accessToken);
 
