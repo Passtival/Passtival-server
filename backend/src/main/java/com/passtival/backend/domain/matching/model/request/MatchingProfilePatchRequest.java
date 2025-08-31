@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor  // Jackson 역직렬화를 위한 기본 생성자
-public class MemberPatchRequest {
+public class MatchingProfilePatchRequest {
 
 	/*
 	 * 필드를 보내지 않으면 null로 처리되어 해당 필드는 수정하지 않음
