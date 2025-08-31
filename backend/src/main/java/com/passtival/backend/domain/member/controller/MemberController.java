@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
-@Tag(name = "로그인 관련 API", description = "번호팅 카카오 로그인")
+@Tag(name = "회원 관련 API", description = "카카오 로그인")
 public class MemberController {
 	@Operation(
 		summary = "사용자 로그인 - 소개팅 소셜로그인",

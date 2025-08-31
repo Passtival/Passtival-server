@@ -17,14 +17,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
-/**
- * 매칭 관련 API를 처리하는 컨트롤러
- * 프로젝트의 BaseResponse 응답 규격화를 따라 일관된 응답 구조 제공
- */
-@Tag(name = "번호팅 관련 API", description = "매칭 신청 및 결과 조회")
 @RestController
-@RequestMapping("/api/matching")
 @RequiredArgsConstructor
+@Tag(name = "번호팅 관련 API", description = "번호팅 정보 수집, 정보 조회, 매칭 신청, 결과 조회")
+@RequestMapping("/api/matching")
 public class MatchingController {
 
 	private final MatchingService matchingService;

@@ -23,9 +23,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/matching")
 @RequiredArgsConstructor
-@Tag(name = "번호팅 회원 관련 API", description = "번호팅 정보 수집, 프로필 조회")
+@Tag(name = "번호팅 관련 API", description = "번호팅 정보 수집, 정보 조회, 매칭 신청, 결과 조회")
+@RequestMapping("/api/matching")
 public class MatchingApplicantController {
 
 	private final MatchingApplicantService matchingApplicantService;
