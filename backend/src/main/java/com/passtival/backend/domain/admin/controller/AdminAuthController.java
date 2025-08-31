@@ -1,4 +1,4 @@
-package com.passtival.backend.domain.lostfound.controller;
+package com.passtival.backend.domain.admin.controller;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.passtival.backend.domain.lostfound.model.request.AdminLoginRequest;
-import com.passtival.backend.domain.lostfound.service.AdminAuthService;
+import com.passtival.backend.domain.admin.model.request.AdminLoginRequest;
+import com.passtival.backend.domain.admin.service.AdminAuthService;
 import com.passtival.backend.global.auth.model.token.TokenResponse;
 import com.passtival.backend.global.common.BaseResponse;
 
@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
-@Tag(name = "로그인 관련 API", description = "분실물 관리자 로그인, 번호팅 카카오 로그인")
+@Tag(name = "관리자 API")
 public class AdminAuthController {
 	private final AdminAuthService adminAuthService;
 

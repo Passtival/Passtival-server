@@ -1,4 +1,4 @@
-package com.passtival.backend.domain.lostfound.model.entity;
+package com.passtival.backend.domain.admin.model.entity;
 
 import com.passtival.backend.global.common.enums.Role;
 
