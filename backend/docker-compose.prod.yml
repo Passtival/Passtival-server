@@ -27,6 +27,7 @@ services:
       - AWS_S3_BUCKET=${AWS_S3_BUCKET}
       - SWAGGER_SERVER_URL=${SWAGGER_SERVER_URL}
       - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - APP_ADMIN_SEED_KEY=${APP_ADMIN_SEED_KEY}
     networks:
       - backend
 
