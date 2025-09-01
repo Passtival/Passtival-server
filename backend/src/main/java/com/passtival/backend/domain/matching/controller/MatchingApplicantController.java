@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.passtival.backend.domain.matching.model.request.MatchingApplicantPatchRequest;
 import com.passtival.backend.domain.matching.model.response.MatchingApplicantResponse;
-import com.passtival.backend.domain.matching.service.MatchingApplicantService;
-import com.passtival.backend.global.auth.model.CustomMemberDetails;
+import com.passtival.backend.domain.matching.service.MatchingApplicantService;;
+import com.passtival.backend.global.security.model.CustomMemberDetails;
 import com.passtival.backend.global.common.BaseResponse;
 
 import io.swagger.v3.oas.annotations.Operation;

@@ -1,4 +1,4 @@
-package com.passtival.backend.global.auth.service;
+package com.passtival.backend.global.security.service;
 
 import java.util.Optional;
 
@@ -9,12 +9,12 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import com.passtival.backend.global.security.model.AuthUserDto;
+import com.passtival.backend.global.security.model.CustomOAuth2User;
+import com.passtival.backend.global.security.model.KakaoResponse;
+import com.passtival.backend.global.security.model.Oauth2Response;
 import com.passtival.backend.domain.matching.model.entity.MatchingApplicant;
 import com.passtival.backend.domain.matching.repository.MatchingApplicantRepository;
-import com.passtival.backend.global.auth.model.AuthUserDto;
-import com.passtival.backend.global.auth.model.CustomOAuth2User;
-import com.passtival.backend.global.auth.model.KakaoResponse;
-import com.passtival.backend.global.auth.model.Oauth2Response;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 

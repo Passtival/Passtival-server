@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.passtival.backend.domain.admin.model.request.AdminLoginRequest;
 import com.passtival.backend.domain.admin.service.AdminAuthService;
-import com.passtival.backend.global.auth.model.token.TokenResponse;
+import com.passtival.backend.global.security.model.token.TokenResponse;
 import com.passtival.backend.global.common.BaseResponse;
 
 import io.swagger.v3.oas.annotations.Operation;

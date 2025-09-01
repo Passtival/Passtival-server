@@ -1,4 +1,4 @@
-package com.passtival.backend.global.auth.util;
+package com.passtival.backend.global.security.util;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
