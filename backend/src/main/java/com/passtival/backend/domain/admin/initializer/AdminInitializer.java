@@ -21,11 +21,11 @@ public class AdminInitializer implements ApplicationRunner {
 
 	private final AdminRepository adminRepository;
 
-	@Value("${admin.login-id}")
-	private String initialLoginId;
+	@Value("${admin.username}")
+	private String username;
 
-	@Value("${admin.auth-key}")
-	private String initialAuthKey;
+	@Value("${admin.password}")
+	private String password;
 
 	@Override
 	public void run(ApplicationArguments args) {
@@ -33,12 +33,12 @@ public class AdminInitializer implements ApplicationRunner {
 	}
 
 	private void initializeDefaultAdmin() {
-		if (adminRepository.existsByLoginId(initialLoginId)) {
+		if (adminRepository.existsByLoginId(username)) {
 			//이미 존재
 			return;
 		}
 
-		Admin admin = Admin.createAdmin(initialLoginId, initialAuthKey);
+		Admin admin = Admin.createAdmin(username, password);
 		adminRepository.save(admin);
 
 	}
