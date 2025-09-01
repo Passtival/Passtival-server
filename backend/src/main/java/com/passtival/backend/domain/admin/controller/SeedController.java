@@ -34,7 +34,7 @@ public class SeedController {
 	private final PerformanceRepository performanceRepository;
 	private final BoothRepository boothRepository;
 
-	@Value("${app.admin.seed-key}")
+	@Value("${admin.seed-key}")
 	private String seedKey;
 
 	// 인증키 검증
