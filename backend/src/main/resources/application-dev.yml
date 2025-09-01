@@ -56,8 +56,7 @@ jwt:
   access-token-expiration: ${JWT_ACCESS_EXPIRATION}
   refresh-token-expiration: ${JWT_REFRESH_EXPIRATION}
 
-app:
-  admin:
-    seed-key: ${APP_ADMIN_SEED_KEY}
-    login-id: ${ADMIN_INITIAL_LOGIN_ID}
-    auth-key: ${ADMIN_INITIAL_AUTH_KEY}
+admin:
+  seed-key: ${ADMIN_SEED_KEY}
+  username: ${ADMIN_USERNAME}
+  password: ${ADMIN_PASSWORD}
