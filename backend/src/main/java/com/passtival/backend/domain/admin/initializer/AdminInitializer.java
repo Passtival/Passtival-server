@@ -21,10 +21,10 @@ public class AdminInitializer implements ApplicationRunner {
 
 	private final AdminRepository adminRepository;
 
-	@Value("${admin.initial.login-id}")
+	@Value("${admin.login-id}")
 	private String initialLoginId;
 
-	@Value("${admin.initial.auth-key}")
+	@Value("${admin.auth-key}")
 	private String initialAuthKey;
 
 	@Override
