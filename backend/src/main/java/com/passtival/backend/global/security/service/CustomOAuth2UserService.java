@@ -9,14 +9,14 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import com.passtival.backend.domain.member.model.entity.Member;
+import com.passtival.backend.domain.member.repository.MemberRepository;
+import com.passtival.backend.global.common.BaseResponseStatus;
+import com.passtival.backend.global.exception.BaseException;
 import com.passtival.backend.global.security.model.AuthUserDto;
 import com.passtival.backend.global.security.model.CustomOAuth2User;
 import com.passtival.backend.global.security.model.KakaoResponse;
 import com.passtival.backend.global.security.model.Oauth2Response;
-import com.passtival.backend.domain.matching.model.entity.MatchingApplicant;
-import com.passtival.backend.domain.matching.repository.MatchingApplicantRepository;
-import com.passtival.backend.global.common.BaseResponseStatus;
-import com.passtival.backend.global.exception.BaseException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-	private final MatchingApplicantRepository matchingApplicantRepository;
+	private final MemberRepository memberRepository;
 
 	/**
 	 * OAuth2 로그인 사용자 정보 처리 (Spring Security 표준 인터페이스)
@@ -49,10 +49,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			validateSocialId(oAuth2Response);
 
 			// 4. 회원 정보 처리 (신규 생성 또는 기존 조회)
-			MatchingApplicant matchingApplicant = processUserMembership(oAuth2Response);
+			Member member = processUserMembership(oAuth2Response);
 
 			// 5. CustomOAuth2User 생성 및 반환
-			return createCustomOAuth2User(matchingApplicant, oAuth2Response);
+			return createCustomOAuth2User(member, oAuth2Response);
 
 		} catch (OAuth2AuthenticationException e) {
 			throw e;
@@ -156,20 +156,20 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	 * @return Member 회원 정보
 	 * @throws OAuth2AuthenticationException 회원 처리 실패 시
 	 */
-	private MatchingApplicant processUserMembership(Oauth2Response oAuth2Response) throws
+	private Member processUserMembership(Oauth2Response oAuth2Response) throws
 		OAuth2AuthenticationException {
 		try {
 
 			String socialId = oAuth2Response.getSocialId();
-			Optional<MatchingApplicant> existingMember = matchingApplicantRepository.findBySocialId(socialId);
+			Optional<Member> existingMember = memberRepository.findBySocialId(socialId);
 
 			if (existingMember.isEmpty()) {
 				// 신규 회원 생성
 				return createNewMember(oAuth2Response);
 			} else {
 				// 기존 회원 조회
-				MatchingApplicant matchingApplicant = existingMember.get();
-				return matchingApplicant;
+				Member member = existingMember.get();
+				return member;
 			}
 
 		} catch (OAuth2AuthenticationException e) {
@@ -196,17 +196,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	 * @return Member 생성된 회원 정보
 	 * @throws OAuth2AuthenticationException 회원 생성 실패 시
 	 */
-	private MatchingApplicant createNewMember(Oauth2Response oAuth2Response) throws OAuth2AuthenticationException {
+	private Member createNewMember(Oauth2Response oAuth2Response) throws OAuth2AuthenticationException {
 		try {
 
-			MatchingApplicant newMatchingApplicant = MatchingApplicant.createSocialMember(
+			Member newMember = Member.createSocialMember(
 				oAuth2Response.getSocialId(),
 				oAuth2Response.getName()
 			);
 
-			MatchingApplicant savedMatchingApplicant = matchingApplicantRepository.save(newMatchingApplicant);
+			Member savedMember = memberRepository.save(newMember);
 
-			return savedMatchingApplicant;
+			return savedMember;
 
 		} catch (Exception e) {
 
@@ -225,21 +225,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 	/**
 	 * CustomOAuth2User 생성
-	 * @param matchingApplicant 회원 정보
+	 * @param member 회원 정보
 	 * @param oAuth2Response OAuth2 응답 정보 (신규 회원용)
 	 * @return CustomOAuth2User 사용자 인증 정보
 	 * @throws OAuth2AuthenticationException 생성 실패 시
 	 */
-	private CustomOAuth2User createCustomOAuth2User(MatchingApplicant matchingApplicant, Oauth2Response oAuth2Response)
+	private CustomOAuth2User createCustomOAuth2User(Member member, Oauth2Response oAuth2Response)
 		throws OAuth2AuthenticationException {
 		try {
 			AuthUserDto authUserDto = AuthUserDto.builder()
-				.userId(matchingApplicant.getMemberId())
-				.socialId(matchingApplicant.getSocialId())
-				.name(matchingApplicant.getName())
-				.gender(matchingApplicant.getGender())  // 온보딩 완료 시에만 값 존재
-				.phoneNumber(matchingApplicant.getPhoneNumber())  // 온보딩 완료 시에만 값 존재
-				.role("ROLE_" + matchingApplicant.getRole().name())
+				.userId(member.getMemberId())
+				.socialId(member.getSocialId())
+				.name(member.getName())
+				.role("ROLE_" + member.getRole().name())
 				.build();
 
 			return new CustomOAuth2User(authUserDto);

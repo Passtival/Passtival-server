@@ -7,8 +7,6 @@ import java.util.Map;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import com.passtival.backend.domain.matching.model.enums.Gender;
-
 public class CustomOAuth2User implements OAuth2User {
 
 	private final AuthUserDto authUserDto;
@@ -40,17 +38,8 @@ public class CustomOAuth2User implements OAuth2User {
 		return authUserDto.getName();
 	}
 
-	public String getGender() {
-		Gender gender = authUserDto.getGender();
-		return gender != null ? gender.name() : null;
-	}
-
 	public String getSocialId() {
 		return authUserDto.getSocialId();
-	}
-
-	public String getPhoneNumber() {
-		return authUserDto.getPhoneNumber();
 	}
 
 	public Long getMemberId() {
