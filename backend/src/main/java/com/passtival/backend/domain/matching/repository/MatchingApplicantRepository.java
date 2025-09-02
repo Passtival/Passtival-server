@@ -1,7 +1,6 @@
 package com.passtival.backend.domain.matching.repository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.domain.Pageable;
@@ -14,14 +13,6 @@ import com.passtival.backend.domain.matching.model.entity.MatchingApplicant;
 import com.passtival.backend.domain.matching.model.enums.Gender;
 
 public interface MatchingApplicantRepository extends JpaRepository<MatchingApplicant, Long> {
-	// 회원 구분 기준을 전화번호로 한다.
-	Optional<MatchingApplicant> findByPhoneNumber(String phoneNumber);
-
-	Optional<MatchingApplicant> findBySocialId(String socialId);
-
-	//회원 가입용 소셜 로그인으로 구현(카카오톡만 사용할때 가능)
-	boolean existsBySocialId(String socialId);
-
 	// 특정 회원을 제외하고 전화번호 중복 검사
 	boolean existsByPhoneNumberAndMemberIdNot(String phoneNumber, Long memberId);
 

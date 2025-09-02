@@ -3,15 +3,16 @@ package com.passtival.backend.domain.matching.controller;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.passtival.backend.domain.matching.model.request.MatchingApplicantPatchRequest;
 import com.passtival.backend.domain.matching.model.response.MatchingApplicantResponse;
-import com.passtival.backend.domain.matching.service.MatchingApplicantService;;
-import com.passtival.backend.global.security.model.CustomMemberDetails;
+import com.passtival.backend.domain.matching.service.MatchingApplicantService;
 import com.passtival.backend.global.common.BaseResponse;
+import com.passtival.backend.global.security.model.CustomMemberDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -84,5 +85,19 @@ public class MatchingApplicantController {
 
 		MatchingApplicantResponse response = matchingApplicantService.getProfile(memberDetails.getMemberId());
 		return BaseResponse.success(response);
+	}
+
+	@Operation(
+		summary = "내 프로필 생성",
+		description = "현재 로그인한 사용자의 프로필 정보를 생성합니다.",
+		security = @SecurityRequirement(name = "jwtAuth")
+	)
+	@PostMapping("/me")
+	public BaseResponse<Void> createProfile(
+		@AuthenticationPrincipal CustomMemberDetails memberDetails // 1. 현재 로그인한 사용자 정보 가져오기
+	) {
+		//현재 로그인 되어있는 사용자의 memberID로 MatchingApplicant 생성
+		matchingApplicantService.creatProfile(memberDetails.getMemberId());
+		return BaseResponse.success(null);
 	}
 }
