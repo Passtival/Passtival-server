@@ -32,6 +32,8 @@ services:
       - ADMIN_SEED_KEY=${ADMIN_SEED_KEY}
     networks:
       - backend
+    volumes:
+      - /home/ubuntu/deploy/backend:/app/deploy
 
   db:
     image: 'mysql:8.0'

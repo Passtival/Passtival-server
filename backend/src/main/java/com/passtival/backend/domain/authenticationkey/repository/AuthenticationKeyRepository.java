@@ -1,9 +1,9 @@
-package com.passtival.backend.domain.authentication.repository;
+package com.passtival.backend.domain.authenticationkey.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.passtival.backend.domain.raffle.model.entity.AuthenticationKey;
+import com.passtival.backend.domain.authenticationkey.model.AuthenticationKey;
 
 @Repository
 public interface AuthenticationKeyRepository extends JpaRepository<AuthenticationKey, Long> {
