@@ -10,8 +10,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.passtival.backend.global.security.filter.JwtAuthenticationFilter;
 import com.passtival.backend.global.handler.OAuth2SuccessHandler;
+import com.passtival.backend.global.security.filter.JwtAuthenticationFilter;
 import com.passtival.backend.global.security.service.CustomOAuth2UserService;
 
 @Configuration
@@ -90,6 +90,10 @@ public class SecurityConfig {
 
 			// 추첨 API (공개)
 			.requestMatchers("/api/raffle/**").permitAll()
+
+			// 회원 로그인 (공개)
+			.requestMatchers("/api/member/login/kakao").permitAll()
+			.requestMatchers("/login/oauth2/code/kakao").permitAll()
 
 			// 테스트 API - (공개)
 			.requestMatchers("/api/test/**").permitAll()
