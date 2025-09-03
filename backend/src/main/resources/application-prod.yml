@@ -53,6 +53,10 @@ logging:
     root: error
     com.passtival.backend: info
 
+server:
+  # Nginx 등 리버스 프록시의 X-Forwarded-* 헤더를 신뢰하여 HTTPS 스킴을 반영
+  forward-headers-strategy: native
+
 jwt:
   secret: ${JWT_SECRET_KEY}
   access-token-expiration: ${JWT_ACCESS_EXPIRATION}
