@@ -68,4 +68,4 @@ admin:
   password: ${ADMIN_PASSWORD}
 
 seed:
-  auth-keys-path: "/app/deploy/authentication-keys.xlsx"
+  auth-keys-path: "file:/app/deploy/authentication-keys.xlsx"
