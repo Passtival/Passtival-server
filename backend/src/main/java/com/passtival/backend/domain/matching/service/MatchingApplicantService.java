@@ -8,6 +8,8 @@ import com.passtival.backend.domain.matching.model.entity.MatchingApplicant;
 import com.passtival.backend.domain.matching.model.request.MatchingApplicantPatchRequest;
 import com.passtival.backend.domain.matching.model.response.MatchingApplicantResponse;
 import com.passtival.backend.domain.matching.repository.MatchingApplicantRepository;
+import com.passtival.backend.domain.member.model.entity.Member;
+import com.passtival.backend.domain.member.repository.MemberRepository;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class MatchingApplicantService {
 
 	private final MatchingApplicantRepository matchingApplicantRepository;
+	private final MemberRepository memberRepository;
 
 	/**
 	 * 회원 등록 (소셜 로그인 이후 추가 정보 입력)
@@ -152,5 +155,22 @@ public class MatchingApplicantService {
 			.MemberInstagramId(matchingApplicant.getInstagramId())
 			.build();
 
+	}
+
+	public Void creatProfile(Long memberId) {
+
+		// 1. Member 엔티티 조회
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
+
+		// 2. 새로운 MatchingApplicant 생성
+		MatchingApplicant newMatchingApplicant = MatchingApplicant.createMatchingApplicant(
+			member.getMemberId(),
+			member.getName()
+		);
+
+		// 3. 생성된 MatchingApplicant를 데이터베이스에 저장
+		matchingApplicantRepository.save(newMatchingApplicant);
+		return null;
 	}
 }
