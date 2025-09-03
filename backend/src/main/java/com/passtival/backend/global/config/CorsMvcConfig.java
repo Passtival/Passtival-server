@@ -12,8 +12,12 @@ public class CorsMvcConfig implements WebMvcConfigurer {
 		registry.addMapping("/**") // 모든 경로에 대해 CORS 설정 적용
 			.allowedOrigins(
 				"https://passtival.co.kr", // 실제 배포된 클라이언트 도메인
+				"http://passtival.cloud",
+				"https://passtival.cloud",
 				"https://passtival.cloud:8080",
-				"http://passtival.cloud:8080"
+				"http://passtival.cloud:8080",
+				"https://www.passtival.cloud:8080",
+				"http://www.passtival.cloud:8080"
 			)
 			.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
 			.allowedHeaders("*") // 모든 헤더 허용
