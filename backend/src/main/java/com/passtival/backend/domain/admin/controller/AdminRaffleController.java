@@ -9,11 +9,16 @@ import com.passtival.backend.domain.admin.model.response.AuthenticationKeyRespon
 import com.passtival.backend.domain.admin.service.AdminAuthenticationService;
 import com.passtival.backend.global.common.BaseResponse;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/admin/raffle")
+@Tag(name = "관리자 추첨 API")
+@SecurityRequirement(name = "jwtAuth")
 public class AdminRaffleController {
 
 	// 1. 인증키 조회
@@ -23,10 +28,11 @@ public class AdminRaffleController {
 	private final AdminAuthenticationService adminAuthenticationService;
 
 	// 인증키 조회
-	@GetMapping("authentication-key")
-	@PreAuthorize("hasRole('ADMIN')")
-	public BaseResponse<AuthenticationKeyResponse> getAuthenticationKey() {
-		return BaseResponse.success(adminAuthenticationService.getAuthenticationKey());
-	}
+    @GetMapping("authentication-key")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "관리자 인증키 조회")
+    public BaseResponse<AuthenticationKeyResponse> getAuthenticationKey() {
+        return BaseResponse.success(adminAuthenticationService.getAuthenticationKey());
+    }
 
 }
