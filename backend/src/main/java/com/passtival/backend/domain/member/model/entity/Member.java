@@ -31,11 +31,7 @@ public class Member {
 	private String socialId;// 소셜 로그인 ID (예: "kakao_1234567890")
 
 	@Column(length = 25)
-	private String name; // "홍길동"
-
-	//사용자한테 받을 것인지 소셜 로그인을 받은 것로 할 것인지 결정 필요
-	// @Column(name = "applicant_name", nullable = false, length = 15) // 박준선 (한글 5글자로 제한)
-	// private String applicantName; // 신청자 이름
+	private String name;
 
 	@Column(name = "student_id", length = 10) // 2021U2317 10개 제한
 	private String studentId; // 학번
