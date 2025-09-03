@@ -4,7 +4,7 @@ services:
     image: ${DOCKER_USERNAME}/passtival-spring:latest
     container_name: passtival-spring-app
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     depends_on:
       - db
       - redis
