@@ -60,3 +60,6 @@ admin:
   seed-key: ${ADMIN_SEED_KEY}
   username: ${ADMIN_USERNAME}
   password: ${ADMIN_PASSWORD}
+
+seed:
+  auth-keys-path: classpath:static/authentication-keys.xlsx
