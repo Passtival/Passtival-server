@@ -2,11 +2,10 @@ package com.passtival.backend.global.security.service;
 
 import org.springframework.stereotype.Service;
 
-import com.passtival.backend.global.security.model.token.RefreshTokenRequest;
-import com.passtival.backend.global.security.model.token.TokenResponse;
-import com.passtival.backend.global.security.util.JwtUtil;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
+import com.passtival.backend.global.security.model.token.TokenResponse;
+import com.passtival.backend.global.security.util.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,15 +23,13 @@ public class TokenService {
 
 	/**
 	 * 리프레시 토큰을 통한 새로운 액세스 토큰 발급
-	 * @param request 리프레시 토큰이 포함된 요청 객체
+	 * @param refreshToken 순수한 리프레시 토큰 (Bearer 접두사 제거된 상태)
 	 * @return TokenResponse 새로운 액세스 토큰
 	 */
-	public TokenResponse refreshAccessToken(RefreshTokenRequest request) {
+	public TokenResponse refreshAccessToken(String refreshToken) {
 
-		// 1. 수동 검증: 리프레시 토큰 null/empty 체크
-		validateRefreshTokenRequest(request);
-
-		String refreshToken = request.getRefreshToken().trim();
+		// 1. 수동 검증: 리프레시 토큰 null 체크
+		validateRefreshTokenRequest(refreshToken);
 
 		// 2. 토큰 파싱 및 검증
 		JwtUtil.TokenInfo tokenInfo = parseAndValidateToken(refreshToken);
@@ -49,17 +46,12 @@ public class TokenService {
 
 	/**
 	 * 리프레시 토큰 요청 검증
-	 * @param request 리프레시 토큰 요청
+	 * @param token 리프레시 토큰 요청
 	 */
-	private void validateRefreshTokenRequest(RefreshTokenRequest request) {
-		if (request == null) {
+	private void validateRefreshTokenRequest(String token) {
+		if (token == null) {
 			throw new BaseException(BaseResponseStatus.BAD_REQUEST);
 		}
-
-		if (request.getRefreshToken() == null || request.getRefreshToken().trim().isEmpty()) {
-			throw new BaseException(BaseResponseStatus.REFRESH_TOKEN_REQUIRED);
-		}
-
 	}
 
 	/**
