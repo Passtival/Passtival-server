@@ -66,7 +66,7 @@ public class AuthenticationKeyImportService {
 
 				String key = value.trim();
 				if (key.length() == 5) { // 인증키는 항상 길이 5
-					entities.add(new AuthenticationKey(key));
+					entities.add(new AuthenticationKey(key, null));
 				}
 			}
 			authenticationKeyRepository.saveAll(entities);

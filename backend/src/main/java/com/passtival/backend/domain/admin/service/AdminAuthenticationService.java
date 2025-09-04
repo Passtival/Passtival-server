@@ -2,6 +2,7 @@ package com.passtival.backend.domain.admin.service;
 
 import org.springframework.stereotype.Service;
 
+import com.passtival.backend.domain.admin.model.request.AuthenticationLevelRequest;
 import com.passtival.backend.domain.admin.model.response.AuthenticationKeyResponse;
 import com.passtival.backend.domain.authenticationkey.model.AuthenticationKey;
 import com.passtival.backend.domain.authenticationkey.repository.AuthenticationKeyRepository;
@@ -32,5 +33,18 @@ public class AdminAuthenticationService {
 		}
 
 		return new AuthenticationKeyResponse(authenticationKey.getAuthenticationKey());
+	}
+
+	public void setAuthenticationKeyLevel(AuthenticationLevelRequest request) {
+
+		Integer level = request.getLevel();
+
+		if (level == null || level < 1 || level > 3) {
+			throw new BaseException(BaseResponseStatus.BAD_REQUEST);
+		}
+
+		AuthenticationKey authenticationKey = authenticationKeyRepository.findFirstByOrderByIdAsc();
+		authenticationKey.setLevel(level);
+		authenticationKeyRepository.save(authenticationKey);
 	}
 }
