@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "members")
@@ -37,6 +38,7 @@ public class Member {
 	@Column(name = "student_id", length = 10) // 2021U2317 10개 제한
 	private String studentId; // 학번
 
+	@Setter
 	private int level; // 0~3
 
 	private Boolean premiumRaffle;

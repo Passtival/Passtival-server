@@ -9,4 +9,6 @@ import com.passtival.backend.domain.member.model.entity.Member;
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
 	Optional<Member> findBySocialId(String socialId);
+
+	Optional<Member> findByMemberId(Long memberId);
 }
