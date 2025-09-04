@@ -41,7 +41,7 @@ public class MemberService {
 		}
 
 		// 레벨업 처리
-		member.setLevel(request.getLevel());
+		member.updateProfile(request.getName(), request.getStudentId(), request.getLevel());
 		memberRepository.save(member);
 
 		// 인증키 삭제
