@@ -2,9 +2,12 @@ package com.passtival.backend.domain.admin.controller;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.passtival.backend.domain.admin.model.request.AuthenticationLevelRequest;
 import com.passtival.backend.domain.admin.model.response.AuthenticationKeyResponse;
 import com.passtival.backend.domain.admin.service.AdminAuthenticationService;
 import com.passtival.backend.global.common.BaseResponse;
@@ -28,11 +31,20 @@ public class AdminRaffleController {
 	private final AdminAuthenticationService adminAuthenticationService;
 
 	// 인증키 조회
-    @GetMapping("authentication-key")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "관리자 인증키 조회")
-    public BaseResponse<AuthenticationKeyResponse> getAuthenticationKey() {
-        return BaseResponse.success(adminAuthenticationService.getAuthenticationKey());
-    }
+	@GetMapping("authentication-key")
+	@PreAuthorize("hasRole('ADMIN')")
+	@Operation(summary = "관리자 인증키 조회")
+	public BaseResponse<AuthenticationKeyResponse> getAuthenticationKey() {
+		return BaseResponse.success(adminAuthenticationService.getAuthenticationKey());
+	}
+
+	// 인증키 레벨 설정
+	@PatchMapping("authentication-key")
+	@PreAuthorize("hasRole('ADMIN')")
+	@Operation(summary = "관리자 인증키 레벨 설정")
+	public BaseResponse<Void> setAuthenticationKeyLevel(@RequestBody AuthenticationLevelRequest request) {
+		adminAuthenticationService.setAuthenticationKeyLevel(request);
+		return BaseResponse.success(null);
+	}
 
 }
