@@ -16,7 +16,7 @@ public enum BaseResponseStatus {
 	CONTACT_INFO_REQUIRED(false, 400, "전화번호 또는 인스타그램 ID 중 적어도 하나는 입력해야 합니다."),
 	GENDER_REQUIRED(false, 400, "성별을 반드시 작성해야 합니다."),
 	UNSUPPORTED_PROVIDER(false, 400, "지원하지 않는 제공자입니다."),
-
+	INVALID_TOKEN_FORMAT(false, 400, "잘못된 형태의 토큰입니다."),
 	// 401: 인증 오류
 	TOKEN_EXPIRED(false, 401, "토큰이 만료되었습니다."),
 	TOKEN_INVALID(false, 401, "유효하지 않은 토큰입니다."),
