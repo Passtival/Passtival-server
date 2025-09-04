@@ -40,7 +40,6 @@ public class MatchingTestController {
 			// 남성 회원 3명 생성
 			for (int i = 1; i <= 34; i++) {
 				MatchingApplicant male = MatchingApplicant.builder()
-					.socialId("test_male_" + String.format("%03d", i))
 					.name("테스트남성" + i)
 					.gender(Gender.MALE)
 					.phoneNumber("010-1111-" + String.format("%04d", 1111 + i - 1))
@@ -55,7 +54,6 @@ public class MatchingTestController {
 			// 여성 회원 3명 생성
 			for (int i = 1; i <= 30; i++) {
 				MatchingApplicant female = MatchingApplicant.builder()
-					.socialId("test_female_" + String.format("%03d", i))
 					.name("테스트여성" + i)
 					.gender(Gender.FEMALE)
 					.phoneNumber("010-2222-" + String.format("%04d", 1111 + i - 1))

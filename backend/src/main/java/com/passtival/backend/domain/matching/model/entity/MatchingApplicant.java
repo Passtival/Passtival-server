@@ -11,8 +11,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -30,11 +28,7 @@ import lombok.NoArgsConstructor;
 public class MatchingApplicant extends BaseEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long memberId;
-
-	@Column(name = "social_id", length = 50)
-	private String socialId;// 소셜 로그인 ID (예: "kakao_1234567890")
 
 	@Column(length = 25)
 	private String name; // "홍길동"
@@ -60,9 +54,9 @@ public class MatchingApplicant extends BaseEntity {
 	private Role role;
 
 	//, Gender gender, String phoneNumber, String name(현재는 닉네임을 넣는중)
-	public static MatchingApplicant createSocialMember(String socialId, String name) {
+	public static MatchingApplicant createMatchingApplicant(Long memberId, String name) {
 		return MatchingApplicant.builder()
-			.socialId(socialId)
+			.memberId(memberId)
 			.name(name)
 			//.gender(gender)
 			//.phoneNumber(phoneNumber)
