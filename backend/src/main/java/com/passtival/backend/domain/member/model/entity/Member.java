@@ -23,6 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Member {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long memberId;
@@ -36,11 +37,7 @@ public class Member {
 	@Column(name = "student_id", length = 10) // 2021U2317 10개 제한
 	private String studentId; // 학번
 
-	private Boolean fistRaffle;
-
-	private Boolean secondRaffle;
-
-	private Boolean thirdRaffle;
+	private int level; // 0~3
 
 	private Boolean premiumRaffle;
 
@@ -52,9 +49,7 @@ public class Member {
 		return Member.builder()
 			.socialId(socialId)
 			.name(name)
-			.fistRaffle(false)
-			.secondRaffle(false)
-			.thirdRaffle(false)
+			.level(0) // 최초 생성시 0
 			.premiumRaffle(false)
 			.role(Role.USER)
 			.build();
