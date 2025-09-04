@@ -17,7 +17,9 @@ public class CorsMvcConfig implements WebMvcConfigurer {
 				"https://passtival.cloud:8080",
 				"http://passtival.cloud:8080",
 				"https://www.passtival.cloud:8080",
-				"http://www.passtival.cloud:8080"
+				"http://www.passtival.cloud:8080",
+				// 개발환경
+				"http://localhost:5173"
 			)
 			.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
 			.allowedHeaders("*") // 모든 헤더 허용
