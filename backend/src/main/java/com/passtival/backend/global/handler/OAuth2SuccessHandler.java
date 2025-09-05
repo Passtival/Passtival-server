@@ -4,18 +4,16 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.security.model.CustomOAuth2User;
-import com.passtival.backend.global.security.model.token.TokenResponse;
 import com.passtival.backend.global.security.util.JwtUtil;
 import com.passtival.backend.global.security.util.ResponseUtil;
-import com.passtival.backend.global.common.BaseResponse;
-import com.passtival.backend.global.common.BaseResponseStatus;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,7 +31,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
 	private final ResponseUtil responseUtil;
 	private final JwtUtil jwtUtil;
-	private final ObjectMapper objectMapper = new ObjectMapper();
+
+	@Value("${frontend.login-url}")
+	private String longinUrl;
+
+	@Value("${frontend.login-fail-url}")
+	private String longinFailUrl;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -50,8 +53,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 			Long memberId = oauth2User.getMemberId(); // CustomOAuth2User에서 memberId 추출
 			String role = extractRole(authentication.getAuthorities());
 
+			//실패시 프론트엔드의 로그인 실패창으로 이동
 			if (memberId == null || role == null) {
-				responseUtil.sendErrorResponse(response, BaseResponseStatus.INTERNAL_SERVER_ERROR);
+				response.sendRedirect(longinFailUrl);
 				return;
 			}
 
@@ -59,25 +63,17 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 			String accessToken = jwtUtil.createAccessToken(memberId, role);
 			String refreshToken = jwtUtil.createRefreshToken(memberId, role);
 
-			// 4. TokenResponse 생성 (LoginFilter와 동일한 구조)
-			TokenResponse tokenResponse = TokenResponse.builder()
-				.accessToken(accessToken)
-				.refreshToken(refreshToken)  // OAuth2 로그인 시에도 두 토큰 모두 제공
-				.build();
+			//성공시 프론트엔드의 로그인 후 창으로 이동
+			String redirectUrl = String.format("%s?access_token=%s&refresh_token=%s",
+				longinUrl, accessToken, refreshToken);
 
-			BaseResponse<TokenResponse> successResponse = BaseResponse.success(tokenResponse);
+			response.sendRedirect(redirectUrl);
 
-			// 5. 응답 설정 (LoginFilter와 동일한 방식)
-			response.setContentType("application/json");
-			response.setCharacterEncoding("UTF-8");
-
-			// 6. JSON 응답 전송 (LoginFilter와 동일한 방식)
-			String jsonResponse = objectMapper.writeValueAsString(successResponse);
-			response.getWriter().write(jsonResponse);
 		} catch (Exception e) {
 			// 어떤 사용자의 로그인 과정에서, 어떤 예외가 발생했는지 로그로 남겨야 디버깅이 가능합니다.
+			//실패시 프론트엔드의 로그인 실패창으로 이동
 			log.error("OAuth2 Success Handling 중 예외 발생, Principal: {}", authentication.getName(), e);
-			responseUtil.sendErrorResponse(response, BaseResponseStatus.INTERNAL_SERVER_ERROR);
+			response.sendRedirect(longinFailUrl);
 		}
 	}
 
