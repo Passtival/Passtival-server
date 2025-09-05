@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "members")
@@ -39,6 +40,7 @@ public class Member {
 
 	private int level; // 0~3
 
+	@Setter
 	private Boolean premiumRaffle;
 
 	@Column(nullable = false, length = 10)

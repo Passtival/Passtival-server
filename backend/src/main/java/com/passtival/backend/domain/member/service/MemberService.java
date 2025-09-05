@@ -40,6 +40,11 @@ public class MemberService {
 			throw new BaseException(BaseResponseStatus.INVALID_LEVEL);
 		}
 
+		// level = 3 프리미엄 응모권 지급
+		if (request.getLevel() == 3) {
+			member.setPremiumRaffle(true);
+		}
+
 		// 레벨업 처리
 		member.updateProfile(request.getName(), request.getStudentId(), request.getLevel());
 		memberRepository.save(member);
