@@ -35,14 +35,6 @@ spring:
         show_sql: false # Hibernate SQL 로그 비활성화
         use_sql_comments: false # SQL 주석 비활성화
 
-  data:
-    redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-      password: ${REDIS_PASSWORD}
-  thymeleaf:
-    cache: false
-
 logging:
   level:
     root: info

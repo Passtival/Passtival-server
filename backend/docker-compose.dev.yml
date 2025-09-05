@@ -10,16 +10,12 @@ services:
       - "127.0.0.1:8080:8080"
     depends_on:
       - db
-      - redis
     env_file:
       - .env
     environment:
       - SPRING_PROFILES_ACTIVE=dev
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
       - KAKAO_CLIENT_NAME=${KAKAO_CLIENT_NAME}
       - KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}
       - KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}
@@ -45,15 +41,6 @@ services:
       - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
     volumes:
       - mysql-data:/var/lib/mysql
-    networks:
-      - backend
-
-  redis:
-    image: redis:alpine
-    container_name: passtival-redis
-    command: redis-server --requirepass ${REDIS_PASSWORD}
-    ports:
-      - "6379:6379"
     networks:
       - backend
 
