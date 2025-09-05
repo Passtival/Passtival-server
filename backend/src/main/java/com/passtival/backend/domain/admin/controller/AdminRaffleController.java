@@ -28,10 +28,6 @@ import lombok.RequiredArgsConstructor;
 @SecurityRequirement(name = "jwtAuth")
 public class AdminRaffleController {
 
-	// 1. 인증키 조회
-	// 2. 추첨
-	// 3. 응모 결과 조회
-
 	private final AdminAuthenticationService adminAuthenticationService;
 	private final AdminRaffleService adminRaffleService;
 
@@ -52,13 +48,11 @@ public class AdminRaffleController {
 		return BaseResponse.success(null);
 	}
 
-	// 추첨
 	@PostMapping("/{day}")
 	@PreAuthorize("hasRole('ADMIN')")
-	@Operation(summary = "관리자 추첨 실행", security = @SecurityRequirement(name = "jwtAuth"))
-	public BaseResponse<Void> executeRaffle(@PathVariable int day) {
-		// 추첨 로직 호출
-		adminRaffleService.executeRaffle(day);
+	@Operation(summary = "관리자 일차별 추첨 실행", security = @SecurityRequirement(name = "jwtAuth"))
+	public BaseResponse<Void> executeRaffleByDay(@PathVariable int day) {
+		adminRaffleService.executeRaffleByDay(day);
 		return BaseResponse.success(null);
 	}
 
@@ -67,9 +61,23 @@ public class AdminRaffleController {
 	@PreAuthorize("hasRole('ADMIN')")
 	@Operation(summary = "관리자 일차별 당첨자 조회", security = @SecurityRequirement(name = "jwtAuth"))
 	public BaseResponse<WinnerResponse> getRaffleWinnersByDay(@PathVariable int day) {
-
 		WinnerResponse response = adminRaffleService.getRaffleWinnersByDay(day);
+		return BaseResponse.success(response);
+	}
 
+	@PostMapping("/premium")
+	@PreAuthorize("hasRole('ADMIN')")
+	@Operation(summary = "관리자 프리미엄 추첨 실행", security = @SecurityRequirement(name = "jwtAuth"))
+	public BaseResponse<Void> executeRaffleOfPremium() {
+		adminRaffleService.executeRaffleOfPremium();
+		return BaseResponse.success(null);
+	}
+
+	@GetMapping("/premium")
+	@PreAuthorize("hasRole('ADMIN')")
+	@Operation(summary = "관리자 프리미엄 당첨자 조회", security = @SecurityRequirement(name = "jwtAuth"))
+	public BaseResponse<WinnerResponse> getRaffleWinnerOfPremium() {
+		WinnerResponse response = adminRaffleService.getRaffleWinnerOfPremium();
 		return BaseResponse.success(response);
 	}
 

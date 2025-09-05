@@ -24,8 +24,9 @@ public class AdminRaffleService {
 	private final WinnerRepository winnerRepository;
 	private final SecureRandom secureRandom = new SecureRandom();
 
+	// === 일차별 응모 로직 === //
 	@Transactional
-	public void executeRaffle(int day) {
+	public void executeRaffleByDay(int day) {
 
 		// 레벨이 1인 회원 모두 조회
 		List<Member> level1Members = memberRepository.findAllByLevel(1);
@@ -36,7 +37,7 @@ public class AdminRaffleService {
 
 		// 당첨 후보(candidate) 리스트 생성
 		// level 1 회원은 1번, level 2 회원은 2번, level 3 회원은 3번 추가
-		List<Member> candidates = createCandidateList(level1Members, level2Members, level3Members);
+		List<Member> candidates = createCandidateListByDay(level1Members, level2Members, level3Members);
 
 		// 당첨자(Winner) 선정
 		Winner winner = selectWinner(candidates, day);
@@ -46,8 +47,7 @@ public class AdminRaffleService {
 
 	}
 
-	private List<Member> createCandidateList(List<Member> level1Members,
-		List<Member> level2Members,
+	private List<Member> createCandidateListByDay(List<Member> level1Members, List<Member> level2Members,
 		List<Member> level3Members) {
 		List<Member> candidates = new ArrayList<>();
 
@@ -69,17 +69,31 @@ public class AdminRaffleService {
 		return candidates;
 	}
 
-	private Winner selectWinner(List<Member> candidates, int day) {
-		int randomIndex = secureRandom.nextInt(candidates.size());
-		Member member = candidates.get(randomIndex);
-		return new Winner(member.getName(), member.getStudentId(), day);
-	}
-
 	public WinnerResponse getRaffleWinnersByDay(int day) {
 		// day에 해당하며, id값이 가장 큰 당첨자 조회
 		Winner winner = winnerRepository.findTopByDayOrderByIdDesc(day);
 
 		return new WinnerResponse(winner.getName(), winner.getStudentId());
 
+	}
+
+	// === 프리미엄 응모 로직 === //
+	public void executeRaffleOfPremium() {
+		List<Member> premiumCandidates = memberRepository.findAllByPremiumRaffleTrue();
+		Winner winner = selectWinner(premiumCandidates, 4);
+		winnerRepository.save(winner);
+
+	}
+
+	public WinnerResponse getRaffleWinnerOfPremium() {
+		Winner winner = winnerRepository.findTopByDayOrderByIdDesc(4);
+		return new WinnerResponse(winner.getName(), winner.getStudentId());
+	}
+
+	// === 공통 로직 === //
+	private Winner selectWinner(List<Member> candidates, int day) {
+		int randomIndex = secureRandom.nextInt(candidates.size());
+		Member member = candidates.get(randomIndex);
+		return new Winner(member.getName(), member.getStudentId(), day);
 	}
 }
