@@ -16,6 +16,8 @@ public enum BaseResponseStatus {
 	CONTACT_INFO_REQUIRED(false, 400, "전화번호 또는 인스타그램 ID 중 적어도 하나는 입력해야 합니다."),
 	GENDER_REQUIRED(false, 400, "성별을 반드시 작성해야 합니다."),
 	UNSUPPORTED_PROVIDER(false, 400, "지원하지 않는 제공자입니다."),
+	INVALID_TOKEN_FORMAT(false, 400, "잘못된 형태의 토큰입니다."),
+	INVALID_LEVEL(false, 400, "인증키 level과 사용자 요청 레벨이 불일치합니다."),
 
 	// 401: 인증 오류
 	TOKEN_EXPIRED(false, 401, "토큰이 만료되었습니다."),
@@ -64,7 +66,8 @@ public enum BaseResponseStatus {
 	MEMBER_PROCESSING_ERROR(false, 500, "회원 정보 처리 중 오류가 발생했습니다."),
 	NEW_MEMBER_PROCESSING_ERROR(false, 500, "신규 회원 정보 처리 중 오류가 발생했습니다"),
 	MEMBER_DETAILS_CREATION_ERROR(false, 500, "사용자 인증 정보 생성 중 오류가 발생했습니다."),
-	DATABASE_ERROR(false, 500, "데이터베이스 오류가 발생했습니다.");
+	DATABASE_ERROR(false, 500, "데이터베이스 오류가 발생했습니다."),
+	NOT_FOUND_AUTH_KEY(false, 500, "모든 인증키를 소모했습니다.");
 
 	private final boolean isSuccess; // 요청 성공 여부
 	private final int code; // 응답 코드
