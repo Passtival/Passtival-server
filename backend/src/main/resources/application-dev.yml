@@ -63,3 +63,7 @@ admin:
 
 seed:
   auth-keys-path: classpath:static/authentication-keys.xlsx
+
+frontend:
+  login-url: ${FRONTEND_LOGIN_URL}
+  login-fail-url: ${FRONTEND_LOGIN_FAIL_URL}
