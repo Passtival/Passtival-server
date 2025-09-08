@@ -21,7 +21,7 @@ public class CorsMvcConfig implements WebMvcConfigurer {
 				// 개발환경
 				"http://localhost:5173"
 			)
-			.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
+			.allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS") // 허용할 HTTP 메서드
 			.allowedHeaders("*") // 모든 헤더 허용
 			.exposedHeaders("Authorization") // 클라이언트에서 접근할 수 있는 헤더
 			.allowCredentials(true) // 쿠키 허용

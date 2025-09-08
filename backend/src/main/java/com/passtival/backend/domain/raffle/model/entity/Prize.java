@@ -26,4 +26,7 @@ public class Prize extends BaseEntity {
 	@Column(name = "prize_name")
 	private String prizeName;
 
+	// 일차 = 1~3  / 프리미엄 = 4
+	@Column(name = "days")
+	private Integer days;
 }
