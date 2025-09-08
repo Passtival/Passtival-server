@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.passtival.backend.domain.admin.model.request.AdminLoginRequest;
 import com.passtival.backend.domain.admin.service.AdminAuthService;
-import com.passtival.backend.global.security.model.token.TokenResponse;
 import com.passtival.backend.global.common.BaseResponse;
+import com.passtival.backend.global.security.model.token.TokenResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -62,8 +62,8 @@ public class AdminAuthController {
 
 	@Operation(
 		summary = "관리자 인증 테스트",
-		description = "현재 인증된 관리자 정보를 확인합니다.",
-		security = @SecurityRequirement(name = "jwtAuth")  // 이 부분 추가
+		description = "관리자 엑세스 토큰이 올바르게 생성되었는지 테스트를 위한 api",
+		security = @SecurityRequirement(name = "jwtAuth")
 	)
 	@GetMapping("/test")
 	public BaseResponse<Map<String, Object>> test(Authentication authentication) {

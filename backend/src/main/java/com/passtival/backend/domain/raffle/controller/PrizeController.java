@@ -26,8 +26,8 @@ public class PrizeController {
 	private final PrizeService prizeService;
 
 	@Operation(
-		summary = "상품 목록 조회",
-		description = "등록된 상품의 목록을 조회합니다."
+		summary = "상품 목록 전체 조회",
+		description = "등록된 상품을 전부 조회합니다."
 	)
 	@GetMapping()
 	public BaseResponse<List<PrizeResponse>> getPrizes() {
@@ -36,8 +36,8 @@ public class PrizeController {
 	}
 
 	@Operation(
-		summary = "상품 조회",
-		description = "날짜를 통해 특정 상품의 정보를 조회합니다.",
+		summary = "일차별 혹은 프리미엄 상품 조회",
+		description = "days를 통해 해당 날짜에 맞는 상품들을 정보를 조회합니다.",
 		parameters = {
 			@Parameter(
 				name = "days",
