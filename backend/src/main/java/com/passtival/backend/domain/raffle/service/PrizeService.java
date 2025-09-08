@@ -34,14 +34,14 @@ public class PrizeService {
 	}
 
 	/**
-	 * 상품 ID로 상품 조회
-	 * @param prizeId
-	 * @return 상품 정보
-	 */
-	public PrizeResponse getPrizeById(Long prizeId) {
-		Prize prize = prizeRepository.findById(prizeId)
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.PRIZE_NOT_FOUND));
-		return PrizeResponse.of(prize);
+	 * 날짜에 맞는 상품 전달하기
+	 * @return List<PrizeResponse>
+	 **/
+	public List<PrizeResponse> getPrizeByDays(Integer days) {
+		List<Prize> prizes = prizeRepository.findAllByDays(days);
+		if (prizes.isEmpty()) {
+			throw new BaseException(BaseResponseStatus.PRIZES_NOT_FOUND);
+		}
+		return prizes.stream().map(PrizeResponse::of).collect(Collectors.toList());
 	}
-
 }

@@ -37,20 +37,20 @@ public class PrizeController {
 
 	@Operation(
 		summary = "상품 조회",
-		description = "상품 ID로 특정 상품의 정보를 조회합니다.",
+		description = "날짜를 통해 특정 상품의 정보를 조회합니다.",
 		parameters = {
 			@Parameter(
-				name = "prizeId",
-				description = "조회할 상품의 ID",
+				name = "days",
+				description = "조회할 상품의 날짜 / 프리미엄의 경우 4",
 				required = true,
 				in = ParameterIn.PATH,
 				example = "1"
 			)
 		}
 	)
-	@GetMapping("/{prizeId}")
-	public BaseResponse<PrizeResponse> getPrizeById(@PathVariable("prizeId") Long prizeId) {
-		PrizeResponse response = prizeService.getPrizeById(prizeId);
+	@GetMapping("/{days}")
+	public BaseResponse<List<PrizeResponse>> getPrizeById(@PathVariable("days") Integer days) {
+		List<PrizeResponse> response = prizeService.getPrizeByDays(days);
 		return BaseResponse.success(response);
 	}
 }
