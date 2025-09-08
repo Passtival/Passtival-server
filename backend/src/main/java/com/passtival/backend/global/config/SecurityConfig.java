@@ -58,6 +58,11 @@ public class SecurityConfig {
 
 		http.authorizeHttpRequests((auth) -> auth
 
+			//스캔 봇 차단
+			.requestMatchers("**/wlwmanifest.xml", "**/xmlrpc.php").denyAll()
+			.requestMatchers("**/*wlwmanifest.xml*", "**/*xmlrpc.php*").denyAll()
+			.requestMatchers("**/wp-*", "**/wp/*", "**/wordpress*").denyAll()
+
 			// 소셜 로그인 관련 경로 (공개)
 			.requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
 
@@ -99,7 +104,7 @@ public class SecurityConfig {
 			.requestMatchers("/api/test/**").permitAll()
 
 			// 모든 요청 로그인 후로 변경 잘못된 요청 전부 방어
-			.anyRequest().authenticated());
+			.anyRequest().denyAll());
 
 		//커스텀 로그인 미 구현(확장성 고려 주석처리)
 		// LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
