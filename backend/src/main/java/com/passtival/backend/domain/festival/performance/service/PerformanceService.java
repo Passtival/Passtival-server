@@ -1,5 +1,8 @@
 package com.passtival.backend.domain.festival.performance.service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,5 +67,15 @@ public class PerformanceService {
 		return PerformanceDetailResponse.of(performance);
 	}
 
+	public List<PerformanceResponse> getPerformancesByClosestTime() {
+		LocalDateTime now = LocalDateTime.now();
+
+		return performanceRepository.findAll().stream()
+			.sorted(Comparator.comparingLong(p ->
+				Math.abs(Duration.between(now, p.getStartTime()).toMinutes())
+			))
+			.map(PerformanceResponse::of)
+			.toList();
+	}
 
 }
