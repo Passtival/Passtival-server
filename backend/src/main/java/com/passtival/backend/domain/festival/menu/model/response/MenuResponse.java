@@ -11,6 +11,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class MenuResponse {
 
+	private final Long id;
 	private final String type;
 	private final String name;
 	private final String introduction;
@@ -20,6 +21,7 @@ public class MenuResponse {
 	public static MenuResponse from(Menu menu) {
 
 		return MenuResponse.builder()
+			.id(menu.getId())
 			.type(menu.getType())
 			.name(menu.getName())
 			.introduction(menu.getIntroduction())
@@ -31,6 +33,7 @@ public class MenuResponse {
 	public static MenuResponse of(Menu menu) {
 
 		return MenuResponse.builder()
+			.id(menu.getId())
 			.type(menu.getType())
 			.name(menu.getName())
 			.introduction(menu.getIntroduction())

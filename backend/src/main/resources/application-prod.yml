@@ -35,14 +35,6 @@ spring:
         show_sql: false # Hibernate SQL 로그 비활성화
         use_sql_comments: false # SQL 주석 비활성화
 
-  data:
-    redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-      password: ${REDIS_PASSWORD}
-  thymeleaf:
-    cache: true
-
 swagger:
   server:
     url: ${SWAGGER_SERVER_URL}
@@ -69,3 +61,7 @@ admin:
 
 seed:
   auth-keys-path: "file:/app/deploy/authentication-keys.xlsx"
+
+frontend:
+  login-url: ${FRONTEND_LOGIN_URL}
+  login-fail-url: ${FRONTEND_LOGIN_FAIL_URL}

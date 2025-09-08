@@ -21,7 +21,7 @@ public class Winner {
 
 	private String studentId;
 
-	private int day;
+	private int day; // 4면 premium
 
 	@Builder
 	public Winner(String name, String studentId, int day) {

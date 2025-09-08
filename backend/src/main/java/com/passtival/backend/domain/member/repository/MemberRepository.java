@@ -14,4 +14,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 	Optional<Member> findByMemberId(Long memberId);
 
 	List<Member> findAllByLevel(int level);
+
+	List<Member> findAllByPremiumRaffleTrue();
 }
