@@ -21,6 +21,8 @@ import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +47,10 @@ public class SeedController {
 	}
 
 	@PostMapping("/performances")
+	@Operation(
+		summary = "[백엔드 용] 공연 seed api",
+		security = @SecurityRequirement(name = "jwtAuth")
+	)
 	public BaseResponse<?> insertPerformances(
 		@RequestHeader("X-ADMIN-KEY") String key,
 		@RequestBody @Valid List<PerformanceRequest> performanceRequests) {
@@ -89,6 +95,10 @@ public class SeedController {
 	}
 
 	@PostMapping("/booths")
+	@Operation(
+		summary = "[백엔드 용] 부스 seed api",
+		security = @SecurityRequirement(name = "jwtAuth")
+	)
 	public BaseResponse<String> insertBooths(
 		@RequestHeader("X-ADMIN-KEY") String key,
 		@RequestBody @Valid List<BoothRequest> boothRequests) {

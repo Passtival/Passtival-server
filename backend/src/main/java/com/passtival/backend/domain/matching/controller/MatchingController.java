@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.passtival.backend.domain.matching.model.response.MatchingResponse;
 import com.passtival.backend.domain.matching.service.MatchingService;
-import com.passtival.backend.global.security.model.CustomMemberDetails;
 import com.passtival.backend.global.common.BaseResponse;
+import com.passtival.backend.global.security.model.CustomMemberDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -50,7 +50,9 @@ public class MatchingController {
 	 */
 
 	@Operation(summary = "매칭 결과 조회",
-		description = "오늘의 매칭 결과를 조회합니다. 매칭 성공 시 내 정보와 파트너 정보를 반환합니다.",
+		description = "오늘의 매칭 결과를 조회합니다. "
+			+ "매칭 성공 시 내 정보와 파트너 정보를 반환합니다."
+			+ "실패하면 오늘 소개팅 정보가 없다고 나옴",
 		security = @SecurityRequirement(name = "jwtAuth"))
 	@GetMapping("/result")
 	@PreAuthorize("hasRole('USER')")

@@ -34,7 +34,10 @@ public class AdminRaffleController {
 	// 인증키 조회
 	@GetMapping("authentication-key")
 	@PreAuthorize("hasRole('ADMIN')")
-	@Operation(summary = "관리자 인증키 조회")
+	@Operation(
+		summary = "관리자 인증키 조회",
+		description = "관리자(학생회)가 인증키 레벨 설정 후 학생에게 인증키를 보여줄때 사용하는 api"
+	)
 	public BaseResponse<AuthenticationKeyResponse> getAuthenticationKey() {
 		return BaseResponse.success(adminAuthenticationService.getAuthenticationKey());
 	}
@@ -42,7 +45,10 @@ public class AdminRaffleController {
 	// 인증키 레벨 설정
 	@PatchMapping("authentication-key")
 	@PreAuthorize("hasRole('ADMIN')")
-	@Operation(summary = "관리자 인증키 레벨 설정")
+	@Operation(
+		summary = "관리자 인증키 레벨 설정",
+		description = "관리자(학생회)가 인증키 레벨 설정 - 학생이 인증키 입력 후 레벨 비교를 위해 필요"
+	)
 	public BaseResponse<Void> setAuthenticationKeyLevel(@RequestBody AuthenticationLevelRequest request) {
 		adminAuthenticationService.setAuthenticationKeyLevel(request);
 		return BaseResponse.success(null);
@@ -50,7 +56,10 @@ public class AdminRaffleController {
 
 	@PostMapping("/{day}")
 	@PreAuthorize("hasRole('ADMIN')")
-	@Operation(summary = "관리자 일차별 추첨 실행", security = @SecurityRequirement(name = "jwtAuth"))
+	@Operation(summary = "관리자 일차별 추첨 실행",
+		description = "관리자(학생회)가 일별 추첨을 진행하는 api | day은 1~3",
+		security = @SecurityRequirement(name = "jwtAuth")
+	)
 	public BaseResponse<Void> executeRaffleByDay(@PathVariable int day) {
 		adminRaffleService.executeRaffleByDay(day);
 		return BaseResponse.success(null);
@@ -59,7 +68,11 @@ public class AdminRaffleController {
 	// 일차별 당점차 조회
 	@GetMapping("/{day}")
 	@PreAuthorize("hasRole('ADMIN')")
-	@Operation(summary = "관리자 일차별 당첨자 조회", security = @SecurityRequirement(name = "jwtAuth"))
+	@Operation(
+		summary = "관리자 일차별 당첨자 조회",
+		description = "관리자(학생회)가 일별 추첨 후에 당첨자를 조회하는 api | day은 1~3",
+		security = @SecurityRequirement(name = "jwtAuth")
+	)
 	public BaseResponse<WinnerResponse> getRaffleWinnersByDay(@PathVariable int day) {
 		WinnerResponse response = adminRaffleService.getRaffleWinnersByDay(day);
 		return BaseResponse.success(response);
@@ -67,7 +80,10 @@ public class AdminRaffleController {
 
 	@PostMapping("/premium")
 	@PreAuthorize("hasRole('ADMIN')")
-	@Operation(summary = "관리자 프리미엄 추첨 실행", security = @SecurityRequirement(name = "jwtAuth"))
+	@Operation(summary = "관리자 프리미엄 추첨 실행",
+		description = "관리자(학생회)가 프리미엄 추첨을 진행하는 api",
+		security = @SecurityRequirement(name = "jwtAuth")
+	)
 	public BaseResponse<Void> executeRaffleOfPremium() {
 		adminRaffleService.executeRaffleOfPremium();
 		return BaseResponse.success(null);
@@ -75,7 +91,10 @@ public class AdminRaffleController {
 
 	@GetMapping("/premium")
 	@PreAuthorize("hasRole('ADMIN')")
-	@Operation(summary = "관리자 프리미엄 당첨자 조회", security = @SecurityRequirement(name = "jwtAuth"))
+	@Operation(summary = "관리자 프리미엄 당첨자 조회",
+		description = "관리자(학생회)가 프리미엄 추첨 후에 당첨자를 조회하는 api",
+		security = @SecurityRequirement(name = "jwtAuth")
+	)
 	public BaseResponse<WinnerResponse> getRaffleWinnerOfPremium() {
 		WinnerResponse response = adminRaffleService.getRaffleWinnerOfPremium();
 		return BaseResponse.success(response);
