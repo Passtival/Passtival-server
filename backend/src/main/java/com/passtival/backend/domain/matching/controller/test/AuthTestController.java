@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.passtival.backend.global.security.model.CustomMemberDetails;
-import com.passtival.backend.global.security.util.JwtUtil;
 import com.passtival.backend.domain.matching.model.entity.MatchingApplicant;
 import com.passtival.backend.domain.matching.service.MatchingApplicantService;
 import com.passtival.backend.global.common.BaseResponse;
+import com.passtival.backend.global.security.model.CustomMemberDetails;
+import com.passtival.backend.global.security.util.JwtUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/api/test")
 @RequiredArgsConstructor
-@Tag(name = "Test-API", description = "테스트용 API")
+@Tag(name = "Test-API", description = "[백엔드 용]테스트용 API")
 public class AuthTestController {
 	private final JwtUtil jwtUtil;
 	private final MatchingApplicantService matchingApplicantService;

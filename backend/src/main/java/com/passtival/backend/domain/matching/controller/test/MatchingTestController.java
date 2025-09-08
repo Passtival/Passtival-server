@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/test/matching")
 @RequiredArgsConstructor
-@Tag(name = "Matching-Test-API", description = "매칭 테스트용 API")
+@Tag(name = "Test-API", description = "[백엔드 용]테스트용 API")
 public class MatchingTestController {
 
 	private final MatchingApplicantRepository matchingApplicantRepository;
