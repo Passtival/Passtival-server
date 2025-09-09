@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,19 +26,6 @@ import lombok.RequiredArgsConstructor;
 public class BoothService {
 
 	private final BoothRepository boothRepository;
-
-	/**
-	 * 모든 부스 목록 조회 (페이징 가능)
-	 * @param pageable 페이지 요청 정보
-	 * @return Page<Booth>
-	 */
-	public Page<BoothResponse> getAllBooths(Pageable pageable) {
-		Page<Booth> page = boothRepository.findAll(pageable);
-		if (page.isEmpty()) {
-			throw new BaseException(BaseResponseStatus.BOOTH_NOT_FOUND);
-		}
-		return page.map(BoothResponse::of);
-	}
 
 	/**
 	 * 커서기반 페이지네이션

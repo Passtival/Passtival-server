@@ -2,9 +2,6 @@ package com.passtival.backend.domain.festival.booth.controller;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,32 +31,6 @@ import lombok.RequiredArgsConstructor;
 public class BoothController {
 
 	private final BoothService boothService;
-
-	/**
-	 * 부스 페이지 단위 전체 목록 조회 (페이징/정렬 지원)
-	 */
-	@Operation(
-		summary = "부스 목록 조회",
-		description = "부스 전체 목록을 조회합니다. 페이징 및 정렬 지원.",
-		responses = {
-			@ApiResponse(
-				responseCode = "200",
-				description = "부스 목록 조회 성공",
-				content = @Content(
-					mediaType = "application/json",
-					array = @ArraySchema(schema = @Schema(implementation = BoothResponse.class))
-				)
-			)
-		}
-	)
-	@GetMapping("/booths")
-	public BaseResponse<?> getBooths(
-		@Parameter(hidden = true) // Swagger에서 Pageable 자동 파라미터는 숨김
-		@PageableDefault(size = 5) Pageable pageable
-	) {
-		Page<BoothResponse> page = boothService.getAllBooths(pageable);
-		return BaseResponse.success(page);
-	}
 
 	/**
 	 * 커서 기반 페이지네이션
