@@ -58,11 +58,6 @@ public class SecurityConfig {
 
 		http.authorizeHttpRequests((auth) -> auth
 
-			//스캔 봇 차단
-			.requestMatchers("**/wlwmanifest.xml", "**/xmlrpc.php").denyAll()
-			.requestMatchers("**/*wlwmanifest.xml*", "**/*xmlrpc.php*").denyAll()
-			.requestMatchers("**/wp-*", "**/wp/*", "**/wordpress*").denyAll()
-
 			// 소셜 로그인 관련 경로 (공개)
 			.requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
 
