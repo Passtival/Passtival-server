@@ -9,7 +9,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.passtival.backend.domain.festival.activity.model.entity.Activity;
 import com.passtival.backend.domain.festival.booth.model.entity.Booth;
+import com.passtival.backend.domain.festival.booth.model.response.ActivityResponse;
 import com.passtival.backend.domain.festival.booth.model.response.BoothDetailResponse;
 import com.passtival.backend.domain.festival.booth.model.response.BoothResponse;
 import com.passtival.backend.domain.festival.booth.model.response.CursorPageResponse;
@@ -69,6 +71,25 @@ public class BoothService {
 
 		return menus.stream()
 			.map(MenuResponse::from)
+			.collect(Collectors.toList());
+	}
+
+	/**
+	 * 부스 ID로 해당 부스의 체험활동 조회
+	 */
+	public List<ActivityResponse> getActivitiesByBoothId(Long boothId) {
+		Optional<Booth> boothOpt = boothRepository.findById(boothId);
+		if (boothOpt.isEmpty()) {
+			throw new BaseException(BaseResponseStatus.BOOTH_NOT_FOUND);
+		}
+
+		List<Activity> activities = boothOpt.get().getActivities();
+		if (activities == null) {
+			activities = Collections.emptyList();
+		}
+
+		return activities.stream()
+			.map(ActivityResponse::from)
 			.collect(Collectors.toList());
 	}
 

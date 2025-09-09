@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.passtival.backend.domain.festival.booth.model.response.ActivityResponse;
 import com.passtival.backend.domain.festival.booth.model.response.BoothDetailResponse;
 import com.passtival.backend.domain.festival.booth.model.response.BoothResponse;
 import com.passtival.backend.domain.festival.booth.service.BoothService;
@@ -134,5 +135,34 @@ public class BoothController {
 	public BaseResponse<List<MenuResponse>> getMenusByBoothId(@PathVariable Long boothId) {
 		List<MenuResponse> menus = boothService.getMenusByBoothId(boothId);
 		return BaseResponse.success(menus);
+	}
+
+	@Operation(
+		summary = "부스 ID로 체험활동 조회",
+		description = "부스 ID로 특정 부스의 체험활동들을 조회합니다.",
+		parameters = {
+			@Parameter(
+				name = "boothId",
+				description = "조회할 부스의 ID",
+				required = true,
+				in = ParameterIn.PATH,
+				example = "1"
+			)
+		},
+		responses = {
+			@ApiResponse(
+				responseCode = "200",
+				description = "부스 체험활동 조회 성공",
+				content = @Content(
+					mediaType = "application/json",
+					array = @ArraySchema(schema = @Schema(implementation = ActivityResponse.class))
+				)
+			)
+		}
+	)
+	@GetMapping("/{boothId}/activities")
+	public BaseResponse<List<ActivityResponse>> getActivitiesByBoothId(@PathVariable Long boothId) {
+		List<ActivityResponse> activities = boothService.getActivitiesByBoothId(boothId);
+		return BaseResponse.success(activities);
 	}
 }
