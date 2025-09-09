@@ -17,7 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "admins")
+@Table(name = "admin")
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,20 +31,23 @@ public class Admin {
 	@Column(name = "login_id", unique = true, nullable = false, length = 50)
 	private String loginId;
 
-	// BCrypt로 해싱된 값
-	@Column(name = "auth_key", nullable = false, length = 255)
-	private String authKey;
+	@Column(name = "password", nullable = false, length = 255)
+	private String password;
 
 	// 항상 ADMIN
 	@Column(nullable = false, length = 10)
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
-	public static Admin createAdmin(String loginId, String hashedAuthKey) {
+	public static Admin createAdmin(String loginId, String password) {
 		return Admin.builder()
 			.loginId(loginId)
-			.authKey(hashedAuthKey)
+			.password(password)
 			.role(Role.ADMIN)
 			.build();
+	}
+
+	public void updatePassword(String newPassword) {
+		this.password = newPassword;
 	}
 }
