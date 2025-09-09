@@ -56,7 +56,7 @@ public class JwtUtil {
 			throw e;
 		} catch (Exception e) {
 			// 그 외 예상치 못한 예외들을 JwtException으로 래핑
-			throw new JwtException("Failed to parse JWT token", e);
+			throw new JwtException("JWT 토큰 파싱 실패", e);
 		}
 	}
 
@@ -92,10 +92,6 @@ public class JwtUtil {
 			this.memberId = memberId;
 			this.role = role;
 			this.expiration = expiration;
-		}
-
-		public boolean isExpired() {
-			return expiration.before(new Date());
 		}
 	}
 }
