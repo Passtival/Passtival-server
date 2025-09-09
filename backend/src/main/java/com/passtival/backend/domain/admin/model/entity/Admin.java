@@ -47,4 +47,8 @@ public class Admin {
 			.role(Role.ADMIN)
 			.build();
 	}
+
+	public void updateAuthKey(String newHashedAuthKey) {
+		this.authKey = newHashedAuthKey;
+	}
 }

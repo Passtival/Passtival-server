@@ -33,8 +33,13 @@ public class AdminInitializer implements ApplicationRunner {
 	}
 
 	private void initializeDefaultAdmin() {
-		if (adminRepository.existsByLoginId(username)) {
-			//이미 존재
+		//
+		Admin existingAdmin = adminRepository.findByLoginId(username)
+			.orElse(null);
+		if (existingAdmin != null) {
+			// 비밀번호 업데이트
+			existingAdmin.updateAuthKey(password);
+			adminRepository.save(existingAdmin);
 			return;
 		}
 
