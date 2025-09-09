@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.passtival.backend.domain.festival.activity.model.entity.Activity;
 import com.passtival.backend.domain.festival.menu.model.entity.Menu;
 import com.passtival.backend.domain.festival.performance.model.entity.Song;
 import com.passtival.backend.global.common.model.BaseEntity;
@@ -11,6 +12,7 @@ import com.passtival.backend.global.common.model.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -69,9 +71,18 @@ public class Booth extends BaseEntity {
 	@OneToMany(mappedBy = "booth", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Menu> menus = new ArrayList<>();
 
+	@Builder.Default
+	@OneToMany(mappedBy = "booth", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Activity> activities = new ArrayList<>();
+
 	public void addMenu(Menu menu) {
 		this.menus.add(menu);
 		menu.setBooth(this);
+	}
+
+	public void addActivity(Activity activity) {
+		this.activities.add(activity);
+		activity.setBooth(this);
 	}
 
 }
