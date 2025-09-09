@@ -59,7 +59,7 @@ public class SecurityConfig {
 		http.authorizeHttpRequests((auth) -> auth
 
 			// 스캔 봇 차단 - 간단한 패턴으로 변경
-			.requestMatchers("/wlwmanifest.xml", "/xmlrpc.php").denyAll()
+			.requestMatchers("/**/wlwmanifest.xml", "/**/xmlrpc.php").denyAll()
 
 			// 소셜 로그인 관련 경로 (공개)
 			.requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
