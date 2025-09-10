@@ -98,6 +98,9 @@ public class SecurityConfig {
 			// 테스트 API - (공개)
 			.requestMatchers("/api/test/**").permitAll()
 
+			// s3 업로드 (공개)
+			.requestMatchers("/api/s3/**").permitAll()
+
 			// 모든 요청 로그인 후로 변경 잘못된 요청 전부 방어
 			.anyRequest().denyAll());
 
