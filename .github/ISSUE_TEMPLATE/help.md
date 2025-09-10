@@ -1,7 +1,7 @@
 ---
 name: Help
 about: 궁금한 점이나 도움이 필요한 내용을 올려주세요!
-title: ''
+title: '[Help]'
 labels: "\U0001F64B question"
 assignees: ''
 
