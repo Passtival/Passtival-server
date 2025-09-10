@@ -93,6 +93,7 @@ public class SecurityConfig {
 
 			// 회원 로그인 (공개)
 			.requestMatchers("/api/member/login/kakao").permitAll()
+			.requestMatchers("/api/member/**").hasRole("USER")
 			.requestMatchers("/login/oauth2/code/kakao").permitAll()
 
 			// 테스트 API - (공개)
