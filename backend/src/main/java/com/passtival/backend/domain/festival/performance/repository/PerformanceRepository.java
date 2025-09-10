@@ -13,12 +13,6 @@ import com.passtival.backend.domain.festival.performance.model.entity.Performanc
 
 public interface PerformanceRepository extends JpaRepository<Performance, Long> {
 
-	@Query("SELECT p FROM Performance p " +
-		"WHERE (:cursorId IS NULL OR p.id < :cursorId) " +
-		"ORDER BY p.id DESC")
-	List<Performance> findPageByCursor(@Param("cursorId") Long cursorId,
-		Pageable pageable);
-
 	boolean existsByTitle(String title);
 
 }

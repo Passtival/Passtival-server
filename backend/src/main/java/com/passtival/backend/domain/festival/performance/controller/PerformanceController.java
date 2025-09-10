@@ -18,6 +18,10 @@ import com.passtival.backend.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -30,44 +34,7 @@ public class PerformanceController {
 	private final PerformanceService performanceService;
 
 	/**
-	 * 공연 목록 조회 (페이징/정렬 지원)
-	 * 예: /performances?page=0&size=10&sort=day,desc
-	 * @return 모든 공연 정보 응답
-	 */
-	@Operation(
-		summary = "공연 목록 조회",
-		description = "모든 공연을 페이지 단위로 조회합니다. 기본 페이지 크기는 5입니다."
-	)
-	@GetMapping("/performances")
-	public BaseResponse<?> getPerformances(
-		@PageableDefault(size = 5) Pageable pageable) {
-		Page<Performance> page = performanceService.getAllPerformances(pageable);
-		Page<PerformanceResponse> dtoPage = page.map(PerformanceResponse::of);
-		return BaseResponse.success(dtoPage);
-	}
-
-	/**
-	 * 커서기반 페이지네이션
-	 * 첫 페이지 요청 (cursor 없음) : GET /performances/cursor
-	 * 다음 페이지 요청 (cursor 사용) : GET /performances/cursor?cursor=6&size=5
-	 * 사이즈 변경 요청 : GET /performances/cursor?size=10
-	 */
-	@Operation(
-		summary = "공연 목록 조회 (커서 기반)",
-		description = "커서 기반으로 공연 목록을 조회합니다. " +
-			"첫 요청은 cursor 없이, 이후 요청은 cursor와 size 지정"
-	)
-	@GetMapping("/performances/cursor")
-	public BaseResponse<?> getPerformancesCursor(
-		@RequestParam(required = false) Long cursor,
-		@RequestParam(defaultValue = "5") int size) {
-		return BaseResponse.success(performanceService.getPerformances(cursor, size));
-	}
-
-	/**
 	 * 공연 id로 단일 조회
-	 * @param performanceId 공연 ID
-	 * @return 공연 id로 정보 응답
 	 */
 	@Operation(
 		summary = "공연 단일 조회",
@@ -80,13 +47,43 @@ public class PerformanceController {
 				in = ParameterIn.PATH,
 				example = "1"
 			)
+		},
+		responses = {
+			@ApiResponse(
+				responseCode = "200",
+				description = "공연 단일 조회 성공",
+				content = @Content(
+					mediaType = "application/json",
+					schema = @Schema(implementation = PerformanceDetailResponse.class)
+				)
+			)
 		}
 	)
 	@GetMapping("/performances/{performanceId}")
 	public BaseResponse<PerformanceDetailResponse> getPerformanceById(
-		@PathVariable Long performanceId) {
+		@PathVariable Long performanceId
+	) {
 		PerformanceDetailResponse detail = performanceService.getPerformanceById(performanceId);
 		return BaseResponse.success(detail);
+	}
+
+	@Operation(
+		summary = "공연 시간순 조회",
+		description = "현재 시간과 가장 가까운 공연부터 순서대로 조회합니다.",
+		responses = {
+			@ApiResponse(
+				responseCode = "200",
+				description = "공연 시간순 조회 성공",
+				content = @Content(
+					mediaType = "application/json",
+					array = @ArraySchema(schema = @Schema(implementation = PerformanceResponse.class))
+				)
+			)
+		}
+	)
+	@GetMapping("/performances/closest")
+	public BaseResponse<?> getPerformancesByClosestTime() {
+		return BaseResponse.success(performanceService.getPerformancesByClosestTime());
 	}
 
 }

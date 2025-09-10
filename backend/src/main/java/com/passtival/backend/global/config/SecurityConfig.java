@@ -99,7 +99,7 @@ public class SecurityConfig {
 			.requestMatchers("/api/test/**").permitAll()
 
 			// 모든 요청 로그인 후로 변경 잘못된 요청 전부 방어
-			.anyRequest().authenticated());
+			.anyRequest().denyAll());
 
 		//커스텀 로그인 미 구현(확장성 고려 주석처리)
 		// LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);

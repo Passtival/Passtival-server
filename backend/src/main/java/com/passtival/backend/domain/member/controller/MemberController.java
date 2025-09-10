@@ -14,6 +14,7 @@ import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.security.model.CustomMemberDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -36,6 +37,13 @@ public class MemberController {
 
 	// 회원 레벨업 신청
 	@PatchMapping("/level-up")
+	@Operation(
+		summary = "사용자 레벨업 신청",
+		description = "부스를 돌고 학생회를 찾아가서 본인에 맞는 레벨의 인증키를 발급 받고"
+			+ "올바른 인증키와 학번, 이름과 본인이 될 레벨을 함께 입력하면 성공"
+			+ "인증키 레벨과 요청하는 레벨이 다르면 실패",
+		security = @SecurityRequirement(name = "jwtAuth")
+	)
 	public BaseResponse<Void> levelUp(
 		@AuthenticationPrincipal CustomMemberDetails member,
 		@RequestBody LevelUpRequest request

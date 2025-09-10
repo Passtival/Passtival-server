@@ -7,6 +7,8 @@ import com.passtival.backend.global.exception.BaseException;
 import com.passtival.backend.global.security.model.token.TokenResponse;
 import com.passtival.backend.global.security.util.JwtUtil;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,19 +62,19 @@ public class TokenService {
 	 * @return TokenInfo 파싱된 토큰 정보
 	 */
 	private JwtUtil.TokenInfo parseAndValidateToken(String refreshToken) {
-		JwtUtil.TokenInfo tokenInfo = jwtUtil.extractTokenInfo(refreshToken);
-
-		// 토큰 파싱 실패 또는 정보 부족 체크
-		if (tokenInfo == null || tokenInfo.memberId == null || tokenInfo.role == null) {
+		try {
+			JwtUtil.TokenInfo tokenInfo = jwtUtil.extractTokenInfo(refreshToken);
+			// 토큰 파싱 실패 또는 정보 부족 체크
+			if (tokenInfo == null || tokenInfo.memberId == null || tokenInfo.role == null) {
+				throw new BaseException(BaseResponseStatus.TOKEN_INVALID);
+			}
+			return tokenInfo;
+		} catch (ExpiredJwtException e) {
+			// 토큰 만료 → 401 응답
+			throw new BaseException(BaseResponseStatus.TOKEN_EXPIRED);
+		} catch (JwtException e) {
+			// JWT 파싱 오류 → 401 응답
 			throw new BaseException(BaseResponseStatus.TOKEN_INVALID);
 		}
-
-		// 토큰 만료 여부 검증
-		if (tokenInfo.isExpired()) {
-			throw new BaseException(BaseResponseStatus.TOKEN_EXPIRED);
-		}
-
-		return tokenInfo;
-
 	}
 }
