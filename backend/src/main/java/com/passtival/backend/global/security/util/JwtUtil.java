@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -43,12 +45,18 @@ public class JwtUtil {
 			if (memberId != null && role != null) {
 				return new TokenInfo(memberId, role, expiration);
 			}
-			// 필수 정보가 누락된 경우
-			return null;
+			// 필수 정보가 누락된 경우 - 잘못된 토큰 형태
+			throw new JwtException("잘못된 토큰 형태");
 
+		} catch (ExpiredJwtException e) {
+			// 토큰 만료 ExpiredJwtException그대로 던지기
+			throw e;
+		} catch (JwtException e) {
+			// 이미 JwtException인 경우 그대로 던짐
+			throw e;
 		} catch (Exception e) {
-			// 파싱 과정에서 예외가 발생하면(만료, 오류 등) null을 반환합니다.
-			return null;
+			// 그 외 예상치 못한 예외들을 JwtException으로 래핑
+			throw new JwtException("JWT 토큰 파싱 실패", e);
 		}
 	}
 
@@ -84,10 +92,6 @@ public class JwtUtil {
 			this.memberId = memberId;
 			this.role = role;
 			this.expiration = expiration;
-		}
-
-		public boolean isExpired() {
-			return expiration.before(new Date());
 		}
 	}
 }
