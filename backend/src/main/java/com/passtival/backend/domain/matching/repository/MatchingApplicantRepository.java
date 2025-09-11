@@ -46,4 +46,6 @@ public interface MatchingApplicantRepository extends JpaRepository<MatchingAppli
 	// 테스트용 메서드들
 	List<MatchingApplicant> findByNameStartingWith(String namePrefix);
 
+	// 회원 존재 여부 확인
+	boolean existsByMemberId(Long memberId);
 }

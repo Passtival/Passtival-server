@@ -32,7 +32,8 @@ public class MemberController {
 	)
 	@GetMapping("/login/kakao")
 	public RedirectView redirectLoginKakao() {
-		return new RedirectView("/oauth2/authorization/kakao"); // localhost:8080/oauth2/authorization/kakao
+		return new RedirectView(
+			"https://passtival.co.kr/oauth2/authorization/kakao"); // localhost:8080/oauth2/authorization/kakao
 	}
 
 	// 회원 레벨업 신청

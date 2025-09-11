@@ -1,7 +1,10 @@
 package com.passtival.backend.global.discord;
 
-import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import com.passtival.backend.global.discord.dto.DiscordWebhookRequest;
 
@@ -38,8 +41,14 @@ public class DiscordService {
 		// 제목과 환경 정보
 		message.append("🚨 **[서버 에러 발생]** 🚨\n");
 		message.append("🌐 **환경**: `").append(activeProfile.toUpperCase()).append("`\n");
-		message.append("⏰ **시간**: `").append(java.time.LocalDateTime.now().toString().replace("T", " ")).append("`\n");
-		message.append("🔗 **URL**: [").append(requestUrl != null ? requestUrl : "Unknown").append("](").append(requestUrl != null ? requestUrl : "#").append(")\n\n");
+		message.append("⏰ **시간**: `")
+			.append(LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString().replace("T", " "))
+			.append("`\n");
+		message.append("🔗 **URL**: [")
+			.append(requestUrl != null ? requestUrl : "Unknown")
+			.append("](")
+			.append(requestUrl != null ? requestUrl : "#")
+			.append(")\n\n");
 
 		// 에러 메시지 섹션
 		message.append("📋 **에러 정보**\n");
