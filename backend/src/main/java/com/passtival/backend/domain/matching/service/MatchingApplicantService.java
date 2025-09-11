@@ -157,11 +157,16 @@ public class MatchingApplicantService {
 
 	}
 
-	public Void creatProfile(Long memberId) {
+	public void creatProfile(Long memberId) {
 
 		// 1. Member 엔티티 조회
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
+
+		// 이미 MatchingApplicant가 존재하는지 확인
+		if (matchingApplicantRepository.existsByMemberId(memberId)) {
+			return;
+		}
 
 		// 2. 새로운 MatchingApplicant 생성
 		MatchingApplicant newMatchingApplicant = MatchingApplicant.createMatchingApplicant(
@@ -171,6 +176,5 @@ public class MatchingApplicantService {
 
 		// 3. 생성된 MatchingApplicant를 데이터베이스에 저장
 		matchingApplicantRepository.save(newMatchingApplicant);
-		return null;
 	}
 }
