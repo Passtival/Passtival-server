@@ -102,6 +102,11 @@ public class SecurityConfig {
 			// s3 업로드 (공개)
 			.requestMatchers("/api/s3/**").permitAll()
 
+			//Health Check
+			.requestMatchers("/actuator/**").permitAll()
+			.requestMatchers("/readyz").permitAll()
+			.requestMatchers("/livez").permitAll()
+
 			// 모든 요청 로그인 후로 변경 잘못된 요청 전부 방어
 			.anyRequest().denyAll());
 
