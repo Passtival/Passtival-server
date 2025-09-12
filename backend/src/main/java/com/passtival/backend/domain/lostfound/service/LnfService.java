@@ -27,7 +27,7 @@ public class LnfService {
 	}
 
 	public List<FoundItemResponse> getAllFoundItems() {
-		List<FoundItem> foundItems = lnfRepository.findAll();
+		List<FoundItem> foundItems = lnfRepository.findAllByOrderByCreatedAtDesc();
 
 		if (foundItems.isEmpty()) {
 			throw new BaseException(BaseResponseStatus.FOUND_ITEM_NOT_FOUND);
