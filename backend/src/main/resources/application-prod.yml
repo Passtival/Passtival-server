@@ -73,13 +73,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: "health"
+        include: health, info, metrics, prometheus
   endpoint:
     health:
       show-details: "never"
       probes:
         enabled: true
-        add-additional-paths: true
       status:
         http-mapping:
           down: 503
