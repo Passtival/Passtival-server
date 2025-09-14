@@ -17,4 +17,6 @@ public class MatchingApplicantResponse {
 	private String MemberPhoneNumber;
 
 	private String MemberInstagramId;
+
+	private boolean MemberApplied;
 }
