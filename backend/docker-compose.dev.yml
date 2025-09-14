@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: passtival-spring-app
     ports:
-      - "127.0.0.1:8080:8080"
+      - "8080:8080"
     depends_on:
       - db
     env_file:
@@ -28,7 +28,24 @@ services:
       - KAKAO_USER_NAME_ATTRIBUTE=${KAKAO_USER_NAME_ATTRIBUTE}
     networks:
       - backend
+  grafana:
+    image: "grafana/grafana:latest"
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${ADMIN_USERNAME}
+      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    container_name: grafana
 
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.dev.yml:/etc/prometheus/prometheus.yml
+    container_name: prometheus
+    networks:
+      - backend
   db:
     image: 'mysql:8.0'
     container_name: passtival-db

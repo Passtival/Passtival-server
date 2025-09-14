@@ -63,3 +63,31 @@ frontend:
   login-url: ${FRONTEND_LOGIN_URL}
   login-fail-url: ${FRONTEND_LOGIN_FAIL_URL}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+  endpoint:
+    health:
+      show-details: "always"
+      probes:
+        enabled: true
+      status:
+        http-mapping:
+          down: 503
+          out-of-service: 503
+      #해더 설정 후 변경 예정
+      validate-group-membership: true
+
+      group:
+        readiness:
+          include: "readinessState,db,diskSpace"
+        liveness:
+          include: "livenessState"
+        capacity:
+          include: "cpuHealth,memoryHealth"
+          status:
+            order: "fatal,down,out-of-service,up,unknown"
+            http-mapping:
+              fatal: 200

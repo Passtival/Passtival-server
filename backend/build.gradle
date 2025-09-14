@@ -62,6 +62,11 @@ dependencies {
     // Excel
     implementation 'org.apache.poi:poi-ooxml:5.2.5'
 
+    //Health Check
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    // Prometheus
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 //    testImplementation 'org.springframework.security:spring-security-test'
