@@ -10,10 +10,11 @@ import lombok.Getter;
 public class LevelUpRequest {
 
 	@NotBlank(message = "이름은 필수입니다.")
+	@Pattern(regexp = "^[가-힣]{2,4}$", message = "이름은 2~4글자의 한글로 입력해주세요.")
 	private String name;
 
 	@NotBlank(message = "학번은 필수입니다.")
-	@Pattern(regexp = "^[A-Za-z0-9]+$", message = "학번은 영어와 숫자만 입력해주세요. 1234A5678 형식")
+	@Pattern(regexp = "^\\d{4}[A-Z]\\d{4}$", message = "학번은 2021U2317 형식으로 입력해주세요.")
 	private String studentId;
 
 	@NotBlank(message = "인증키는 필수입니다.")
