@@ -8,7 +8,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class CursorPageResponse<T> {
-
 	private List<T> content;
-	private Long nextCursor; // 다음 페이지 시작점
+
+	private Integer nextTypeOrder;
+	private String nextType;
+	private String nextName;
+	private Long nextId;
 }

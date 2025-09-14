@@ -32,21 +32,39 @@ public class BoothService {
 	/**
 	 * 커서기반 페이지네이션
 	 */
-	public CursorPageResponse<BoothResponse> getBooths(Long cursorId, int size) {
-		Pageable pageable = PageRequest.of(0, size); // offset=0 고정
-		List<Booth> booths = boothRepository.findPageByCursor(cursorId, pageable);
+	public CursorPageResponse<BoothResponse> getBooths(
+		Integer lastTypeOrder, String lastType, String lastName, Long lastId, int size) {
+
+		Pageable pageable = PageRequest.of(0, size);
+		List<Booth> booths = boothRepository.findPageByCursor(lastTypeOrder, lastType, lastName, lastId, pageable);
 
 		if (booths.isEmpty()) {
-			throw new BaseException(BaseResponseStatus.BOOTH_NOT_FOUND); // 부스 없음 예외
+			throw new BaseException(BaseResponseStatus.BOOTH_NOT_FOUND);
 		}
 
-		Long nextCursor = booths.isEmpty() ? null : booths.get(booths.size() - 1).getId();
+		Booth last = booths.get(booths.size() - 1);
+
+		Integer nextTypeOrder = typeToOrder(last.getType());
+		String nextType = last.getType();
+		String nextName = last.getName();
+		Long nextId = last.getId();
 
 		return new CursorPageResponse<>(
 			booths.stream().map(BoothResponse::of).toList(),
-			nextCursor
+			nextTypeOrder, nextType, nextName, nextId
 		);
 	}
+
+	private int typeToOrder(String type) {
+		return switch (type) {
+			case "학내부스" -> 1;
+			case "체험"   -> 2;
+			case "푸드존" -> 3;
+			case "의료지원" -> 4;
+			default -> 5;
+		};
+	}
+
 
 	// 부스 ID 조회
 	public BoothDetailResponse getBoothDetailById(Long boothId) {

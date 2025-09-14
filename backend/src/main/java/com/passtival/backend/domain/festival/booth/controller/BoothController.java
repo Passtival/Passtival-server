@@ -38,39 +38,26 @@ public class BoothController {
 	 */
 	@Operation(
 		summary = "부스 목록 조회 (커서 기반)",
-		description = "커서 기반으로 부스를 조회합니다. " +
-			"첫 요청은 cursor 없이, 이후 요청은 cursor와 size 지정",
+		description = "첫 요청은 커서 없이 호출하고, 이후 요청은 응답의 nextCursor 정보를 쿼리파라미터로 넘기세요",
 		parameters = {
-			@Parameter(
-				name = "cursor",
-				description = "마지막으로 조회한 부스 ID (없으면 첫 페이지)",
-				example = "6",
-				in = ParameterIn.QUERY
-			),
-			@Parameter(
-				name = "size",
-				description = "한 페이지 크기",
-				example = "5",
-				in = ParameterIn.QUERY
-			)
-		},
-		responses = {
-			@ApiResponse(
-				responseCode = "200",
-				description = "커서 기반 부스 목록 조회 성공",
-				content = @Content(
-					mediaType = "application/json",
-					array = @ArraySchema(schema = @Schema(implementation = BoothResponse.class))
-				)
-			)
+			@Parameter(name = "lastTypeOrder", example = "2"),
+			@Parameter(name = "lastType", example = "체험"),
+			@Parameter(name = "lastName", example = "VR게임"),
+			@Parameter(name = "lastId", example = "15"),
+			@Parameter(name = "size", example = "5")
 		}
 	)
 	@GetMapping("booths/cursor")
 	public BaseResponse<?> getBoothsCursor(
-		@RequestParam(required = false) Long cursor,
+		@RequestParam(required = false) Integer lastTypeOrder,
+		@RequestParam(required = false) String lastType,
+		@RequestParam(required = false) String lastName,
+		@RequestParam(required = false) Long lastId,
 		@RequestParam(defaultValue = "5") int size
 	) {
-		return BaseResponse.success(boothService.getBooths(cursor, size));
+		return BaseResponse.success(
+			boothService.getBooths(lastTypeOrder, lastType, lastName, lastId, size)
+		);
 	}
 
 	/**
