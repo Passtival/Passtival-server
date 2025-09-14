@@ -102,6 +102,11 @@ public class SecurityConfig {
 			// s3 업로드 (공개)
 			.requestMatchers("/api/s3/**").permitAll()
 
+			//Health Check
+			.requestMatchers("/actuator/**").access(
+				new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
+					"hasIpAddress('172.20.0.0/16') or hasIpAddress('172.18.0.4') or hasIpAddress('127.0.0.1')"))
+
 			// 모든 요청 로그인 후로 변경 잘못된 요청 전부 방어
 			.anyRequest().denyAll());
 
