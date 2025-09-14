@@ -40,7 +40,6 @@ public class BoothResponse {
 			.location(booth.getLocation())
 			.info(booth.getInfo())
 			.imagePath(booth.getImagePath())
-			.locationImagePath(booth.getLocationImagePath())
 			.build();
 	}
 }
