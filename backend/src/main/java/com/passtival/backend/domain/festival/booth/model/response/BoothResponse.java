@@ -20,7 +20,6 @@ public class BoothResponse {
 	private final String location;
 	private final String info;
 	private final String imagePath;
-	private final String locationImagePath;
 
 	/**
 	 * Booth 엔티티를 BoothResponseDTO로 변환하는 정적 팩토리 메서드
