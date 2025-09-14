@@ -153,6 +153,7 @@ public class MatchingApplicantService {
 			.MemberGender(matchingApplicant.getGender())
 			.MemberPhoneNumber(matchingApplicant.getPhoneNumber())
 			.MemberInstagramId(matchingApplicant.getInstagramId())
+			.MemberApplied(matchingApplicant.isApplied())
 			.build();
 
 	}
