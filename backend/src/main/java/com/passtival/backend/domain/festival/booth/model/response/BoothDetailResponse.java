@@ -53,7 +53,6 @@ public class BoothDetailResponse {
 			.location(booth.getLocation())
 			.info(booth.getInfo())
 			.imagePath(booth.getImagePath())
-			.locationImagePath(booth.getLocationImagePath())
 			.menus(menuResponses)
 			.build();
 	}

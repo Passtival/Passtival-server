@@ -123,7 +123,6 @@ public class SeedController {
 				.location(req.getLocation())
 				.info(req.getInfo())
 				.imagePath(req.getImagePath())
-				.locationImagePath(req.getLocationImagePath())
 				.build();
 
 			if (req.getMenus() != null) {
