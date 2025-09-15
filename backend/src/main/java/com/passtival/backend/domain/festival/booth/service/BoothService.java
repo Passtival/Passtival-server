@@ -33,20 +33,25 @@ public class BoothService {
 	 * 커서기반 페이지네이션
 	 */
 	public CursorPageResponse<BoothResponse> getBooths(Long cursorId, int size) {
-		Pageable pageable = PageRequest.of(0, size); // offset=0 고정
+		Pageable pageable = PageRequest.ofSize(size); // offset=0 대신 ofSize만 사용
 		List<Booth> booths = boothRepository.findPageByCursor(cursorId, pageable);
 
 		if (booths.isEmpty()) {
 			throw new BaseException(BaseResponseStatus.BOOTH_NOT_FOUND); // 부스 없음 예외
 		}
 
-		Long nextCursor = booths.isEmpty() ? null : booths.get(booths.size() - 1).getId();
+		Long nextCursor = booths.get(booths.size() - 1).getId();
+
+		// 마지막 페이지 여부 추가
+		boolean isLast = booths.size() < size;
 
 		return new CursorPageResponse<>(
 			booths.stream().map(BoothResponse::of).toList(),
-			nextCursor
+			nextCursor,
+			isLast
 		);
 	}
+
 
 	// 부스 ID 조회
 	public BoothDetailResponse getBoothDetailById(Long boothId) {
