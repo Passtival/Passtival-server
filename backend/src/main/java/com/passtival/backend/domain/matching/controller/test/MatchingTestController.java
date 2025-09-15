@@ -37,9 +37,11 @@ public class MatchingTestController {
 		try {
 			List<MatchingApplicant> testMatchingApplicants = new ArrayList<>();
 
-			// 남성 회원 3명 생성
+			// 남성 회원 34명 생성 (memberId: 1001~1034)
 			for (int i = 1; i <= 34; i++) {
+				Long memberId = 1000L + i; // memberId를 명시적으로 할당
 				MatchingApplicant male = MatchingApplicant.builder()
+					.memberId(memberId) // 필수: memberId 설정
 					.name("테스트남성" + i)
 					.gender(Gender.MALE)
 					.phoneNumber("010-1111-" + String.format("%04d", 1111 + i - 1))
@@ -51,9 +53,11 @@ public class MatchingTestController {
 				testMatchingApplicants.add(male);
 			}
 
-			// 여성 회원 3명 생성
+			// 여성 회원 30명 생성 (memberId: 2001~2030)
 			for (int i = 1; i <= 30; i++) {
+				Long memberId = 2000L + i; // memberId를 명시적으로 할당
 				MatchingApplicant female = MatchingApplicant.builder()
+					.memberId(memberId) // 필수: memberId 설정
 					.name("테스트여성" + i)
 					.gender(Gender.FEMALE)
 					.phoneNumber("010-2222-" + String.format("%04d", 1111 + i - 1))
@@ -67,7 +71,7 @@ public class MatchingTestController {
 
 			matchingApplicantRepository.saveAll(testMatchingApplicants);
 
-			return BaseResponse.success("테스트 회원 생성 완료!");
+			return BaseResponse.success("테스트 회원 생성 완료! (남성 34명, 여성 30명)");
 
 		} catch (Exception e) {
 			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 생성 실패: " + e.getMessage());

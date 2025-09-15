@@ -4,9 +4,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.data.domain.PageRequest;
@@ -40,12 +38,12 @@ public class MatchingScheduler {
 	private final AtomicBoolean inProgress = new AtomicBoolean(false);
 
 	/**
-	 * 매칭 시작 시간: 매일 오후 6시 0분 (0 0 18 * * *)
+	 * 매칭 시작 시간: 매일 오후 6시 0분
 	 * 매칭중에 신청 방지 되어있음
 	 * (rollbackFor = Exception.class)을 통해 매칭 문제 발생시 롤백
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	@Scheduled(cron = "0 0 18 * * *", zone = "Asia/Seoul")
+	@Scheduled(cron = "${spring.matching.cron}", zone = "Asia/Seoul")
 	public void dailyMatching() {
 		if (!inProgress.compareAndSet(false, true)) {
 			return;
@@ -93,9 +91,6 @@ public class MatchingScheduler {
 			// 5. 매칭 결과 저장
 			saveMatchingResults(matchings);
 
-			// 6. 매칭 실패자 처리
-			handleFailedApplicants(maleCount, femaleCount, selectedMales.subList(0, matchingCount),
-				selectedFemales.subList(0, matchingCount));
 		} finally {
 			// 트랜잭션 동기화가 없거나, 등록 전에 크래시한 경우를 대비한 안전장치
 			if (!syncRegistered) {
@@ -105,22 +100,16 @@ public class MatchingScheduler {
 	}
 
 	/**
-	 * 매칭 정리 시간: 매일 오후 11시 59분 (0 59 23 * * *)
-	 * 당일 매칭 데이터 초기화
+	 * 매칭 정리 시간: 매일 오후 11시 59분 59초
+	 * 당일 매칭 데이터 초기화 및 모든 신청자 상태 초기화
 	 */
-	@Scheduled(cron = "0 59 23 * * *", zone = "Asia/Seoul")
+	@Scheduled(cron = "${spring.matching.cleanup-cron}", zone = "Asia/Seoul")
 	@Transactional
 	public void dailyCleanup() {
-		// 1. 당일 매칭 성공자 조회
-		List<Matching> todayResults = getTodayMatchingResults();
+		// 1. 모든 매칭 신청자들의 신청 상태 초기화 (성공자/실패자 구분 없이 일괄 처리)
+		resetAllApplications();
 
-		if (!todayResults.isEmpty()) {
-			// 2. 매칭 성공자들의 신청 상태 초기화
-			List<Long> matchedMemberIds = extractMatchedMemberIds(todayResults);
-			resetApplicationsForMatchedMembers(matchedMemberIds);
-		}
-
-		// 3. 모든 매칭 결과 삭제
+		// 2. 모든 매칭 결과 삭제
 		deleteAllMatchingResults();
 
 	}
@@ -207,75 +196,10 @@ public class MatchingScheduler {
 	}
 
 	/**
-	 * 매칭 실패자 처리
-	 * @param maleCount 전체 남성 신청자 수
-	 * @param femaleCount 전체 여성 신청자 수
-	 * @param selectedMales 매칭된 남성 목록
-	 * @param selectedFemales 매칭된 여성 목록
-	 */
-	private void handleFailedApplicants(long maleCount, long femaleCount,
-		List<MatchingApplicant> selectedMales, List<MatchingApplicant> selectedFemales) {
-		// 모든 신청자가 매칭된 경우 - 실패자 처리 생략
-		if (selectedMales.size() == maleCount && selectedFemales.size() == femaleCount) {
-			return;
-		}
-
-		// 매칭 성공자 ID 수집
-		Set<Long> matchedIds = new HashSet<>();
-		selectedMales.forEach(member -> matchedIds.add(member.getMemberId()));
-		selectedFemales.forEach(member -> matchedIds.add(member.getMemberId()));
-
-		long totalApplicants = maleCount + femaleCount;
-		long failedCount = totalApplicants - matchedIds.size();
-
-		// 매칭 실패자들의 신청 상태 초기화
-		if (matchedIds.isEmpty()) {
-			// 매칭된 회원이 없는 경우 모든 신청자 초기화
-			matchingApplicantRepository.resetAllApplications();
-		} else if (failedCount > 0) {
-			// 매칭 실패자만 초기화 (matchedIds가 비어있지 않을 때만 실행)
-			matchingApplicantRepository.resetApplicationsForUnmatched(matchedIds);
-		}
-
-	}
-
-	/**
 	 * 모든 신청자의 신청 상태 초기화
 	 */
 	private void resetAllApplications() {
 		matchingApplicantRepository.resetAllApplications();
-	}
-
-	/**
-	 * 당일 매칭 결과 조회
-	 * @return 당일 매칭 결과 목록
-	 */
-	private List<Matching> getTodayMatchingResults() {
-		LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
-		return matchingRepository.findByMatchingDate(today);
-	}
-
-	/**
-	 * 매칭 결과에서 회원 ID 목록 추출
-	 * @param matchingResults 매칭 결과 목록
-	 * @return 매칭된 회원 ID 목록
-	 */
-	private List<Long> extractMatchedMemberIds(List<Matching> matchingResults) {
-		List<Long> matchedMemberIds = new ArrayList<>();
-		for (Matching result : matchingResults) {
-			matchedMemberIds.add(result.getMaleId());
-			matchedMemberIds.add(result.getFemaleId());
-		}
-		return matchedMemberIds;
-
-	}
-
-	/**
-	 * 매칭 성공자들의 신청 상태 초기화
-	 * @param matchedMemberIds 매칭된 회원 ID 목록
-	 */
-	private void resetApplicationsForMatchedMembers(List<Long> matchedMemberIds) {
-		matchingApplicantRepository.resetApplicationsByMemberIds(matchedMemberIds);
 	}
 
 	/**

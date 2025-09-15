@@ -16,6 +16,7 @@ import com.passtival.backend.global.security.model.CustomMemberDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -46,7 +47,7 @@ public class MemberController {
 	)
 	public BaseResponse<Void> levelUp(
 		@AuthenticationPrincipal CustomMemberDetails member,
-		@RequestBody LevelUpRequest request
+		@Valid @RequestBody LevelUpRequest request
 	) {
 
 		Long memberId = member.getMemberId();

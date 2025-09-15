@@ -37,6 +37,9 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         show_sql: false # Hibernate SQL 로그 비활성화
         use_sql_comments: false # SQL 주석 비활성화
+  matching:
+    cron: ${MATCHING_CRON}
+    cleanup-cron: ${MATCHING_CLEANUP_CRON}
 
 swagger:
   server:
