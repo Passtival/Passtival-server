@@ -11,4 +11,5 @@ public class CursorPageResponse<T> {
 
 	private List<T> content;
 	private Long nextCursor; // 다음 페이지 시작점
+	private boolean isLast;
 }
