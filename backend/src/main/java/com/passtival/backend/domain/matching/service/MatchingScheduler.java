@@ -38,12 +38,12 @@ public class MatchingScheduler {
 	private final AtomicBoolean inProgress = new AtomicBoolean(false);
 
 	/**
-	 * 매칭 시작 시간: 매일 오후 6시 0분 (0 0 18 * * *)
+	 * 매칭 시작 시간: 매일 오후 6시 0분
 	 * 매칭중에 신청 방지 되어있음
 	 * (rollbackFor = Exception.class)을 통해 매칭 문제 발생시 롤백
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	@Scheduled(cron = "0 0 18 * * *", zone = "Asia/Seoul")
+	@Scheduled(cron = "${spring.matching.cron}", zone = "Asia/Seoul")
 	public void dailyMatching() {
 		if (!inProgress.compareAndSet(false, true)) {
 			return;
@@ -100,10 +100,10 @@ public class MatchingScheduler {
 	}
 
 	/**
-	 * 매칭 정리 시간: 매일 오후 11시 59분 59초 (59 59 23 * * *)
+	 * 매칭 정리 시간: 매일 오후 11시 59분 59초
 	 * 당일 매칭 데이터 초기화 및 모든 신청자 상태 초기화
 	 */
-	@Scheduled(cron = "59 59 23 * * *", zone = "Asia/Seoul")
+	@Scheduled(cron = "${spring.matching.cleanup-cron}", zone = "Asia/Seoul")
 	@Transactional
 	public void dailyCleanup() {
 		// 1. 모든 매칭 신청자들의 신청 상태 초기화 (성공자/실패자 구분 없이 일괄 처리)
