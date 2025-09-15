@@ -38,11 +38,30 @@ public class PerformanceService {
 		LocalDateTime now = LocalDateTime.now();
 
 		return performanceRepository.findAll().stream()
-			.sorted(Comparator.comparingLong(p ->
-				Math.abs(Duration.between(now, p.getStartTime()).toMinutes())
-			))
+			.sorted((p1, p2) -> {
+				// 상태값 계산
+				int s1 = getStatus(p1, now);
+				int s2 = getStatus(p2, now);
+
+				if (s1 != s2) {
+					return Integer.compare(s1, s2); // 상태 우선순위
+				}
+				return p1.getStartTime().compareTo(p2.getStartTime()); // 같은 그룹이면 시작시간 오름차순
+			})
 			.map(PerformanceResponse::of)
 			.toList();
 	}
+
+	private int getStatus(Performance p, LocalDateTime now) {
+		if (!p.getStartTime().isAfter(now) && !p.getEndTime().isBefore(now)) {
+			return 0; // 현재 공연 중
+		} else if (p.getStartTime().isAfter(now)) {
+			return 1; // 미래 공연
+		} else {
+			return 2; // 지난 공연
+		}
+	}
+
+
 
 }
