@@ -65,6 +65,9 @@ admin:
   username: ${ADMIN_USERNAME}
   password: ${ADMIN_PASSWORD}
 
+MATCHING_BLOCK: ${MATCHING_BLOCK}
+
+
 seed:
   auth-keys-path: "file:/app/deploy/authentication-keys.xlsx"
 

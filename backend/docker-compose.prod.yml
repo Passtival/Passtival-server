@@ -38,6 +38,8 @@ services:
       - FRONTEND_LOGIN_FAIL_URL=${FRONTEND_LOGIN_FAIL_URL}
       - MATCHING_CRON=${MATCHING_CRON}
       - MATCHING_CLEANUP_CRON=${MATCHING_CLEANUP_CRON}
+      - MATCHING_BLOCK=${MATCHING_BLOCK}
+
     networks:
       - backend
     volumes:
