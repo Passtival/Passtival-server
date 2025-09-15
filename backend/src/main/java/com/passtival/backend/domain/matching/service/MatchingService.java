@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +33,8 @@ public class MatchingService {
 	private final MatchingRepository matchingRepository;
 	private final MatchingScheduler matchingScheduler;
 
-	//소개팅 신청 제한 시간
-	private static final int MATCHING_APPLICATION_DEADLINE_HOUR = 17;
+	@Value("${MATCHING_BLOCK}")
+	private String matchingBlockCron;
 
 	@Transactional
 	public void applyMatching(Long memberId) {
@@ -43,7 +44,7 @@ public class MatchingService {
 		}
 
 		LocalTime now = LocalTime.now(ZoneId.of("Asia/Seoul"));
-		LocalTime endTime = LocalTime.of(MATCHING_APPLICATION_DEADLINE_HOUR, 30);
+		LocalTime endTime = parseEndTimeFromCron(matchingBlockCron);
 
 		// 신청 가능 시간: 00:00 ~ 17:30
 		if (now.isAfter(endTime)) {
@@ -66,6 +67,30 @@ public class MatchingService {
 		matchingApplicant.applyForMatching();
 
 		matchingApplicantRepository.save(matchingApplicant);
+	}
+
+	private LocalTime parseEndTimeFromCron(String cronExpression) {
+		try {
+			String[] parts = cronExpression.trim().split("\\s+");
+
+			if (parts.length < 3) {
+				throw new BaseException(BaseResponseStatus.CRON_ERROR);
+			}
+
+			int minute = Integer.parseInt(parts[1]);
+			int hour = Integer.parseInt(parts[2]);
+
+			// 시간 유효성 검증
+			if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+				throw new BaseException(BaseResponseStatus.CRON_ERROR);
+			}
+
+			return LocalTime.of(hour, minute);
+
+		} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+			// 파싱 실패 시 기본값 사용 (17:30)
+			return LocalTime.of(17, 30);
+		}
 	}
 
 	public MatchingResponse getMatchingResult(Long memberId) {

@@ -67,6 +67,7 @@ public enum BaseResponseStatus {
 	NEW_MEMBER_PROCESSING_ERROR(false, 500, "신규 회원 정보 처리 중 오류가 발생했습니다"),
 	MEMBER_DETAILS_CREATION_ERROR(false, 500, "사용자 인증 정보 생성 중 오류가 발생했습니다."),
 	DATABASE_ERROR(false, 500, "데이터베이스 오류가 발생했습니다."),
+	CRON_ERROR(false, 500, "잘못된 cron 표현식 형식입니다."),
 	NOT_FOUND_AUTH_KEY(false, 500, "모든 인증키를 소모했습니다.");
 
 	private final boolean isSuccess; // 요청 성공 여부
