@@ -59,6 +59,8 @@ admin:
   username: ${ADMIN_USERNAME}
   password: ${ADMIN_PASSWORD}
 
+MATCHING_BLOCK: ${MATCHING_BLOCK}
+
 seed:
   auth-keys-path: classpath:static/authentication-keys.xlsx
 
