@@ -10,6 +10,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.passtival.backend.global.handler.CustomAuthenticationFailureHandler;
 import com.passtival.backend.global.handler.OAuth2SuccessHandler;
 import com.passtival.backend.global.security.filter.JwtAuthenticationFilter;
 import com.passtival.backend.global.security.service.CustomOAuth2UserService;
@@ -24,14 +25,15 @@ public class SecurityConfig {
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final CustomOAuth2UserService customOAuth2UserService;
 	private final OAuth2SuccessHandler oAuth2SuccessHandler;
+	private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
 	public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-		CustomOAuth2UserService customOAuth2UserService, OAuth2SuccessHandler oAuth2SuccessHandler) {
-		//this.authenticationConfiguration = authenticationConfiguration;
-		//this.jwtUtil = jwtUtil;
+		CustomOAuth2UserService customOAuth2UserService, OAuth2SuccessHandler oAuth2SuccessHandler,
+		CustomAuthenticationFailureHandler customAuthenticationFailureHandler) {
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 		this.customOAuth2UserService = customOAuth2UserService;
 		this.oAuth2SuccessHandler = oAuth2SuccessHandler;
+		this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
 	}
 
 	//커스텀 로그인 미 구현(확장성 고려 주석처리)
@@ -54,7 +56,8 @@ public class SecurityConfig {
 			.oauth2Login((oauth2) -> oauth2
 				.userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
 					.userService(customOAuth2UserService))
-				.successHandler(oAuth2SuccessHandler));
+				.successHandler(oAuth2SuccessHandler)
+				.failureHandler(customAuthenticationFailureHandler));
 
 		http.authorizeHttpRequests((auth) -> auth
 
@@ -101,11 +104,6 @@ public class SecurityConfig {
 
 			// s3 업로드 (공개)
 			.requestMatchers("/api/s3/**").permitAll()
-
-			//Health Check
-			.requestMatchers("/actuator/**").access(
-				new org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
-					"hasIpAddress('172.18.0.0/16') or hasIpAddress('127.0.0.1')"))
 
 			// 모든 요청 로그인 후로 변경 잘못된 요청 전부 방어
 			.anyRequest().denyAll());
