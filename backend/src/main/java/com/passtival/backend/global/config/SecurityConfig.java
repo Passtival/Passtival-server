@@ -11,6 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.passtival.backend.global.handler.OAuth2SuccessHandler;
+import com.passtival.backend.global.handler.CustomAuthenticationFailureHandler;
 import com.passtival.backend.global.security.filter.JwtAuthenticationFilter;
 import com.passtival.backend.global.security.service.CustomOAuth2UserService;
 
@@ -24,14 +25,15 @@ public class SecurityConfig {
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final CustomOAuth2UserService customOAuth2UserService;
 	private final OAuth2SuccessHandler oAuth2SuccessHandler;
+	private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
 	public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-		CustomOAuth2UserService customOAuth2UserService, OAuth2SuccessHandler oAuth2SuccessHandler) {
-		//this.authenticationConfiguration = authenticationConfiguration;
-		//this.jwtUtil = jwtUtil;
+		CustomOAuth2UserService customOAuth2UserService, OAuth2SuccessHandler oAuth2SuccessHandler,
+		CustomAuthenticationFailureHandler customAuthenticationFailureHandler) {
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 		this.customOAuth2UserService = customOAuth2UserService;
 		this.oAuth2SuccessHandler = oAuth2SuccessHandler;
+		this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
 	}
 
 	//커스텀 로그인 미 구현(확장성 고려 주석처리)
@@ -54,7 +56,8 @@ public class SecurityConfig {
 			.oauth2Login((oauth2) -> oauth2
 				.userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
 					.userService(customOAuth2UserService))
-				.successHandler(oAuth2SuccessHandler));
+				.successHandler(oAuth2SuccessHandler)
+				.failureHandler(customAuthenticationFailureHandler));
 
 		http.authorizeHttpRequests((auth) -> auth
 
