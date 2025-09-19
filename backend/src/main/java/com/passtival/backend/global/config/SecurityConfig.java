@@ -68,7 +68,7 @@ public class SecurityConfig {
 			.requestMatchers("/api/auth/**").permitAll()
 
 			// Swagger UI 및 OpenAPI 문서 (공개)
-			.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+			.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").hasRole("ADMIN")
 
 			// 회원가입 완료 API (공개) (소셜 로그인 후 호출)
 			.requestMatchers("/api/me/profile").authenticated()
@@ -77,12 +77,11 @@ public class SecurityConfig {
 			// 매칭 관련 로직 로그인한 사용자만 (유저)
 			.requestMatchers("/api/matching/**").hasRole("USER")
 
-			// 관리자 API -> /api/admin/seed(공연, 메뉴, 부스 다)도 admin이라서 로그인 해야함
+			// 관리자 API
 			.requestMatchers("/api/admin/login").permitAll()
-			// (관리자)
 			.requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-			//분실물 로직 (공개) -> 준선님이 수정 예정
+			//분실물 로직 (공개)
 			.requestMatchers("/api/found-items/**").permitAll()
 
 			//인증키 변경 로직 (관리자)
@@ -100,7 +99,7 @@ public class SecurityConfig {
 			.requestMatchers("/login/oauth2/code/kakao").permitAll()
 
 			// 테스트 API - (공개)
-			.requestMatchers("/api/test/**").permitAll()
+			.requestMatchers("/api/test/**").hasRole("ADMIN")
 
 			// s3 업로드 (공개)
 			.requestMatchers("/api/s3/**").permitAll()
