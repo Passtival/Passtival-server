@@ -59,7 +59,14 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 				return;
 			}
 
-			log.error("OAuth2 인증 오류: {}", errorCode, exception);
+			if ("authorization_request_not_found".equals(errorCode)) {
+				log.error("OAuth2 인증 오류: authorization_request_not_found");
+			}
+
+			if (!"authorization_request_not_found".equals(errorCode)) {
+				log.error("OAuth2 인증 오류: {}", errorCode, exception);
+			}
+
 			responseUtil.sendErrorResponse(response, BaseResponseStatus.OAUTH2_PROCESSING_ERROR);
 			return;
 		}
