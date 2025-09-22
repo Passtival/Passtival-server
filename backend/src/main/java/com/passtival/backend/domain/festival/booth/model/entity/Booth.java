@@ -36,6 +36,9 @@ public class Booth extends BaseEntity {
 	@Column(name = "booth_id")
 	private Long id;
 
+	@Column(name = "location_id")
+	private Long location_id;
+
 	@Column(name = "booth_name")
 	private String name;
 
