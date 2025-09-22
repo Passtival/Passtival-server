@@ -36,7 +36,7 @@ public class Booth extends BaseEntity {
 	@Column(name = "booth_id")
 	private Long id;
 
-	@Column(name = "booth_location_id")
+	@Column(name = "booth_location_id", unique = true)
 	private Long location_id;
 
 	@Column(name = "booth_name")
