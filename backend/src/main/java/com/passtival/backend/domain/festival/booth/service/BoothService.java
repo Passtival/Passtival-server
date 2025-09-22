@@ -40,7 +40,7 @@ public class BoothService {
 			throw new BaseException(BaseResponseStatus.BOOTH_NOT_FOUND); // 부스 없음 예외
 		}
 
-		Long nextCursor = booths.get(booths.size() - 1).getId();
+		Long nextCursor = booths.get(booths.size() - 1).getLocation_id();
 
 		// 마지막 페이지 여부 추가
 		boolean isLast = booths.size() < size;
@@ -51,7 +51,6 @@ public class BoothService {
 			isLast
 		);
 	}
-
 
 	// 부스 ID 조회
 	public BoothDetailResponse getBoothDetailById(Long boothId) {
