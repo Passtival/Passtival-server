@@ -43,7 +43,7 @@ public class BoothController {
 		parameters = {
 			@Parameter(
 				name = "cursor",
-				description = "마지막으로 조회한 부스 ID (없으면 첫 페이지)",
+				description = "마지막으로 조회한 부스 location_id (없으면 첫 페이지)",
 				example = "6",
 				in = ParameterIn.QUERY
 			),
