@@ -12,8 +12,8 @@ import com.passtival.backend.domain.festival.booth.model.entity.Booth;
 public interface BoothRepository extends JpaRepository<Booth, Long> {
 
 	@Query("SELECT b FROM Booth b " +
-		"WHERE (:cursorId IS NULL OR b.id > :cursorId) " +
-		"ORDER BY b.id ASC")
+		"WHERE (:cursorId IS NULL OR b.location_id > :cursorId) " +
+		"ORDER BY b.location_id ASC")
 	List<Booth> findPageByCursor(@Param("cursorId") Long cursorId, Pageable pageable);
 
 	boolean existsByName(String name);

@@ -19,6 +19,7 @@ import lombok.Getter;
 public class BoothDetailResponse {
 
 	private Long id;
+	private Long location_id;
 	private String name;
 	private String type;
 	private String department;
@@ -45,6 +46,7 @@ public class BoothDetailResponse {
 
 		return BoothDetailResponse.builder()
 			.id(booth.getId())
+			.location_id(booth.getLocation_id())
 			.name(booth.getName())
 			.type(booth.getType())
 			.department(booth.getDepartment())
