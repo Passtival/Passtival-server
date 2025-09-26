@@ -41,12 +41,6 @@ spring:
     cron: ${MATCHING_CRON}
     cleanup-cron: ${MATCHING_CLEANUP_CRON}
 
-springdoc:
-  swagger-ui:
-    enabled: false
-  api-docs:
-    enabled: false
-
 swagger:
   server:
     url: ${SWAGGER_SERVER_URL}

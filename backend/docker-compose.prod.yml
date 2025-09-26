@@ -5,6 +5,10 @@ services:
     container_name: passtival-spring-app
     ports:
       - "127.0.0.1:8080:8080"
+
+    depends_on:
+      - db
+
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - DB_USERNAME=${DB_USERNAME}
@@ -44,6 +48,25 @@ services:
       - backend
     volumes:
       - /home/ubuntu/deploy/backend:/app/deploy
+
+  db:
+    image: 'mysql:8.0'
+    container_name: passtival-db
+    ports:
+      #EC2 내부에서만 호출하기 때문에 `127.0.0.1:`를 추가합니다.
+      - "127.0.0.1:3306:3306"
+    environment:
+      - MYSQL_DATABASE=passtival-db
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - backend
+
+volumes:
+  mysql-data:
 
 networks:
   backend:
