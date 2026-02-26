@@ -40,6 +40,8 @@ public class AuthenticationKeyImportService {
 	@Value("${seed.auth-keys-path}")
 	private String path;
 
+	private static final int MAX_ROWS = 4500; // 엑셀에서 최대 4,500행까지만 읽음
+
 	/**
 	 * 인증 키를 엑셀에서 읽어와 DB에 저장합니다.
 	 */
@@ -72,8 +74,17 @@ public class AuthenticationKeyImportService {
 			}
 
 			List<AuthenticationKey> entities = new ArrayList<>();
+			int sourceRowCount = sheet.getLastRowNum() + 1;
+			int readLimit = Math.min(sourceRowCount, MAX_ROWS);
 
-			for (Row row : sheet) {
+			// 인덱스 기반 반복으로 읽기 상한(MAX_ROWS)을 명확히 강제
+			for (int rowIndex = 0; rowIndex < readLimit; rowIndex++) {
+				Row row = sheet.getRow(rowIndex);
+				if (row == null) {
+					totalRows++;
+					emptyCellRows++;
+					continue;
+				}
 				totalRows++;
 				Cell cell = row.getCell(0); // A열 기준
 				if (cell == null) {
@@ -96,12 +107,15 @@ public class AuthenticationKeyImportService {
 				}
 			}
 
-			long parseElapsedMs = elapsedMillis(parseStartNanos);
-			log.info(
-				"인증키 파싱 완료 - totalRows: {}, validKeys: {}, emptyCellRows: {}, nullValueRows: {}, invalidLengthRows: {}, parseElapsedMs: {}",
-				totalRows, // 전체 행 수
-				entities.size(), // 유효한 인증키 수
-				emptyCellRows, // 빈 셀이었던 행 수
+				long parseElapsedMs = elapsedMillis(parseStartNanos);
+				log.info(
+					"인증키 파싱 완료 - sourceRowCount: {}, readLimit: {}, totalRows(read): {}, maxRows: {}, validKeys: {}, emptyCellRows: {}, nullValueRows: {}, invalidLengthRows: {}, parseElapsedMs: {}",
+					sourceRowCount, // 원본 시트 전체 행 수
+					readLimit, // 실제 읽기 제한 행 수
+					totalRows, // 전체 행 수
+					MAX_ROWS, // 최대 읽기 제한 행 수
+					entities.size(), // 유효한 인증키 수
+					emptyCellRows, // 빈 셀이었던 행 수
 				nullValueRows, // null 값이었던 행 수
 				invalidLengthRows, // 길이 5가 아닌 행 수
 				parseElapsedMs // 파싱 구간 소요시간 (밀리초 단위)
