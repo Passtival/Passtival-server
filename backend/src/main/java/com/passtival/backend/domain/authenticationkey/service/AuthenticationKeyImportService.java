@@ -40,7 +40,7 @@ public class AuthenticationKeyImportService {
 	@Value("${seed.auth-keys-path}")
 	private String path;
 
-	private static final int MAX_ROWS = 4500; // 엑셀에서 최대 4,500행까지만 읽음
+	private static final int MAX_ROWS = 10_000; // 엑셀에서 최대 10_000행까지만 읽음
 
 	/**
 	 * 인증 키를 엑셀에서 읽어와 DB에 저장합니다.
