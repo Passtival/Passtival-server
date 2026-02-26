@@ -40,17 +40,25 @@ public class AuthenticationKeyImportService {
 	@Value("${seed.auth-keys-path}")
 	private String path;
 
-	private static final int MAX_ROWS = 10_000; // 엑셀에서 최대 10_000행까지만 읽음
+	private static final int MAX_ROWS = 10_000; // 기본 import 시 최대 10,000행
 
 	/**
 	 * 인증 키를 엑셀에서 읽어와 DB에 저장합니다.
 	 */
 	@Transactional
 	public void importXlsx() throws Exception {
+		importXlsx(MAX_ROWS);
+	}
+
+	@Transactional
+	public void importXlsx(int requestedRows) throws Exception {
+		if (requestedRows < 1) {
+			throw new IllegalArgumentException("요청 row 수는 1 이상이어야 합니다.");
+		}
 
 		// 전체 배치 작업의 끝-끝 소요시간 측정 시작
 		long importStartNanos = System.nanoTime(); // 배치 시작 시간 (나노초 단위)
-		log.info("인증키 엑셀 불러오기 시작: {}", path);
+		log.info("인증키 엑셀 불러오기 시작: {}, requestedRows: {}", path, requestedRows);
 		logThreadStats("start"); // 배치 시작 시점의 JVM 스레드 상태 로깅
 		logHikariPoolStats("start"); // 배치 시작 시점의 HikariCP 커넥션 풀 상태 로깅
 
@@ -73,11 +81,11 @@ public class AuthenticationKeyImportService {
 				throw new IllegalArgumentException("액셀 첫 번째 시트가 비어있습니다.");
 			}
 
-			List<AuthenticationKey> entities = new ArrayList<>();
-			int sourceRowCount = sheet.getLastRowNum() + 1;
-			int readLimit = Math.min(sourceRowCount, MAX_ROWS);
+				List<AuthenticationKey> entities = new ArrayList<>();
+				int sourceRowCount = sheet.getLastRowNum() + 1;
+				int readLimit = Math.min(sourceRowCount, requestedRows);
 
-			// 인덱스 기반 반복으로 읽기 상한(MAX_ROWS)을 명확히 강제
+				// 인덱스 기반 반복으로 읽기 상한(requestedRows)을 강제
 			for (int rowIndex = 0; rowIndex < readLimit; rowIndex++) {
 				Row row = sheet.getRow(rowIndex);
 				if (row == null) {
@@ -107,14 +115,14 @@ public class AuthenticationKeyImportService {
 				}
 			}
 
-				long parseElapsedMs = elapsedMillis(parseStartNanos);
-				log.info(
-					"인증키 파싱 완료 - sourceRowCount: {}, readLimit: {}, totalRows(read): {}, maxRows: {}, validKeys: {}, emptyCellRows: {}, nullValueRows: {}, invalidLengthRows: {}, parseElapsedMs: {}",
-					sourceRowCount, // 원본 시트 전체 행 수
-					readLimit, // 실제 읽기 제한 행 수
-					totalRows, // 전체 행 수
-					MAX_ROWS, // 최대 읽기 제한 행 수
-					entities.size(), // 유효한 인증키 수
+					long parseElapsedMs = elapsedMillis(parseStartNanos);
+					log.info(
+						"인증키 파싱 완료 - sourceRowCount: {}, requestedRows: {}, readLimit: {}, totalRows(read): {}, validKeys: {}, emptyCellRows: {}, nullValueRows: {}, invalidLengthRows: {}, parseElapsedMs: {}",
+						sourceRowCount, // 원본 시트 전체 행 수
+						requestedRows, // 요청한 읽기 행 수
+						readLimit, // 실제 읽기 제한 행 수
+						totalRows, // 전체 행 수
+						entities.size(), // 유효한 인증키 수
 					emptyCellRows, // 빈 셀이었던 행 수
 				nullValueRows, // null 값이었던 행 수
 				invalidLengthRows, // 길이 5가 아닌 행 수
