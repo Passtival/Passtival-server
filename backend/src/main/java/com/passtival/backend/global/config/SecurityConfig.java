@@ -98,7 +98,10 @@ public class SecurityConfig {
 			.requestMatchers("/api/member/**").hasRole("USER")
 			.requestMatchers("/login/oauth2/code/kakao").permitAll()
 
-			// 테스트 API - (공개)
+			// 테스트 인증키 API (공개)
+			.requestMatchers("/api/test/authentication-keys/**").permitAll()
+
+			// 테스트 API (관리자)
 			.requestMatchers("/api/test/**").hasRole("ADMIN")
 
 			// s3 업로드 (공개)
