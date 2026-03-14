@@ -61,8 +61,18 @@ admin:
 
 MATCHING_BLOCK: ${MATCHING_BLOCK}
 
+# Actuator와 Micrometer 설정 [Dev]
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health,info,metrics,env,loggers
+  endpoint:
+    health:
+      show-details: always
+
 seed:
-  auth-keys-path: classpath:static/authentication-keys.xlsx
+  auth-keys-path: classpath:static/authentication-keys-large.xlsx
 
 frontend:
   login-url: ${FRONTEND_LOGIN_URL}
