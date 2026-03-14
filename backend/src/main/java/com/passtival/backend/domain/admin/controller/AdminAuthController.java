@@ -2,6 +2,7 @@ package com.passtival.backend.domain.admin.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,11 +54,11 @@ public class AdminAuthController {
 		)
 	)
 	@PostMapping("/login")
-	public BaseResponse<TokenResponse> login(
+	public ResponseEntity<BaseResponse<TokenResponse>> login(
 		@Valid @RequestBody AdminLoginRequest requestDto) {
 
 		TokenResponse tokenResponse = adminAuthService.login(requestDto);
-		return BaseResponse.success(tokenResponse);
+		return ResponseEntity.ok(BaseResponse.success(tokenResponse));
 	}
 
 	@Operation(
@@ -66,7 +67,7 @@ public class AdminAuthController {
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
 	@GetMapping("/test")
-	public BaseResponse<Map<String, Object>> test(Authentication authentication) {
+	public ResponseEntity<BaseResponse<Map<String, Object>>> test(Authentication authentication) {
 		Map<String, Object> result = new HashMap<>();
 		result.put("authenticated", authentication != null);
 
@@ -76,6 +77,6 @@ public class AdminAuthController {
 			result.put("name", authentication.getName());
 		}
 
-		return BaseResponse.success(result);
+		return ResponseEntity.ok(BaseResponse.success(result));
 	}
 }

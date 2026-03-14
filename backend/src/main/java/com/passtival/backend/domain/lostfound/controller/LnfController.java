@@ -1,6 +1,7 @@
 package com.passtival.backend.domain.lostfound.controller;
 
 import java.util.List;
+import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,9 +40,9 @@ public class LnfController {
 		}
 	)
 	@GetMapping("/{id}")
-	public BaseResponse<FoundItemResponse> getFoundItemById(@PathVariable Long id) {
+	public ResponseEntity<BaseResponse<FoundItemResponse>> getFoundItemById(@PathVariable Long id) {
 		FoundItemResponse response = lnfService.getFoundItemById(id);
-		return BaseResponse.success(response);
+		return ResponseEntity.ok(BaseResponse.success(response));
 	}
 
 	@Operation(
@@ -49,9 +50,9 @@ public class LnfController {
 		description = "등록된 모든 분실물의 정보를 조회합니다."
 	)
 	@GetMapping
-	public BaseResponse<List<FoundItemResponse>> getAllFoundItems() {
+	public ResponseEntity<BaseResponse<List<FoundItemResponse>>> getAllFoundItems() {
 		List<FoundItemResponse> responses = lnfService.getAllFoundItems();
-		return BaseResponse.success(responses);
+		return ResponseEntity.ok(BaseResponse.success(responses));
 	}
 
 }

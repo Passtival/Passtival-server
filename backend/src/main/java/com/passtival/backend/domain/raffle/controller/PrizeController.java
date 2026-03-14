@@ -1,6 +1,7 @@
 package com.passtival.backend.domain.raffle.controller;
 
 import java.util.List;
+import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,9 +31,9 @@ public class PrizeController {
 		description = "등록된 상품을 전부 조회합니다."
 	)
 	@GetMapping()
-	public BaseResponse<List<PrizeResponse>> getPrizes() {
+	public ResponseEntity<BaseResponse<List<PrizeResponse>>> getPrizes() {
 		List<PrizeResponse> responses = prizeService.getAllPrizes();
-		return BaseResponse.success(responses);
+		return ResponseEntity.ok(BaseResponse.success(responses));
 	}
 
 	@Operation(
@@ -49,8 +50,8 @@ public class PrizeController {
 		}
 	)
 	@GetMapping("/{days}")
-	public BaseResponse<List<PrizeResponse>> getPrizeById(@PathVariable("days") Integer days) {
+	public ResponseEntity<BaseResponse<List<PrizeResponse>>> getPrizeById(@PathVariable("days") Integer days) {
 		List<PrizeResponse> response = prizeService.getPrizeByDays(days);
-		return BaseResponse.success(response);
+		return ResponseEntity.ok(BaseResponse.success(response));
 	}
 }

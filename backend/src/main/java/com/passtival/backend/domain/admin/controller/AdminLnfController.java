@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 
 import com.passtival.backend.domain.admin.model.request.FoundItemRequest;
 import com.passtival.backend.domain.admin.service.AdminLnfService;
@@ -57,9 +58,9 @@ public class AdminLnfController {
 	)
 	@PostMapping
 	@PreAuthorize("hasRole('ADMIN')")
-	public BaseResponse<Void> createFoundItem(@Valid @RequestBody FoundItemRequest request) {
+	public ResponseEntity<BaseResponse<Void>> createFoundItem(@Valid @RequestBody FoundItemRequest request) {
 		AdminLnfService.createFoundItem(request);
-		return BaseResponse.success(null);
+		return ResponseEntity.ok(BaseResponse.success(null));
 	}
 
 	@Operation(
@@ -78,8 +79,8 @@ public class AdminLnfController {
 	)
 	@DeleteMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
-	public BaseResponse<Void> deleteFoundItem(@PathVariable Long id) {
+	public ResponseEntity<BaseResponse<Void>> deleteFoundItem(@PathVariable Long id) {
 		AdminLnfService.deleteFoundItem(id);
-		return BaseResponse.success(null);
+		return ResponseEntity.ok(BaseResponse.success(null));
 	}
 }

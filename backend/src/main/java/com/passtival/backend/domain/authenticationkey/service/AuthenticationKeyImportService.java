@@ -5,6 +5,9 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -23,6 +26,9 @@ import com.passtival.backend.domain.authenticationkey.repository.AuthenticationK
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import lombok.RequiredArgsConstructor;
@@ -36,11 +42,33 @@ public class AuthenticationKeyImportService {
 	private final AuthenticationKeyRepository authenticationKeyRepository;
 	private final ResourceLoader resourceLoader;
 	private final DataSource dataSource;
+	private final MeterRegistry meterRegistry;
 
 	@Value("${seed.auth-keys-path}")
 	private String path;
 
 	private static final int MAX_ROWS = 10_000; // 기본 import 시 최대 10,000행
+
+	private final AtomicInteger inProgressImports = new AtomicInteger(0);
+	private final AtomicLong lastRequestedRows = new AtomicLong(0);
+	private final AtomicLong lastReadRows = new AtomicLong(0);
+	private final AtomicLong lastInsertedRows = new AtomicLong(0);
+
+	@PostConstruct
+	void registerImportGauges() {
+		Gauge.builder("authkey.import.in.progress", inProgressImports, AtomicInteger::get)
+			.description("Current number of authentication-key imports in progress")
+			.register(meterRegistry);
+		Gauge.builder("authkey.import.last.requested.rows", lastRequestedRows, AtomicLong::get)
+			.description("Requested rows from the most recent authentication-key import")
+			.register(meterRegistry);
+		Gauge.builder("authkey.import.last.read.rows", lastReadRows, AtomicLong::get)
+			.description("Read rows from the most recent authentication-key import")
+			.register(meterRegistry);
+		Gauge.builder("authkey.import.last.inserted.rows", lastInsertedRows, AtomicLong::get)
+			.description("Inserted rows from the most recent authentication-key import")
+			.register(meterRegistry);
+	}
 
 	/**
 	 * 인증 키를 엑셀에서 읽어와 DB에 저장합니다.
@@ -56,95 +84,118 @@ public class AuthenticationKeyImportService {
 			throw new IllegalArgumentException("요청 row 수는 1 이상이어야 합니다.");
 		}
 
+		meterRegistry.counter("authkey.import.requests").increment();
+		lastRequestedRows.set(requestedRows);
+		inProgressImports.incrementAndGet();
+
 		// 전체 배치 작업의 끝-끝 소요시간 측정 시작
-		long importStartNanos = System.nanoTime(); // 배치 시작 시간 (나노초 단위)
+		long importStartNanos = System.nanoTime();
 		log.info("인증키 엑셀 불러오기 시작: {}, requestedRows: {}", path, requestedRows);
-		logThreadStats("start"); // 배치 시작 시점의 JVM 스레드 상태 로깅
-		logHikariPoolStats("start"); // 배치 시작 시점의 HikariCP 커넥션 풀 상태 로깅
+		logThreadStats("start");
+		logHikariPoolStats("start");
 
-		Resource resource = resourceLoader.getResource(path);
-		if (!resource.exists()) {
-			throw new IllegalArgumentException("엑셀 파일을 찾을 수 없습니다:" + path);
-		}
-
-		// 1) 엑셀 파싱 구간 시간 측정
-		long parseStartNanos = System.nanoTime();
-		int totalRows = 0;
-		int emptyCellRows = 0;
-		int nullValueRows = 0;
-		int invalidLengthRows = 0;
-		try (InputStream is = resource.getInputStream();
-			 Workbook workbook = new XSSFWorkbook(is)) {
-
-			Sheet sheet = workbook.getSheetAt(0);
-			if (sheet == null) {
-				throw new IllegalArgumentException("액셀 첫 번째 시트가 비어있습니다.");
+		try {
+			Resource resource = resourceLoader.getResource(path);
+			if (!resource.exists()) {
+				throw new IllegalArgumentException("엑셀 파일을 찾을 수 없습니다:" + path);
 			}
+
+			long parseStartNanos = System.nanoTime();
+			int totalRows = 0;
+			int emptyCellRows = 0;
+			int nullValueRows = 0;
+			int invalidLengthRows = 0;
+
+			try (InputStream is = resource.getInputStream(); Workbook workbook = new XSSFWorkbook(is)) {
+				Sheet sheet = workbook.getSheetAt(0);
+				if (sheet == null) {
+					throw new IllegalArgumentException("액셀 첫 번째 시트가 비어있습니다.");
+				}
 
 				List<AuthenticationKey> entities = new ArrayList<>();
 				int sourceRowCount = sheet.getLastRowNum() + 1;
 				int readLimit = Math.min(sourceRowCount, requestedRows);
 
-				// 인덱스 기반 반복으로 읽기 상한(requestedRows)을 강제
-			for (int rowIndex = 0; rowIndex < readLimit; rowIndex++) {
-				Row row = sheet.getRow(rowIndex);
-				if (row == null) {
+				for (int rowIndex = 0; rowIndex < readLimit; rowIndex++) {
+					Row row = sheet.getRow(rowIndex);
+					if (row == null) {
+						totalRows++;
+						emptyCellRows++;
+						continue;
+					}
+
 					totalRows++;
-					emptyCellRows++;
-					continue;
-				}
-				totalRows++;
-				Cell cell = row.getCell(0); // A열 기준
-				if (cell == null) {
-					emptyCellRows++;
-					continue;
+					Cell cell = row.getCell(0);
+					if (cell == null) {
+						emptyCellRows++;
+						continue;
+					}
+
+					cell.setCellType(CellType.STRING);
+					String value = cell.getStringCellValue();
+					if (value == null) {
+						nullValueRows++;
+						continue;
+					}
+
+					String key = value.trim();
+					if (key.length() == 5) {
+						entities.add(new AuthenticationKey(key, null));
+					} else {
+						invalidLengthRows++;
+					}
 				}
 
-				cell.setCellType(CellType.STRING);
-				String value = cell.getStringCellValue();
-				if (value == null) {
-					nullValueRows++;
-					continue;
-				}
+				long parseElapsedNanos = System.nanoTime() - parseStartNanos;
+				long parseElapsedMs = TimeUnit.NANOSECONDS.toMillis(parseElapsedNanos);
+				meterRegistry.timer("authkey.import.duration.parse").record(parseElapsedNanos, TimeUnit.NANOSECONDS);
 
-				String key = value.trim();
-				if (key.length() == 5) { // 인증키는 항상 길이 5
-					entities.add(new AuthenticationKey(key, null));
-				} else {
-					invalidLengthRows++;
-				}
+				meterRegistry.counter("authkey.import.rows.read").increment(totalRows);
+				meterRegistry.counter("authkey.import.rows.empty_cell").increment(emptyCellRows);
+				meterRegistry.counter("authkey.import.rows.null_value").increment(nullValueRows);
+				meterRegistry.counter("authkey.import.rows.invalid_length").increment(invalidLengthRows);
+				lastReadRows.set(totalRows);
+
+				log.info(
+					"인증키 파싱 완료 - sourceRowCount: {}, requestedRows: {}, readLimit: {}, totalRows(read): {}, validKeys: {}, emptyCellRows: {}, nullValueRows: {}, invalidLengthRows: {}, parseElapsedMs: {}",
+					sourceRowCount,
+					requestedRows,
+					readLimit,
+					totalRows,
+					entities.size(),
+					emptyCellRows,
+					nullValueRows,
+					invalidLengthRows,
+					parseElapsedMs
+				);
+
+				long saveStartNanos = System.nanoTime();
+				authenticationKeyRepository.saveAll(entities);
+				authenticationKeyRepository.flush();
+				long saveElapsedNanos = System.nanoTime() - saveStartNanos;
+				long saveElapsedMs = TimeUnit.NANOSECONDS.toMillis(saveElapsedNanos);
+				meterRegistry.timer("authkey.import.duration.save").record(saveElapsedNanos, TimeUnit.NANOSECONDS);
+
+				meterRegistry.counter("authkey.import.rows.inserted").increment(entities.size());
+				lastInsertedRows.set(entities.size());
+
+				log.info("인증키 DB 저장 완료 - insertCount: {}, saveElapsedMs: {}", entities.size(), saveElapsedMs);
 			}
 
-					long parseElapsedMs = elapsedMillis(parseStartNanos);
-					log.info(
-						"인증키 파싱 완료 - sourceRowCount: {}, requestedRows: {}, readLimit: {}, totalRows(read): {}, validKeys: {}, emptyCellRows: {}, nullValueRows: {}, invalidLengthRows: {}, parseElapsedMs: {}",
-						sourceRowCount, // 원본 시트 전체 행 수
-						requestedRows, // 요청한 읽기 행 수
-						readLimit, // 실제 읽기 제한 행 수
-						totalRows, // 전체 행 수
-						entities.size(), // 유효한 인증키 수
-					emptyCellRows, // 빈 셀이었던 행 수
-				nullValueRows, // null 값이었던 행 수
-				invalidLengthRows, // 길이 5가 아닌 행 수
-				parseElapsedMs // 파싱 구간 소요시간 (밀리초 단위)
-			);
+			meterRegistry.counter("authkey.import.success").increment();
+		} catch (Exception e) {
+			meterRegistry.counter("authkey.import.failures").increment();
+			throw e;
+		} finally {
+			long totalElapsedNanos = System.nanoTime() - importStartNanos;
+			long totalElapsedMs = TimeUnit.NANOSECONDS.toMillis(totalElapsedNanos);
+			meterRegistry.timer("authkey.import.duration.total").record(totalElapsedNanos, TimeUnit.NANOSECONDS);
 
-			// 2) DB 저장 구간 시간 측정 (flush 포함)
-			long saveStartNanos = System.nanoTime();
-			authenticationKeyRepository.saveAll(entities);
-			authenticationKeyRepository.flush();
-			long saveElapsedMs = elapsedMillis(saveStartNanos);
-			log.info("인증키 DB 저장 완료 - insertCount: {}, saveElapsedMs: {}", entities.size(), saveElapsedMs);
+			logHikariPoolStats("end");
+			logThreadStats("end");
+			log.info("인증키 import 전체 완료 - totalElapsedMs: {}", totalElapsedMs);
+			inProgressImports.decrementAndGet();
 		}
-
-		long totalElapsedMs = elapsedMillis(importStartNanos);
-		logHikariPoolStats("end");
-		logThreadStats("end");
-		log.info("인증키 import 전체 완료 - totalElapsedMs: {}", totalElapsedMs);
-	}
-
-	private long elapsedMillis(long startNanos) {
-		return (System.nanoTime() - startNanos) / 1_000_000;
 	}
 
 	private void logThreadStats(String phase) {
@@ -152,17 +203,20 @@ public class AuthenticationKeyImportService {
 		log.info(
 			"[{}] JVM Thread Stats - live: {}, peak: {}, daemon: {}, currentThread: {}",
 			phase,
-			threadBean.getThreadCount(), // 현재 live 스레드 수
-			threadBean.getPeakThreadCount(), // 배치 시작 이후 JVM이 기록한 peak 스레드 수
-			threadBean.getDaemonThreadCount(), // 현재 데몬 스레드 수
-			Thread.currentThread().getName() // 현재 배치 작업을 수행하는 스레드 이름 (보통 "main")
+			threadBean.getThreadCount(),
+			threadBean.getPeakThreadCount(),
+			threadBean.getDaemonThreadCount(),
+			Thread.currentThread().getName()
 		);
 	}
 
 	private void logHikariPoolStats(String phase) {
 		if (!(dataSource instanceof HikariDataSource hikariDataSource)) {
-			log.info("[{}] Hikari Pool Stats - datasource is not HikariDataSource ({})", phase,
-				dataSource.getClass().getName()); //
+			log.info(
+				"[{}] Hikari Pool Stats - datasource is not HikariDataSource ({})",
+				phase,
+				dataSource.getClass().getName()
+			);
 			return;
 		}
 

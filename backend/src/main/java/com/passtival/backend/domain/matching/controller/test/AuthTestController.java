@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 
 import com.passtival.backend.domain.matching.model.entity.MatchingApplicant;
 import com.passtival.backend.domain.matching.service.MatchingApplicantService;
@@ -42,7 +43,7 @@ public class AuthTestController {
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
 	@GetMapping("/auth")
-	public BaseResponse<AuthTestResponse> testAuth(
+	public ResponseEntity<BaseResponse<AuthTestResponse>> testAuth(
 		@AuthenticationPrincipal CustomMemberDetails memberDetails) {
 
 		AuthTestResponse response = AuthTestResponse.builder()
@@ -52,7 +53,7 @@ public class AuthTestController {
 			.message("JWT 토큰 인증 성공")
 			.build();
 
-		return BaseResponse.success(response);
+		return ResponseEntity.ok(BaseResponse.success(response));
 	}
 
 	/**
@@ -66,7 +67,7 @@ public class AuthTestController {
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
 	@GetMapping("/me")
-	public BaseResponse<UserInfoResponse> getCurrentUser(
+	public ResponseEntity<BaseResponse<UserInfoResponse>> getCurrentUser(
 		@AuthenticationPrincipal CustomMemberDetails memberDetails) {
 
 		UserInfoResponse response = UserInfoResponse.builder()
@@ -76,7 +77,7 @@ public class AuthTestController {
 			.authenticated(true)
 			.build();
 
-		return BaseResponse.success(response);
+		return ResponseEntity.ok(BaseResponse.success(response));
 	}
 
 	/**
@@ -88,8 +89,8 @@ public class AuthTestController {
 		description = "인증 없이 접근 가능한 엔드포인트"
 	)
 	@GetMapping("/public")
-	public BaseResponse<String> testPublicAccess() {
-		return BaseResponse.success("공개 접근 테스트 성공 - 인증 불필요");
+	public ResponseEntity<BaseResponse<String>> testPublicAccess() {
+		return ResponseEntity.ok(BaseResponse.success("공개 접근 테스트 성공 - 인증 불필요"));
 	}
 
 	// 응답 DTO 클래스들
@@ -121,7 +122,7 @@ public class AuthTestController {
 		description = "memberId를 받아서 해당 회원의 JWT 토큰을 발급합니다. (테스트 전용)"
 	)
 	@GetMapping("/token/{memberId}")
-	public BaseResponse<String> issueTestToken(@PathVariable Long memberId) {
+	public ResponseEntity<BaseResponse<String>> issueTestToken(@PathVariable Long memberId) {
 
 		// 회원 존재 여부 확인
 		MatchingApplicant matchingApplicant = matchingApplicantService.getMemberById(memberId);
@@ -129,7 +130,7 @@ public class AuthTestController {
 		// JWT 토큰 생성
 		String accessToken = jwtUtil.createAccessToken(memberId, matchingApplicant.getRole().getAuthority());
 
-		return BaseResponse.success(accessToken);
+		return ResponseEntity.ok(BaseResponse.success(accessToken));
 
 	}
 

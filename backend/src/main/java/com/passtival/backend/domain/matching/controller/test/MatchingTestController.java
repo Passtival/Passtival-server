@@ -2,6 +2,7 @@ package com.passtival.backend.domain.matching.controller.test;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +34,7 @@ public class MatchingTestController {
 
 	@Operation(summary = "테스트 회원 데이터 생성", description = "매칭 테스트를 위한 남성/여성 회원 데이터를 생성합니다.")
 	@GetMapping("/create-test-members")
-	public BaseResponse<String> createTestMembers() {
+	public ResponseEntity<BaseResponse<String>> createTestMembers() {
 		try {
 			List<MatchingApplicant> testMatchingApplicants = new ArrayList<>();
 
@@ -71,21 +72,21 @@ public class MatchingTestController {
 
 			matchingApplicantRepository.saveAll(testMatchingApplicants);
 
-			return BaseResponse.success("테스트 회원 생성 완료! (남성 356명, 여성 306명)");
+			return ResponseEntity.ok(BaseResponse.success("테스트 회원 생성 완료! (남성 356명, 여성 306명)"));
 
 		} catch (Exception e) {
-			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 생성 실패: " + e.getMessage());
+			return ResponseEntity.ok(BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 생성 실패: " + e.getMessage()));
 		}
 	}
 
 	@Operation(summary = "모든 테스트 회원 매칭 신청", description = "생성된 모든 테스트 회원들이 매칭에 신청합니다.")
 	@PostMapping("/apply-all-test-members")
-	public BaseResponse<String> applyAllTestMembers() {
+	public ResponseEntity<BaseResponse<String>> applyAllTestMembers() {
 		try {
 			List<MatchingApplicant> testMatchingApplicants = matchingApplicantRepository.findByNameStartingWith("테스트");
 
 			if (testMatchingApplicants.isEmpty()) {
-				return BaseResponse.fail(BaseResponseStatus.BAD_REQUEST, "테스트 회원이 없습니다. 먼저 테스트 회원을 생성해주세요.");
+				return ResponseEntity.ok(BaseResponse.fail(BaseResponseStatus.BAD_REQUEST, "테스트 회원이 없습니다. 먼저 테스트 회원을 생성해주세요."));
 			}
 
 			for (MatchingApplicant matchingApplicant : testMatchingApplicants) {
@@ -94,10 +95,10 @@ public class MatchingTestController {
 
 			matchingApplicantRepository.saveAll(testMatchingApplicants);
 
-			return BaseResponse.success(testMatchingApplicants.size() + "명의 테스트 회원이 매칭에 신청했습니다!");
+			return ResponseEntity.ok(BaseResponse.success(testMatchingApplicants.size() + "명의 테스트 회원이 매칭에 신청했습니다!"));
 
 		} catch (Exception e) {
-			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 매칭 신청 실패: " + e.getMessage());
+			return ResponseEntity.ok(BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 매칭 신청 실패: " + e.getMessage()));
 		}
 	}
 
@@ -111,7 +112,7 @@ public class MatchingTestController {
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
 	@GetMapping("/start")
-	public BaseResponse<String> manualMatching() throws BaseException {
+	public ResponseEntity<BaseResponse<String>> manualMatching() throws BaseException {
 		// 이미 매칭이 진행 중인지 확인
 		if (matchingScheduler.isMatchingInProgress()) {
 			throw new BaseException(BaseResponseStatus.BAD_REQUEST);
@@ -120,7 +121,7 @@ public class MatchingTestController {
 		// 매칭 스케줄러의 dailyMatching 메서드 호출
 		matchingScheduler.dailyMatching();
 
-		return BaseResponse.success("매칭이 성공적으로 실행되었습니다.");
+		return ResponseEntity.ok(BaseResponse.success("매칭이 성공적으로 실행되었습니다."));
 	}
 
 	/**
@@ -133,17 +134,17 @@ public class MatchingTestController {
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
 	@GetMapping("/cleanup")
-	public BaseResponse<String> manualCleanup() {
+	public ResponseEntity<BaseResponse<String>> manualCleanup() {
 
 		// 매칭 스케줄러의 dailyCleanup 메서드 호출
 		matchingScheduler.dailyCleanup();
 
-		return BaseResponse.success("매칭 데이터가 성공적으로 정리되었습니다.");
+		return ResponseEntity.ok(BaseResponse.success("매칭 데이터가 성공적으로 정리되었습니다."));
 	}
 
 	@Operation(summary = "테스트 회원 목록 조회", description = "생성된 테스트 회원들의 목록을 조회합니다.")
 	@GetMapping("/test-members")
-	public BaseResponse<List<String>> getTestMembers() {
+	public ResponseEntity<BaseResponse<List<String>>> getTestMembers() {
 		try {
 			List<MatchingApplicant> testMatchingApplicants = matchingApplicantRepository.findByNameStartingWith("테스트");
 			List<String> memberInfo = new ArrayList<>();
@@ -154,10 +155,10 @@ public class MatchingTestController {
 				memberInfo.add(info);
 			}
 
-			return BaseResponse.success(memberInfo);
+			return ResponseEntity.ok(BaseResponse.success(memberInfo));
 
 		} catch (Exception e) {
-			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 목록 조회 실패: " + e.getMessage());
+			return ResponseEntity.ok(BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 목록 조회 실패: " + e.getMessage()));
 		}
 	}
 }

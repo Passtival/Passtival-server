@@ -1,12 +1,15 @@
 package com.passtival.backend.domain.member.controller;
 
+import java.net.URI;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.view.RedirectView;
 
 import com.passtival.backend.domain.member.model.entity.request.LevelUpRequest;
 import com.passtival.backend.domain.member.service.MemberService;
@@ -32,8 +35,10 @@ public class MemberController {
 		description = "GET 요청을 받고 kakao 로그인 페이지를 리다이렉트합니다."
 	)
 	@GetMapping("/login/kakao")
-	public RedirectView redirectLoginKakao() {
-		return new RedirectView("/oauth2/authorization/kakao");  // localhost:8080/oauth2/authorization/kakao
+	public ResponseEntity<Void> redirectLoginKakao() {
+		return ResponseEntity.status(HttpStatus.FOUND)
+			.location(URI.create("/oauth2/authorization/kakao"))
+			.build();
 	}
 
 	// 회원 레벨업 신청
@@ -45,7 +50,7 @@ public class MemberController {
 			+ "인증키 레벨과 요청하는 레벨이 다르면 실패",
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
-	public BaseResponse<Void> levelUp(
+	public ResponseEntity<BaseResponse<Void>> levelUp(
 		@AuthenticationPrincipal CustomMemberDetails member,
 		@Valid @RequestBody LevelUpRequest request
 	) {
@@ -54,7 +59,7 @@ public class MemberController {
 
 		memberService.levelUp(memberId, request);
 
-		return BaseResponse.success(null);
+		return ResponseEntity.ok(BaseResponse.success(null));
 	}
 
 }

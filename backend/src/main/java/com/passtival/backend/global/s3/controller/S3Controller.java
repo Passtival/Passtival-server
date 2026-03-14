@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 
 import com.passtival.backend.global.common.BaseResponse;
 import com.passtival.backend.global.s3.service.S3Service;
@@ -38,13 +39,13 @@ public class S3Controller {
 		}
 	)
 	@GetMapping("/upload-url")
-	public BaseResponse<String> getUploadUrl(
+	public ResponseEntity<BaseResponse<String>> getUploadUrl(
 		@RequestParam
 		@NotBlank(message = "파일명은 한글, 영문, 숫자, ., _, - 문자로 이루어져야 하며, 공백일 수 없으며, jpg, jpeg, png, gif, heic, webp 확장자를 포함해야 합니다.")
 		@Pattern(regexp = "^[\\w가-힣._-]+\\.(jpg|jpeg|png|gif|heic|webp)$",
 			message = "유효한 이미지 파일명이어야 합니다.")
 		String fileName) {
 		String uploadUrl = s3Service.getUploadUrl(fileName);
-		return BaseResponse.success(uploadUrl);
+		return ResponseEntity.ok(BaseResponse.success(uploadUrl));
 	}
 }

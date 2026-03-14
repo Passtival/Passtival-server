@@ -1,6 +1,7 @@
 package com.passtival.backend.domain.admin.controller;
 
 import java.util.List;
+import org.springframework.http.ResponseEntity;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -51,7 +52,7 @@ public class SeedController {
 		summary = "[백엔드 용] 공연 seed api",
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
-	public BaseResponse<?> insertPerformances(
+	public ResponseEntity<BaseResponse<?>> insertPerformances(
 		@RequestHeader("X-ADMIN-KEY") String key,
 		@RequestBody @Valid List<PerformanceRequest> performanceRequests) {
 
@@ -91,7 +92,7 @@ public class SeedController {
 			performanceRepository.save(perf);
 		}
 
-		return BaseResponse.success("Performances 데이터 삽입 성공!");
+		return ResponseEntity.ok(BaseResponse.success("Performances 데이터 삽입 성공!"));
 	}
 
 	@PostMapping("/booths")
@@ -99,7 +100,7 @@ public class SeedController {
 		summary = "[백엔드 용] 부스 seed api",
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
-	public BaseResponse<String> insertBooths(
+	public ResponseEntity<BaseResponse<String>> insertBooths(
 		@RequestHeader("X-ADMIN-KEY") String key,
 		@RequestBody @Valid List<BoothRequest> boothRequests) {
 
@@ -140,7 +141,7 @@ public class SeedController {
 			boothRepository.save(booth);
 		}
 
-		return BaseResponse.success("Booths 데이터 삽입 성공!");
+		return ResponseEntity.ok(BaseResponse.success("Booths 데이터 삽입 성공!"));
 	}
 
 }

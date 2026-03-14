@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 
 import com.passtival.backend.domain.matching.model.request.MatchingApplicantPatchRequest;
 import com.passtival.backend.domain.matching.model.response.MatchingApplicantResponse;
@@ -67,13 +68,13 @@ public class MatchingApplicantController {
 		)
 	)
 	@PatchMapping("/me")
-	public BaseResponse<Void> patchProfile(
+	public ResponseEntity<BaseResponse<Void>> patchProfile(
 		@AuthenticationPrincipal CustomMemberDetails memberDetails,
 		@Valid @RequestBody MatchingApplicantPatchRequest applicantPatchRequest) {
 
 		// 2. 서비스에 사용자 ID와 DTO 전달
 		matchingApplicantService.patchProfile(memberDetails.getMemberId(), applicantPatchRequest);
-		return BaseResponse.success(null);
+		return ResponseEntity.ok(BaseResponse.success(null));
 	}
 
 	@Operation(
@@ -84,11 +85,11 @@ public class MatchingApplicantController {
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
 	@GetMapping("/me")
-	public BaseResponse<MatchingApplicantResponse> getProfile(
+	public ResponseEntity<BaseResponse<MatchingApplicantResponse>> getProfile(
 		@AuthenticationPrincipal CustomMemberDetails memberDetails) {
 
 		MatchingApplicantResponse response = matchingApplicantService.getProfile(memberDetails.getMemberId());
-		return BaseResponse.success(response);
+		return ResponseEntity.ok(BaseResponse.success(response));
 	}
 
 	@Operation(
@@ -99,11 +100,11 @@ public class MatchingApplicantController {
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
 	@PostMapping("/me")
-	public BaseResponse<Void> createProfile(
+	public ResponseEntity<BaseResponse<Void>> createProfile(
 		@AuthenticationPrincipal CustomMemberDetails memberDetails // 1. 현재 로그인한 사용자 정보 가져오기
 	) {
 		//현재 로그인 되어있는 사용자의 memberID로 MatchingApplicant 생성
 		matchingApplicantService.creatProfile(memberDetails.getMemberId());
-		return BaseResponse.success(null);
+		return ResponseEntity.ok(BaseResponse.success(null));
 	}
 }

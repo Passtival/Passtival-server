@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 
 import com.passtival.backend.domain.admin.model.request.AuthenticationLevelRequest;
 import com.passtival.backend.domain.admin.model.response.AuthenticationKeyResponse;
@@ -38,8 +39,8 @@ public class AdminRaffleController {
 		summary = "관리자 인증키 조회",
 		description = "관리자(학생회)가 인증키 레벨 설정 후 학생에게 인증키를 보여줄때 사용하는 api"
 	)
-	public BaseResponse<AuthenticationKeyResponse> getAuthenticationKey() {
-		return BaseResponse.success(adminAuthenticationService.getAuthenticationKey());
+	public ResponseEntity<BaseResponse<AuthenticationKeyResponse>> getAuthenticationKey() {
+		return ResponseEntity.ok(BaseResponse.success(adminAuthenticationService.getAuthenticationKey()));
 	}
 
 	// 인증키 레벨 설정
@@ -49,9 +50,9 @@ public class AdminRaffleController {
 		summary = "관리자 인증키 레벨 설정",
 		description = "관리자(학생회)가 인증키 레벨 설정 - 학생이 인증키 입력 후 레벨 비교를 위해 필요"
 	)
-	public BaseResponse<Void> setAuthenticationKeyLevel(@RequestBody AuthenticationLevelRequest request) {
+	public ResponseEntity<BaseResponse<Void>> setAuthenticationKeyLevel(@RequestBody AuthenticationLevelRequest request) {
 		adminAuthenticationService.setAuthenticationKeyLevel(request);
-		return BaseResponse.success(null);
+		return ResponseEntity.ok(BaseResponse.success(null));
 	}
 
 	@PostMapping("/{day}")
@@ -60,9 +61,9 @@ public class AdminRaffleController {
 		description = "관리자(학생회)가 일별 추첨을 진행하는 api | day은 1~3",
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
-	public BaseResponse<Void> executeRaffleByDay(@PathVariable int day) {
+	public ResponseEntity<BaseResponse<Void>> executeRaffleByDay(@PathVariable int day) {
 		adminRaffleService.executeRaffleByDay(day);
-		return BaseResponse.success(null);
+		return ResponseEntity.ok(BaseResponse.success(null));
 	}
 
 	// 일차별 당점차 조회
@@ -73,9 +74,9 @@ public class AdminRaffleController {
 		description = "관리자(학생회)가 일별 추첨 후에 당첨자를 조회하는 api | day은 1~3",
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
-	public BaseResponse<WinnerResponse> getRaffleWinnersByDay(@PathVariable int day) {
+	public ResponseEntity<BaseResponse<WinnerResponse>> getRaffleWinnersByDay(@PathVariable int day) {
 		WinnerResponse response = adminRaffleService.getRaffleWinnersByDay(day);
-		return BaseResponse.success(response);
+		return ResponseEntity.ok(BaseResponse.success(response));
 	}
 
 	@PostMapping("/premium")
@@ -84,9 +85,9 @@ public class AdminRaffleController {
 		description = "관리자(학생회)가 프리미엄 추첨을 진행하는 api",
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
-	public BaseResponse<Void> executeRaffleOfPremium() {
+	public ResponseEntity<BaseResponse<Void>> executeRaffleOfPremium() {
 		adminRaffleService.executeRaffleOfPremium();
-		return BaseResponse.success(null);
+		return ResponseEntity.ok(BaseResponse.success(null));
 	}
 
 	@GetMapping("/premium")
@@ -95,9 +96,9 @@ public class AdminRaffleController {
 		description = "관리자(학생회)가 프리미엄 추첨 후에 당첨자를 조회하는 api",
 		security = @SecurityRequirement(name = "jwtAuth")
 	)
-	public BaseResponse<WinnerResponse> getRaffleWinnerOfPremium() {
+	public ResponseEntity<BaseResponse<WinnerResponse>> getRaffleWinnerOfPremium() {
 		WinnerResponse response = adminRaffleService.getRaffleWinnerOfPremium();
-		return BaseResponse.success(response);
+		return ResponseEntity.ok(BaseResponse.success(response));
 	}
 
 }
