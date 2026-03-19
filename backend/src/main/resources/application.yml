@@ -22,9 +22,3 @@ cloud:
 discord:
   webhook:
     url: ${DISCORD_WEBHOOK_URL}
-
-# Actuator와 Micrometer 설정
-management:
-  metrics:
-    tags:
-      application: passtival-backend

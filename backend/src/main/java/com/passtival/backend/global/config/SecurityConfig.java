@@ -69,8 +69,8 @@ public class SecurityConfig {
 
 			// Swagger UI 및 OpenAPI 문서 (공개)
 			.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-			// Monitoring scrape/read 엔드포인트 (공개)
-			.requestMatchers("/actuator/prometheus", "/actuator/health", "/actuator/info").permitAll()
+			// Actuator 헬스/정보 엔드포인트 (공개)
+			.requestMatchers("/actuator/health", "/actuator/info").permitAll()
 
 			// 회원가입 완료 API (공개) (소셜 로그인 후 호출)
 			.requestMatchers("/api/me/profile").authenticated()

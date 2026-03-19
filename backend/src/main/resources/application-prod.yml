@@ -67,12 +67,12 @@ admin:
 
 MATCHING_BLOCK: ${MATCHING_BLOCK}
 
-# Actuator와 Micrometer 설정 [Prod]
+# Actuator 설정 [Prod]
 management:
   endpoints:
     web:
       exposure:
-        include: prometheus,health,info
+        include: health,info
   endpoint:
     health:
       show-details: never
