@@ -1,0 +1,50 @@
+# ==========================================================
+# compose.yml
+# ----------------------------------------------------------
+# 목적:
+#   - Docker Compose의 "기본(Base) 설정" 파일
+#   - backend 서비스의 공통 설정과 환경 공통 자원을 정의한다.
+#
+# 사용 방식:
+#   - 단독 실행보다는 환경별 override 파일과 함께 사용한다.
+#   - 예:
+#       docker compose -f deploy/compose/compose.yml -f deploy/compose/compose.dev.yml up -d
+#       docker compose -f deploy/compose/compose.yml -f deploy/compose/compose.prod.yml up -d
+#
+# 포함 대상:
+#   - backend 공통 설정
+#   - 공통 network / volume / restart 정책 등
+#   - 환경과 무관하게 유지할 수 있는 최소 공통 설정
+#
+# 포함하지 않는 것:
+#   - dev 전용 설정
+#   - prod 전용 설정
+#   - 미래에 제거될 가능성이 큰 환경 종속 설정
+#
+# 주의:
+#   - 여러 Compose 파일을 조합할 때 상대경로는 첫 번째 파일 기준으로 해석된다.
+#   - 따라서 build context, env_file, volume 경로는 compose.yml 기준으로 작성한다.
+#
+# 설계 의도:
+#   - dev에서는 mysql 컨테이너를 함께 사용할 수 있도록 확장 가능하게 하고,
+#   - prod에서는 현재는 mysql 컨테이너를 사용할 수 있지만,
+#     추후 RDS로 자연스럽게 전환할 수 있도록 공통 기반만 유지한다.
+# ==========================================================
+
+name: passtival
+
+services:
+  backend:
+    image: ${BACKEND_IMAGE:-junseonpark/passtival-spring:latest}
+    build:
+      # compose.yml 위치(deploy/compose) 기준으로 프로젝트 루트 지정
+      context: ../..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - backend
+
+networks:
+  backend:
+    name: passtival-backend
+    driver: bridge

@@ -1,0 +1,78 @@
+# ==========================================================
+# compose.prod.yml
+# ----------------------------------------------------------
+# 목적:
+#   - 운영 환경(prod) 전용 Docker Compose override 파일
+#   - compose.yml 위에 덮어써서 운영 환경 구성을 완성한다.
+#
+# 사용 방식:
+#   - 반드시 compose.yml 과 함께 사용한다.
+#   - 예:
+#       docker compose -f deploy/compose/compose.yml -f deploy/compose/compose.prod.yml up -d
+#
+# 현재 운영 상황:
+#   - 비용 문제로 현재는 MySQL도 Docker Compose로 함께 운영할 수 있다.
+#
+# 미래 운영 방향:
+#   - 추후 운영 DB는 AWS RDS로 분리할 예정이다.
+#   - 따라서 이 파일은 "backend와 DB의 결합도를 낮추는 방향"으로 유지해야 한다.
+#
+# 포함 대상:
+#   - backend의 prod 환경변수
+#   - 운영용 포트/재시작 정책/이미지 또는 빌드 설정
+#   - 현재 필요 시 mysql 임시 운영 구성을 포함할 수 있음
+#
+# 권장 방향:
+#   - 장기적으로는 mysql 컨테이너 정의를 제거하고,
+#     backend가 외부 RDS 엔드포인트를 바라보도록 전환한다.
+#
+# 주의:
+#   - 운영 환경에서는 DB를 Compose에 계속 두는 구조가 장기적으로 적합하지 않을 수 있다.
+#   - RDS 전환 시 변경 포인트는 mysql 서비스 제거, datasource URL 변경,
+#     보안 그룹/접속 정보/환경 변수 관리 방식 정리 등이다.
+#
+# 설계 의도:
+#   - 현재 Compose 기반 운영을 유지하되,
+#     미래의 RDS 전환 비용을 최소화할 수 있도록 환경별 override 구조를 사용한다.
+# ==========================================================
+
+services:
+  backend:
+    container_name: passtival-backend-prod
+    env_file:
+      - ../env/.env.prod
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "127.0.0.1:8080:8080"
+
+  # 권장안(B): 기본은 backend 단독(외부 DB/RDS 연결).
+  # 현재 임시로 MySQL이 필요하면 --profile with-mysql 로 함께 실행.
+  mysql:
+    profiles: ["with-mysql"]
+    image: mysql:8.0
+    container_name: passtival-mysql-prod
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: passtival-db
+      MYSQL_USER: ${DB_USERNAME:-passtival}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-change-me}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-change-me-root}
+      TZ: Asia/Seoul
+    ports:
+      - "127.0.0.1:3306:3306"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data-prod:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+
+volumes:
+  mysql-data-prod:
