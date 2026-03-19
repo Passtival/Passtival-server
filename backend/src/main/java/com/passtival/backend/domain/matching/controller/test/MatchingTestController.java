@@ -1,5 +1,6 @@
 package com.passtival.backend.domain.matching.controller.test;
 
+import com.passtival.backend.global.exception.code.GlobalErrorCode;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,6 @@ import com.passtival.backend.domain.matching.model.enums.Gender;
 import com.passtival.backend.domain.matching.repository.MatchingApplicantRepository;
 import com.passtival.backend.domain.matching.service.MatchingScheduler;
 import com.passtival.backend.global.common.BaseResponse;
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.common.enums.Role;
 import com.passtival.backend.global.exception.BaseException;
 
@@ -74,8 +74,14 @@ public class MatchingTestController {
 
 			return ResponseEntity.ok(BaseResponse.success("테스트 회원 생성 완료! (남성 356명, 여성 306명)"));
 
+		} catch (BaseException e) {
+			throw e;
 		} catch (Exception e) {
-			return ResponseEntity.ok(BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 생성 실패: " + e.getMessage()));
+			throw new BaseException(
+				GlobalErrorCode.INTERNAL_SERVER_ERROR,
+				"테스트 회원 생성 실패: " + e.getMessage(),
+				e
+			);
 		}
 	}
 
@@ -86,7 +92,10 @@ public class MatchingTestController {
 			List<MatchingApplicant> testMatchingApplicants = matchingApplicantRepository.findByNameStartingWith("테스트");
 
 			if (testMatchingApplicants.isEmpty()) {
-				return ResponseEntity.ok(BaseResponse.fail(BaseResponseStatus.BAD_REQUEST, "테스트 회원이 없습니다. 먼저 테스트 회원을 생성해주세요."));
+				throw new BaseException(
+					GlobalErrorCode.BAD_REQUEST,
+					"테스트 회원이 없습니다. 먼저 테스트 회원을 생성해주세요."
+				);
 			}
 
 			for (MatchingApplicant matchingApplicant : testMatchingApplicants) {
@@ -97,8 +106,14 @@ public class MatchingTestController {
 
 			return ResponseEntity.ok(BaseResponse.success(testMatchingApplicants.size() + "명의 테스트 회원이 매칭에 신청했습니다!"));
 
+		} catch (BaseException e) {
+			throw e;
 		} catch (Exception e) {
-			return ResponseEntity.ok(BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 매칭 신청 실패: " + e.getMessage()));
+			throw new BaseException(
+				GlobalErrorCode.INTERNAL_SERVER_ERROR,
+				"테스트 회원 매칭 신청 실패: " + e.getMessage(),
+				e
+			);
 		}
 	}
 
@@ -115,7 +130,7 @@ public class MatchingTestController {
 	public ResponseEntity<BaseResponse<String>> manualMatching() throws BaseException {
 		// 이미 매칭이 진행 중인지 확인
 		if (matchingScheduler.isMatchingInProgress()) {
-			throw new BaseException(BaseResponseStatus.BAD_REQUEST);
+			throw new BaseException(GlobalErrorCode.BAD_REQUEST);
 		}
 
 		// 매칭 스케줄러의 dailyMatching 메서드 호출
@@ -157,8 +172,14 @@ public class MatchingTestController {
 
 			return ResponseEntity.ok(BaseResponse.success(memberInfo));
 
+		} catch (BaseException e) {
+			throw e;
 		} catch (Exception e) {
-			return ResponseEntity.ok(BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "테스트 회원 목록 조회 실패: " + e.getMessage()));
+			throw new BaseException(
+				GlobalErrorCode.INTERNAL_SERVER_ERROR,
+				"테스트 회원 목록 조회 실패: " + e.getMessage(),
+				e
+			);
 		}
 	}
 }

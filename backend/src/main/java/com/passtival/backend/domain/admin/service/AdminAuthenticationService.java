@@ -1,12 +1,13 @@
 package com.passtival.backend.domain.admin.service;
 
+import com.passtival.backend.global.exception.code.AdminErrorCode;
+import com.passtival.backend.global.exception.code.GlobalErrorCode;
 import org.springframework.stereotype.Service;
 
 import com.passtival.backend.domain.admin.model.request.AuthenticationLevelRequest;
 import com.passtival.backend.domain.admin.model.response.AuthenticationKeyResponse;
 import com.passtival.backend.domain.authenticationkey.model.AuthenticationKey;
 import com.passtival.backend.domain.authenticationkey.repository.AuthenticationKeyRepository;
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class AdminAuthenticationService {
 
 		if (authenticationKey == null) {
 			// 인증키를 모두 사용했을 때
-			throw new BaseException(BaseResponseStatus.AUTH_KEY_NOT_FOUND);
+			throw new BaseException(AdminErrorCode.AUTH_KEY_NOT_FOUND);
 		}
 
 		return new AuthenticationKeyResponse(authenticationKey.getAuthenticationKey());
@@ -40,7 +41,7 @@ public class AdminAuthenticationService {
 		Integer level = request.getLevel();
 
 		if (level == null || level < 1 || level > 3) {
-			throw new BaseException(BaseResponseStatus.BAD_REQUEST);
+			throw new BaseException(GlobalErrorCode.BAD_REQUEST);
 		}
 
 		AuthenticationKey authenticationKey = authenticationKeyRepository.findFirstByOrderByIdAsc();

@@ -1,5 +1,7 @@
 package com.passtival.backend.global.handler;
 
+import com.passtival.backend.global.exception.code.AuthErrorCode;
+import com.passtival.backend.global.exception.code.GlobalErrorCode;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -8,7 +10,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 import com.passtival.backend.global.security.util.ResponseUtil;
 
@@ -43,7 +44,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 		// 1. CustomMemberDetailsService에서 던진 BaseException 처리
 		if (exception.getCause() instanceof BaseException) {
 			BaseException baseException = (BaseException)exception.getCause();
-			BaseResponseStatus status = baseException.getStatus();
+			var status = baseException.getStatus();
 			responseUtil.sendErrorResponse(response, status);
 			return;
 		}
@@ -67,12 +68,12 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 				log.error("OAuth2 인증 오류: {}", errorCode, exception);
 			}
 
-			responseUtil.sendErrorResponse(response, BaseResponseStatus.OAUTH2_PROCESSING_ERROR);
+			responseUtil.sendErrorResponse(response, AuthErrorCode.OAUTH2_PROCESSING_ERROR);
 			return;
 		}
 
 		//아래 오류가 있어야 지 처리하지 못한 어떤 오류인지 종류를 알 수 있음
 		log.error("예측하지 못한 인증 오류 발생", exception);
-		responseUtil.sendErrorResponse(response, BaseResponseStatus.INTERNAL_SERVER_ERROR);
+		responseUtil.sendErrorResponse(response, GlobalErrorCode.INTERNAL_SERVER_ERROR);
 	}
 }

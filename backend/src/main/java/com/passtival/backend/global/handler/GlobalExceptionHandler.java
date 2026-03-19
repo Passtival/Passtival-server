@@ -19,9 +19,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.passtival.backend.global.common.BaseResponse;
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.discord.DiscordService;
 import com.passtival.backend.global.exception.BaseException;
+import com.passtival.backend.global.exception.code.ErrorCode;
+import com.passtival.backend.global.exception.code.GlobalErrorCode;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -38,12 +39,13 @@ public class GlobalExceptionHandler {
 	// 의도된 비즈니스 예외(개발자가 기대한 흐름) -> 4xx, Discord 알림 전송 안함
 	@ExceptionHandler(BaseException.class)
 	public ResponseEntity<BaseResponse<?>> handleBaseException(BaseException e) {
+		ErrorCode status = (e.getStatus() != null) ? e.getStatus() : GlobalErrorCode.INTERNAL_SERVER_ERROR;
 		String message = (e.getMessage() != null && !e.getMessage().isBlank())
 			? e.getMessage()
-			: e.getStatus().getMessage();
-		log.warn("BaseException 발생: status={}, message={}", e.getStatus(), message);
-		return ResponseEntity.status(HttpStatusCode.valueOf(e.getStatus().getCode()))
-			.body(BaseResponse.fail(e.getStatus(), message));
+			: status.getMessage();
+
+		log.warn("BaseException 발생: status={}, message={}", status, message);
+		return buildErrorResponse(status, message);
 	}
 
 	// @Valid 검증 실패 -> 400, Discord 알림 전송 안함
@@ -56,8 +58,7 @@ public class GlobalExceptionHandler {
 			errors.put(fieldName, errorMessage);
 		});
 		log.warn("요청 파라미터 검증 실패: {}", errors);
-		return ResponseEntity.status(HttpStatusCode.valueOf(BaseResponseStatus.INVALID_REQUEST.getCode()))
-			.body(BaseResponse.fail(BaseResponseStatus.INVALID_REQUEST, errors));
+		return buildErrorResponse(GlobalErrorCode.INVALID_REQUEST, errors);
 	}
 
 	// MVC에서 던지는 잘못된 요청 처리 -> 400, Discord 알림 전송 안함
@@ -70,17 +71,15 @@ public class GlobalExceptionHandler {
 		BindException.class
 	})
 	public ResponseEntity<BaseResponse<?>> handleBadRequest(Exception e) {
-		log.warn("잘못된 요청 처리: {}", e.getClass().getSimpleName(), e.getMessage());
-		return ResponseEntity.status(HttpStatusCode.valueOf(BaseResponseStatus.INVALID_REQUEST.getCode()))
-			.body(BaseResponse.fail(BaseResponseStatus.INVALID_REQUEST));
+		log.warn("잘못된 요청 처리: type={}, message={}", e.getClass().getSimpleName(), e.getMessage());
+		return buildErrorResponse(GlobalErrorCode.INVALID_REQUEST);
 	}
 
-	// 404 에러 처리 ->  Discord 전송 안함
+	// 404 에러 처리 -> Discord 전송 안함
 	@ExceptionHandler(NoHandlerFoundException.class)
 	public ResponseEntity<BaseResponse<?>> handle404(NoHandlerFoundException e) {
 		log.warn("404 Not Found: {}", e.getRequestURL());
-		return ResponseEntity.status(HttpStatusCode.valueOf(BaseResponseStatus.NOT_FOUND.getCode()))
-			.body(BaseResponse.fail(BaseResponseStatus.NOT_FOUND));
+		return buildErrorResponse(GlobalErrorCode.NOT_FOUND);
 	}
 
 	// 그 외 모든 예상치 못한 예외 -> 500, Discord 알림 전송
@@ -91,12 +90,21 @@ public class GlobalExceptionHandler {
 			: e.getClass().getName();
 		log.error("500 서버 내부 오류 발생: {}", msg, e);
 
-		// Discord 에러 알림 전송
 		String stackTrace = getStackTrace(e);
 		discordService.sendErrorNotification(msg, request.getRequestURL().toString(), stackTrace);
 
-		return ResponseEntity.status(HttpStatusCode.valueOf(BaseResponseStatus.INTERNAL_SERVER_ERROR.getCode()))
-			.body(BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR));
+		return buildErrorResponse(GlobalErrorCode.INTERNAL_SERVER_ERROR);
+	}
+
+	// 상태
+	private ResponseEntity<BaseResponse<?>> buildErrorResponse(ErrorCode status) {
+		return ResponseEntity.status(HttpStatusCode.valueOf(status.getCode()))
+			.body(BaseResponse.fail(status));
+	}
+
+	private <T> ResponseEntity<BaseResponse<?>> buildErrorResponse(ErrorCode status, T payload) {
+		return ResponseEntity.status(HttpStatusCode.valueOf(status.getCode()))
+			.body(BaseResponse.fail(status, payload));
 	}
 
 	private String getStackTrace(Exception e) {
@@ -105,5 +113,4 @@ public class GlobalExceptionHandler {
 		e.printStackTrace(pw);
 		return sw.toString();
 	}
-
 }

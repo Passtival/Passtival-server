@@ -1,5 +1,6 @@
 package com.passtival.backend.global.handler;
 
+import com.passtival.backend.global.exception.code.GlobalErrorCode;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -10,7 +11,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.security.model.CustomOAuth2User;
 import com.passtival.backend.global.security.util.JwtUtil;
 import com.passtival.backend.global.security.util.ResponseUtil;
@@ -45,7 +45,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 			// 1. OAuth2 사용자 정보 추출 (LoginFilter의 CustomMemberDetails와 동일한 역할)
 			CustomOAuth2User oauth2User = (CustomOAuth2User)authentication.getPrincipal();
 			if (oauth2User == null) {
-				responseUtil.sendErrorResponse(response, BaseResponseStatus.INTERNAL_SERVER_ERROR);
+				responseUtil.sendErrorResponse(response, GlobalErrorCode.INTERNAL_SERVER_ERROR);
 				return;
 			}
 

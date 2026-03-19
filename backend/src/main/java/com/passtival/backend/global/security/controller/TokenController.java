@@ -1,5 +1,6 @@
 package com.passtival.backend.global.security.controller;
 
+import com.passtival.backend.global.exception.code.AuthErrorCode;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -7,7 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 
 import com.passtival.backend.global.common.BaseResponse;
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 import com.passtival.backend.global.security.model.token.TokenResponse;
 import com.passtival.backend.global.security.service.TokenService;
@@ -42,7 +42,7 @@ public class TokenController {
 		@RequestHeader("Authorization") String headerToken) {
 
 		if (headerToken == null || !headerToken.startsWith("Bearer ")) {
-			throw new BaseException(BaseResponseStatus.INVALID_TOKEN_FORMAT);
+			throw new BaseException(AuthErrorCode.INVALID_TOKEN_FORMAT);
 		}
 
 		// 토큰 추출 (Bearer 제거)

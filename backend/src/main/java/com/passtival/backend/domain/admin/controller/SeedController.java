@@ -1,5 +1,8 @@
 package com.passtival.backend.domain.admin.controller;
 
+import com.passtival.backend.global.exception.code.MemberErrorCode;
+import com.passtival.backend.global.exception.code.FestivalErrorCode;
+import com.passtival.backend.global.exception.code.GlobalErrorCode;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 
@@ -19,7 +22,6 @@ import com.passtival.backend.domain.festival.performance.model.entity.Performanc
 import com.passtival.backend.domain.festival.performance.model.entity.Song;
 import com.passtival.backend.domain.festival.performance.repository.PerformanceRepository;
 import com.passtival.backend.global.common.BaseResponse;
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,7 +45,7 @@ public class SeedController {
 	// 인증키 검증
 	private void validateKey(String key) {
 		if (!seedKey.equals(key)) {
-			throw new BaseException(BaseResponseStatus.INVALID_AUTH_KEY);
+			throw new BaseException(MemberErrorCode.INVALID_AUTH_KEY);
 		}
 	}
 
@@ -60,13 +62,13 @@ public class SeedController {
 
 		// 요청 리스트 비어있을 때
 		if (performanceRequests == null || performanceRequests.isEmpty()) {
-			throw new BaseException(BaseResponseStatus.REQUEST_BODY_EMPTY);
+			throw new BaseException(GlobalErrorCode.REQUEST_BODY_EMPTY);
 		}
 
 		for (PerformanceRequest req : performanceRequests) {
 
 			if (performanceRepository.existsByTitle(req.getTitle())) {
-				throw new BaseException(BaseResponseStatus.DUPLICATE_PERFORMANCE_TITLE);
+				throw new BaseException(FestivalErrorCode.DUPLICATE_PERFORMANCE_TITLE);
 			}
 
 			Performance perf = Performance.builder()
@@ -107,12 +109,12 @@ public class SeedController {
 		validateKey(key);
 
 		if (boothRequests == null || boothRequests.isEmpty()) {
-			throw new BaseException(BaseResponseStatus.REQUEST_BODY_EMPTY);
+			throw new BaseException(GlobalErrorCode.REQUEST_BODY_EMPTY);
 		}
 
 		for (BoothRequest req : boothRequests) {
 			if (boothRepository.existsByName(req.getName())) {
-				throw new BaseException(BaseResponseStatus.DUPLICATE_BOOTH_NAME);
+				throw new BaseException(FestivalErrorCode.DUPLICATE_BOOTH_NAME);
 			}
 
 			Booth booth = Booth.builder()

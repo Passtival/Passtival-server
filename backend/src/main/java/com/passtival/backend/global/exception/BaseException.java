@@ -1,24 +1,35 @@
 package com.passtival.backend.global.exception;
 
-import com.passtival.backend.global.common.BaseResponseStatus;
+import com.passtival.backend.global.exception.code.ErrorCode;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class BaseException extends RuntimeException {
-	private BaseResponseStatus status;
 
-	// 기본적인 예외 메세지 확인
-	public BaseException(BaseResponseStatus status) {
-		super(status.getMessage());
-		this.status = status;
+	private final ErrorCode status;
+
+	public BaseException(ErrorCode status) {
+		this(status, validateStatus(status).getMessage(), null);
 	}
 
-	// 특정 예외 메세지 확인 (예상치 못한 경우)
-	public BaseException(BaseResponseStatus status, Throwable cause) {
-		super(cause);
-		this.status = status;
+	public BaseException(ErrorCode status, String message) {
+		this(status, message, null);
+	}
+
+	public BaseException(ErrorCode status, Throwable cause) {
+		this(status, validateStatus(status).getMessage(), cause);
+	}
+
+	public BaseException(ErrorCode status, String message, Throwable cause) {
+		super(message, cause);
+		this.status = validateStatus(status);
+	}
+
+	private static ErrorCode validateStatus(ErrorCode status) {
+		if (status == null) {
+			throw new IllegalArgumentException("status는 null일 수 없습니다.");
+		}
+		return status;
 	}
 }

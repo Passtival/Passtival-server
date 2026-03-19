@@ -1,11 +1,11 @@
 package com.passtival.backend.domain.admin.service;
 
+import com.passtival.backend.global.exception.code.LostFoundErrorCode;
 import org.springframework.stereotype.Service;
 
 import com.passtival.backend.domain.admin.model.request.FoundItemRequest;
 import com.passtival.backend.domain.lostfound.model.entity.FoundItem;
 import com.passtival.backend.domain.lostfound.repository.LnfRepository;
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
 import jakarta.transaction.Transactional;
@@ -33,7 +33,7 @@ public class AdminLnfService {
 	public void deleteFoundItem(Long id) {
 
 		if (!lnfRepository.existsById(id)) {
-			throw new BaseException(BaseResponseStatus.FOUND_ITEM_NOT_FOUND);
+			throw new BaseException(LostFoundErrorCode.FOUND_ITEM_NOT_FOUND);
 		}
 
 		lnfRepository.deleteById(id);

@@ -1,5 +1,6 @@
 package com.passtival.backend.global.security.filter;
 
+import com.passtival.backend.global.exception.code.AuthErrorCode;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -16,7 +17,6 @@ import com.passtival.backend.global.security.model.CustomMemberDetails;
 import com.passtival.backend.global.security.model.token.TokenResponse;
 import com.passtival.backend.global.security.util.JwtUtil;
 import com.passtival.backend.global.common.BaseResponse;
-import com.passtival.backend.global.common.BaseResponseStatus;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -90,11 +90,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		AuthenticationException failed) throws IOException {
 
 		// BaseResponse를 활용한 에러 응답
-		response.setStatus(BaseResponseStatus.LOGIN_REQUIRED.getCode());
+		response.setStatus(AuthErrorCode.LOGIN_REQUIRED.getCode());
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 
-		BaseResponse<Object> errorResponse = BaseResponse.fail(BaseResponseStatus.LOGIN_REQUIRED);
+		BaseResponse<Object> errorResponse = BaseResponse.fail(AuthErrorCode.LOGIN_REQUIRED);
 		String jsonResponse = objectMapper.writeValueAsString(errorResponse);
 		response.getWriter().write(jsonResponse);
 	}

@@ -1,5 +1,7 @@
 package com.passtival.backend.global.security.filter;
 
+import com.passtival.backend.global.exception.code.AuthErrorCode;
+import com.passtival.backend.global.exception.code.GlobalErrorCode;
 import java.io.IOException;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -10,7 +12,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.passtival.backend.global.security.model.CustomMemberDetails;
 import com.passtival.backend.global.security.util.JwtUtil;
 import com.passtival.backend.global.security.util.ResponseUtil;
-import com.passtival.backend.global.common.BaseResponseStatus;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -61,17 +62,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		} catch (ExpiredJwtException e) {
 			// 4. 토큰 만료 예외 처리
-			responseUtil.sendErrorResponse(response, BaseResponseStatus.TOKEN_EXPIRED);
+			responseUtil.sendErrorResponse(response, AuthErrorCode.TOKEN_EXPIRED);
 			return;
 		} catch (JwtException e) {
 			// 5. 서명 오류 또는 기타 JWT 관련 예외 처리
 			log.warn("Invalid JWT token caught, token: {}", token, e);
-			responseUtil.sendErrorResponse(response, BaseResponseStatus.TOKEN_INVALID);
+			responseUtil.sendErrorResponse(response, AuthErrorCode.TOKEN_INVALID);
 			return;
 		} catch (Exception e) {
 			// 6. 그 외 예측하지 못한 모든 예외 처리
 			log.error("Unexpected error occurred during JWT authentication, token: {}", token, e);
-			responseUtil.sendErrorResponse(response, BaseResponseStatus.INTERNAL_SERVER_ERROR);
+			responseUtil.sendErrorResponse(response, GlobalErrorCode.INTERNAL_SERVER_ERROR);
 			return;
 		}
 

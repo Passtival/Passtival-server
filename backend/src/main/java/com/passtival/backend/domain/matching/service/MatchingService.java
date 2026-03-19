@@ -1,5 +1,8 @@
 package com.passtival.backend.domain.matching.service;
 
+import com.passtival.backend.global.exception.code.MemberErrorCode;
+import com.passtival.backend.global.exception.code.MatchingErrorCode;
+import com.passtival.backend.global.exception.code.GlobalErrorCode;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -16,7 +19,6 @@ import com.passtival.backend.domain.matching.model.entity.MatchingApplicant;
 import com.passtival.backend.domain.matching.model.response.MatchingResponse;
 import com.passtival.backend.domain.matching.repository.MatchingApplicantRepository;
 import com.passtival.backend.domain.matching.repository.MatchingRepository;
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
 import lombok.RequiredArgsConstructor;
@@ -40,7 +42,7 @@ public class MatchingService {
 	public void applyMatching(Long memberId) {
 
 		if (matchingScheduler.isMatchingInProgress()) {
-			throw new BaseException(BaseResponseStatus.MATCHING_IN_PROGRESS);
+			throw new BaseException(MatchingErrorCode.MATCHING_IN_PROGRESS);
 		}
 
 		LocalTime now = LocalTime.now(ZoneId.of("Asia/Seoul"));
@@ -48,20 +50,20 @@ public class MatchingService {
 
 		// 신청 가능 시간: 00:00 ~ 17:30
 		if (now.isAfter(endTime)) {
-			throw new BaseException(BaseResponseStatus.MATCHING_TIME_INVALID);
+			throw new BaseException(MatchingErrorCode.MATCHING_TIME_INVALID);
 		}
 
 		// 사용자 존재 여부 확인
 		MatchingApplicant matchingApplicant = matchingApplicantRepository.findById(memberId)
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new BaseException(MemberErrorCode.MEMBER_NOT_FOUND));
 
 		if (matchingApplicant.getGender() == null) {
-			throw new BaseException(BaseResponseStatus.INCOMPLETE_MEMBER_INFO);
+			throw new BaseException(MemberErrorCode.INCOMPLETE_MEMBER_INFO);
 		}
 
 		// 중복 신청 검증
 		if (matchingApplicant.isApplied()) {
-			throw new BaseException(BaseResponseStatus.ALREADY_APPLIED_MATCHING);
+			throw new BaseException(MatchingErrorCode.ALREADY_APPLIED_MATCHING);
 		}
 
 		matchingApplicant.applyForMatching();
@@ -74,7 +76,7 @@ public class MatchingService {
 			String[] parts = cronExpression.trim().split("\\s+");
 
 			if (parts.length < 3) {
-				throw new BaseException(BaseResponseStatus.CRON_ERROR);
+				throw new BaseException(GlobalErrorCode.CRON_ERROR);
 			}
 
 			int minute = Integer.parseInt(parts[1]);
@@ -82,7 +84,7 @@ public class MatchingService {
 
 			// 시간 유효성 검증
 			if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
-				throw new BaseException(BaseResponseStatus.CRON_ERROR);
+				throw new BaseException(GlobalErrorCode.CRON_ERROR);
 			}
 
 			return LocalTime.of(hour, minute);
@@ -101,7 +103,7 @@ public class MatchingService {
 			.findMemberMatchingByDate(today, memberId);
 
 		if (matchingResult.isEmpty()) {
-			throw new BaseException(BaseResponseStatus.MATCHING_RESULT_NOT_FOUND);
+			throw new BaseException(MatchingErrorCode.MATCHING_RESULT_NOT_FOUND);
 		}
 
 		Matching matching = matchingResult.get();
@@ -118,7 +120,7 @@ public class MatchingService {
 			.findByMemberIdIn(Arrays.asList(myMemberId, partnerMemberId));
 
 		if (matchingApplicants.size() != 2) {
-			throw new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND);
+			throw new BaseException(MemberErrorCode.MEMBER_NOT_FOUND);
 		}
 
 		// 내 정보와 상대방 정보 분리
@@ -133,7 +135,7 @@ public class MatchingService {
 			.orElse(null);
 
 		if (myMatchingApplicant == null || partnerMatchingApplicant == null) {
-			throw new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND);
+			throw new BaseException(MemberErrorCode.MEMBER_NOT_FOUND);
 		}
 
 		// DTO 생성

@@ -1,5 +1,6 @@
 package com.passtival.backend.domain.member.service;
 
+import com.passtival.backend.global.exception.code.MemberErrorCode;
 import org.springframework.stereotype.Service;
 
 import com.passtival.backend.domain.authenticationkey.model.AuthenticationKey;
@@ -7,7 +8,6 @@ import com.passtival.backend.domain.authenticationkey.repository.AuthenticationK
 import com.passtival.backend.domain.member.model.entity.Member;
 import com.passtival.backend.domain.member.model.entity.request.LevelUpRequest;
 import com.passtival.backend.domain.member.repository.MemberRepository;
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
 import lombok.RequiredArgsConstructor;
@@ -22,22 +22,22 @@ public class MemberService {
 	public void levelUp(Long memberId, LevelUpRequest request) {
 
 		Member member = memberRepository.findByMemberId(memberId)
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new BaseException(MemberErrorCode.MEMBER_NOT_FOUND));
 
 		AuthenticationKey authenticationKey = authenticationKeyRepository.findFirstByOrderByIdAsc();
 
 		// 인증키 존재 여부 확인
 		if (authenticationKey == null) {
-			throw new BaseException(BaseResponseStatus.NOT_FOUND_AUTH_KEY);
+			throw new BaseException(MemberErrorCode.NOT_FOUND_AUTH_KEY);
 		}
 		// 인증키 검증
 		if (!authenticationKey.getAuthenticationKey().equals(request.getAuthenticationKey())) {
-			throw new BaseException(BaseResponseStatus.INVALID_AUTH_KEY);
+			throw new BaseException(MemberErrorCode.INVALID_AUTH_KEY);
 		}
 
 		// 인증키 레벨과 요청 레벨 검증
 		if (!authenticationKey.getLevel().equals(request.getLevel())) {
-			throw new BaseException(BaseResponseStatus.INVALID_LEVEL);
+			throw new BaseException(MemberErrorCode.INVALID_LEVEL);
 		}
 
 		// level = 3 프리미엄 응모권 지급

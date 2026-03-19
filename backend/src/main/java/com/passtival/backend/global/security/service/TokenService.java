@@ -1,8 +1,9 @@
 package com.passtival.backend.global.security.service;
 
+import com.passtival.backend.global.exception.code.AuthErrorCode;
+import com.passtival.backend.global.exception.code.GlobalErrorCode;
 import org.springframework.stereotype.Service;
 
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 import com.passtival.backend.global.security.model.token.TokenResponse;
 import com.passtival.backend.global.security.util.JwtUtil;
@@ -52,7 +53,7 @@ public class TokenService {
 	 */
 	private void validateRefreshTokenRequest(String token) {
 		if (token == null) {
-			throw new BaseException(BaseResponseStatus.BAD_REQUEST);
+			throw new BaseException(GlobalErrorCode.BAD_REQUEST);
 		}
 	}
 
@@ -66,15 +67,15 @@ public class TokenService {
 			JwtUtil.TokenInfo tokenInfo = jwtUtil.extractTokenInfo(refreshToken);
 			// 토큰 파싱 실패 또는 정보 부족 체크
 			if (tokenInfo == null || tokenInfo.memberId == null || tokenInfo.role == null) {
-				throw new BaseException(BaseResponseStatus.TOKEN_INVALID);
+				throw new BaseException(AuthErrorCode.TOKEN_INVALID);
 			}
 			return tokenInfo;
 		} catch (ExpiredJwtException e) {
 			// 토큰 만료 → 401 응답
-			throw new BaseException(BaseResponseStatus.TOKEN_EXPIRED);
+			throw new BaseException(AuthErrorCode.TOKEN_EXPIRED);
 		} catch (JwtException e) {
 			// JWT 파싱 오류 → 401 응답
-			throw new BaseException(BaseResponseStatus.TOKEN_INVALID);
+			throw new BaseException(AuthErrorCode.TOKEN_INVALID);
 		}
 	}
 }

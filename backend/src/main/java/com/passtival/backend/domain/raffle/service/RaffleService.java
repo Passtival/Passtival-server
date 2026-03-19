@@ -31,7 +31,7 @@
 //
 // 		// 2. 학번 중복 확인
 // 		if (applicantRepository.existsByStudentId(request.getStudentId())) {
-// 			throw new BaseException(BaseResponseStatus.DUPLICATE_APPLICANT);
+// 			throw new BaseException(RaffleErrorCode.DUPLICATE_APPLICANT);
 // 		}
 //
 // 		// 3. 신청자 등록 -> 멤버로 처리
@@ -53,7 +53,7 @@
 // 		String authenticationKey = String.valueOf(adminAuthenticationService.getAuthenticationKey());
 //
 // 		if (!authenticationKey.equals(requestKey)) {
-// 			throw new BaseException(BaseResponseStatus.INVALID_AUTH_KEY);
+// 			throw new BaseException(MemberErrorCode.INVALID_AUTH_KEY);
 // 		}
 // 	}
 //
