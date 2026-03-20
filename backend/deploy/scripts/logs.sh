@@ -1,28 +1,154 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
 
-# logs.sh
-# 특정 환경의 Spring Boot 로그 확인
-ENVIRONMENT="${1:-prod}" # 기본값은 prod, 인자로 dev 전달 가능
+# =========================
+# 로그 유틸
+# =========================
+readonly SCRIPT_NAME="$(basename "$0")"
+
+# ANSI Color
+readonly RED='\033[0;31m'
+readonly YELLOW='\033[1;33m'
+readonly GREEN='\033[0;32m'
+readonly BLUE='\033[0;34m'
+readonly CYAN='\033[0;36m'
+readonly NC='\033[0m' # No Color
+
+timestamp() {
+  date '+%Y-%m-%d %H:%M:%S'
+}
+
+log() {
+  local level="$1"
+  shift
+
+  local color="$NC"
+
+  case "$level" in
+    WARN)  color="$YELLOW" ;;
+    ERROR) color="$RED" ;;
+    DONE)  color="$GREEN" ;;
+    *)     color="$NC" ;;
+  esac
+
+  printf "%b[%s] [%s] [%s] %s%b\n" \
+    "$color" "$(timestamp)" "$level" "$SCRIPT_NAME" "$*" "$NC"
+}
+
+log_info()  { log "INFO"  "$@"; }
+log_step()  { log "STEP"  "$@"; }
+log_warn()  { log "WARN"  "$@"; }
+log_error() { log "ERROR" "$@"; }
+log_done()  { log "DONE"  "$@"; }
+
+print_divider() {
+  echo "============================================================"
+}
+
+run_cmd() {
+  log_info "실행 명령어: $*"
+  "$@"
+}
+
+# =========================
+# 에러 핸들링
+# =========================
+on_error() {
+  local exit_code=$?
+  local line_no=$1
+  local command="${2:-unknown}"
+
+  print_divider
+  log_error "로그 조회 스크립트 실행 중 오류가 발생했습니다."
+  log_error "실패한 라인 번호: ${line_no}"
+  log_error "실패한 명령어: ${command}"
+  log_error "종료 코드: ${exit_code}"
+  print_divider
+
+  exit "$exit_code"
+}
+
+trap 'on_error ${LINENO} "$BASH_COMMAND"' ERR
+
+# =========================
+# 시작 로그
+# =========================
+print_divider
+log_info "backend 로그 조회 스크립트를 시작합니다."
+log_info "실행 예시: ./deploy/scripts/logs.sh prod"
+log_info "실행 예시: ./deploy/scripts/logs.sh dev"
+print_divider
+
+# =========================
+# 환경 설정
+# =========================
+ENVIRONMENT="${1:-${ENVIRONMENT:-prod}}"
 
 if [[ "$ENVIRONMENT" != "dev" && "$ENVIRONMENT" != "prod" ]]; then
-  echo "[ERROR] ENVIRONMENT must be 'dev' or 'prod' (got: $ENVIRONMENT)"
+  log_error "ENVIRONMENT 인자가 올바르지 않습니다."
+  log_error "허용 값: dev 또는 prod"
+  log_error "입력 값: ${ENVIRONMENT}"
   exit 1
 fi
 
-PROJECT_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+log_info "로그 조회 대상 환경: ${ENVIRONMENT}"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
 BASE_COMPOSE_FILE="$PROJECT_ROOT/deploy/compose/compose.yml"
 ENV_COMPOSE_FILE="$PROJECT_ROOT/deploy/compose/compose.${ENVIRONMENT}.yml"
 ENV_FILE="$PROJECT_ROOT/deploy/env/.env.${ENVIRONMENT}"
 
+log_info "스크립트 위치: ${SCRIPT_DIR}"
+log_info "프로젝트 루트: ${PROJECT_ROOT}"
+log_info "기본 Compose 파일: ${BASE_COMPOSE_FILE}"
+log_info "환경별 Compose 파일: ${ENV_COMPOSE_FILE}"
+log_info "환경변수 파일: ${ENV_FILE}"
+
+# =========================
+# Docker Compose 명령어 결정
+# =========================
+log_step "Docker Compose 실행 방식을 확인합니다."
+
 if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
   COMPOSE_CMD=(docker compose)
+  log_info "Docker Compose v2를 사용합니다. (docker compose)"
 elif command -v docker-compose >/dev/null 2>&1; then
   COMPOSE_CMD=(docker-compose)
+  log_info "Docker Compose v1을 사용합니다. (docker-compose)"
 else
-  echo "[ERROR] docker compose(v2) or docker-compose(v1) not found"
+  log_error "docker compose(v2) 또는 docker-compose(v1)를 찾을 수 없습니다."
+  log_error "Docker 설치 여부 및 PATH 설정을 확인해주세요."
   exit 1
 fi
 
-echo "[INFO] Showing backend logs for '$ENVIRONMENT'"
-"${COMPOSE_CMD[@]}" --env-file "$ENV_FILE" -f "$BASE_COMPOSE_FILE" -f "$ENV_COMPOSE_FILE" logs -f backend
+# =========================
+# 필수 파일 존재 여부 확인
+# =========================
+log_step "필수 파일 존재 여부를 확인합니다."
+
+for f in "$BASE_COMPOSE_FILE" "$ENV_COMPOSE_FILE" "$ENV_FILE"; do
+  if [[ ! -f "$f" ]]; then
+    log_error "필수 파일이 존재하지 않습니다: $f"
+    exit 1
+  fi
+  log_info "확인 완료: $f"
+done
+
+cd "$PROJECT_ROOT"
+log_info "작업 디렉토리를 프로젝트 루트로 이동했습니다: $(pwd)"
+
+# =========================
+# 로그 조회
+# =========================
+print_divider
+log_step "'${ENVIRONMENT}' 환경의 backend 로그를 실시간으로 조회합니다."
+log_warn "로그 조회는 종료하지 않는 한 계속 스트리밍됩니다. 종료하려면 Ctrl + C를 누르세요."
+print_divider
+
+run_cmd "${COMPOSE_CMD[@]}" \
+  --env-file "$ENV_FILE" \
+  -f "$BASE_COMPOSE_FILE" \
+  -f "$ENV_COMPOSE_FILE" \
+  logs -f backend
