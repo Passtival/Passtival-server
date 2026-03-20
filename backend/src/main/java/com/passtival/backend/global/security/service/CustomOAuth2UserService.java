@@ -1,5 +1,6 @@
 package com.passtival.backend.global.security.service;
 
+import com.passtival.backend.global.exception.code.AuthErrorCode;
 import java.util.Optional;
 
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import com.passtival.backend.domain.member.model.entity.Member;
 import com.passtival.backend.domain.member.repository.MemberRepository;
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 import com.passtival.backend.global.security.model.AuthUserDto;
 import com.passtival.backend.global.security.model.CustomOAuth2User;
@@ -85,7 +85,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 			} else {
 
-				BaseException cause = new BaseException(BaseResponseStatus.UNSUPPORTED_PROVIDER);
+				BaseException cause = new BaseException(AuthErrorCode.UNSUPPORTED_PROVIDER);
 
 				OAuth2Error error = new OAuth2Error(
 					"unsupported_provider",
@@ -96,7 +96,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			}
 		} catch (Exception e) {
 
-			BaseException cause = new BaseException(BaseResponseStatus.OAUTH2_PROCESSING_ERROR);
+			BaseException cause = new BaseException(AuthErrorCode.OAUTH2_PROCESSING_ERROR);
 
 			log.error("parseOAuth2Response 중 예외 발생", e);
 
@@ -122,7 +122,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			if (socialId == null || socialId.trim().isEmpty()) {
 				log.warn("소셜 ID를 가져올 수 없음: provider={}", oAuth2Response.getProvider());
 
-				BaseException cause = new BaseException(BaseResponseStatus.SOCIAL_ID_NOTFOUND);
+				BaseException cause = new BaseException(AuthErrorCode.SOCIAL_ID_NOTFOUND);
 
 				OAuth2Error error = new OAuth2Error(
 					"invalid_social_id",
@@ -138,7 +138,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 			log.error("validateSocialId 중 예외 발생", e);
 
-			BaseException cause = new BaseException(BaseResponseStatus.SOCIAL_ID_VERIFICATION_FAILED);
+			BaseException cause = new BaseException(AuthErrorCode.SOCIAL_ID_VERIFICATION_FAILED);
 
 			OAuth2Error error = new OAuth2Error(
 				"social_id_validation_error",
@@ -178,7 +178,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 			log.error("회원 정보 처리 중 예외 발생, socialId: {}", oAuth2Response.getSocialId(), e);
 
-			BaseException cause = new BaseException(BaseResponseStatus.MEMBER_PROCESSING_ERROR);
+			BaseException cause = new BaseException(AuthErrorCode.MEMBER_PROCESSING_ERROR);
 
 			OAuth2Error error = new OAuth2Error(
 				"member_processing_error",
@@ -210,7 +210,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 		} catch (Exception e) {
 
-			BaseException cause = new BaseException(BaseResponseStatus.NEW_MEMBER_PROCESSING_ERROR);
+			BaseException cause = new BaseException(AuthErrorCode.NEW_MEMBER_PROCESSING_ERROR);
 
 			log.error("createNewMember 중 예외 발생, socialId: {}", oAuth2Response.getSocialId(), e);
 
@@ -243,7 +243,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			return new CustomOAuth2User(authUserDto);
 
 		} catch (Exception e) {
-			BaseException cause = new BaseException(BaseResponseStatus.MEMBER_DETAILS_CREATION_ERROR);
+			BaseException cause = new BaseException(AuthErrorCode.MEMBER_DETAILS_CREATION_ERROR);
 
 			log.error("createCustomOAuth2User 중 오류가 발생했습니다, socialId: {}", oAuth2Response.getSocialId(), e);
 

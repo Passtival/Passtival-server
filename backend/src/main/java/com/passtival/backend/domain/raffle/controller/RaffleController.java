@@ -4,6 +4,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 
 import com.passtival.backend.domain.member.service.MemberRaffleService;
 import com.passtival.backend.domain.raffle.model.response.MemberRaffleProfileResponse;
@@ -30,11 +31,11 @@ public class RaffleController {
 	@Operation(summary = "회원 응모권 정보 조회",
 		description = "로그인한 회원의 응모권 정보를 조회합니다. (응모권 개수, 응모권 사용 내역 등)",
 		security = @SecurityRequirement(name = "jwtAuth"))
-	public BaseResponse<MemberRaffleProfileResponse> getMemberRaffleProfile(
+	public ResponseEntity<BaseResponse<MemberRaffleProfileResponse>> getMemberRaffleProfile(
 		@AuthenticationPrincipal CustomMemberDetails member) {
 
 		MemberRaffleProfileResponse response = memberRaffleService.getMemberRaffleProfile(member.getMemberId());
-		return BaseResponse.success(response);
+		return ResponseEntity.ok(BaseResponse.success(response));
 
 	}
 

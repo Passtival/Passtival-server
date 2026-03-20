@@ -1,5 +1,6 @@
 package com.passtival.backend.domain.matching.service;
 
+import com.passtival.backend.global.exception.code.GlobalErrorCode;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -20,7 +21,6 @@ import com.passtival.backend.domain.matching.model.entity.MatchingApplicant;
 import com.passtival.backend.domain.matching.model.enums.Gender;
 import com.passtival.backend.domain.matching.repository.MatchingApplicantRepository;
 import com.passtival.backend.domain.matching.repository.MatchingRepository;
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
 import lombok.RequiredArgsConstructor;
@@ -179,7 +179,7 @@ public class MatchingScheduler {
 			return matchings;
 
 		} catch (Exception e) {
-			throw new BaseException(BaseResponseStatus.INTERNAL_SERVER_ERROR);
+			throw new BaseException(GlobalErrorCode.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -191,7 +191,7 @@ public class MatchingScheduler {
 		try {
 			matchingRepository.saveAll(matchings);
 		} catch (Exception e) {
-			throw new BaseException(BaseResponseStatus.DATABASE_ERROR);
+			throw new BaseException(GlobalErrorCode.DATABASE_ERROR);
 		}
 	}
 

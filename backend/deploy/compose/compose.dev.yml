@@ -1,0 +1,77 @@
+# ==========================================================
+# compose.dev.yml
+# ----------------------------------------------------------
+# 목적:
+#   - 개발 환경(dev) 전용 Docker Compose override 파일
+#   - compose.yml 위에 덮어써서 로컬/개발 환경 구성을 완성한다.
+#
+# 사용 방식:
+#   - 반드시 compose.yml 과 함께 사용한다.
+#   - 예:
+#       docker compose -f deploy/compose/compose.yml -f deploy/compose/compose.dev.yml up -d
+#
+# 포함 대상:
+#   - mysql 개발용 컨테이너
+#   - backend의 dev 환경변수
+#   - 로컬 포트 노출
+#   - 개발 편의를 위한 volume, env_file, 설정값
+#
+# dev 환경 특징:
+#   - MySQL은 Docker Compose로 고정 실행한다.
+#   - backend는 mysql 서비스명을 통해 DB에 연결한다.
+#   - 로컬 개발/테스트에 필요한 설정을 우선한다.
+#
+# 주의:
+#   - compose.dev.yml 단독 실행보다 compose.yml과 병합 실행을 전제로 한다.
+#   - backend의 DB 접속 정보는 외부 DB가 아닌 mysql 컨테이너를 바라보도록 설정한다.
+#   - depends_on 은 시작 순서 보조용이며, DB readiness 자체를 보장하지는 않는다.
+#
+# 설계 의도:
+#   - 개발 환경에서는 backend + mysql 조합을 단순하게 유지하면서도,
+#     운영 환경과의 차이를 override 파일 수준에서 명확히 관리한다.
+# ==========================================================
+
+services:
+  backend:
+    container_name: passtival-backend-dev
+    env_file:
+      - ../env/.env.dev
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: passtival-db
+      DB_URL: jdbc:mysql://mysql:3306/passtival-db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.0
+    container_name: passtival-mysql-dev
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: passtival-db
+      MYSQL_USER: ${DB_USERNAME:-passtival}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-passtival123}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root1234}
+      TZ: Asia/Seoul
+    ports:
+      - "3306:3306"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data-dev:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+
+volumes:
+  mysql-data-dev:

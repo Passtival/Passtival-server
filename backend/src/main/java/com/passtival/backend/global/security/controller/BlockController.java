@@ -1,8 +1,11 @@
 package com.passtival.backend.global.security.controller;
 
+import java.net.URI;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.view.RedirectView;
 
 import io.swagger.v3.oas.annotations.Hidden;
 
@@ -19,7 +22,9 @@ public class BlockController {
 		"oauth2/authorization/kakao/**/sitemap.xml.",
 		"oauth2/authorization/kakao/**/robots.txt"
 	})
-	public RedirectView blockBots() {
-		return new RedirectView("https://mydcaf.tistory.com/");
+	public ResponseEntity<Void> blockBots() {
+		return ResponseEntity.status(HttpStatus.FOUND)
+			.location(URI.create("https://mydcaf.tistory.com/"))
+			.build();
 	}
 }

@@ -1,15 +1,17 @@
 package com.passtival.backend.domain.authenticationkey.controller.test;
 
+import com.passtival.backend.global.exception.code.GlobalErrorCode;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 
 import com.passtival.backend.domain.authenticationkey.repository.AuthenticationKeyRepository;
 import com.passtival.backend.domain.authenticationkey.service.AuthenticationKeyImportService;
 import com.passtival.backend.global.common.BaseResponse;
-import com.passtival.backend.global.common.BaseResponseStatus;
+import com.passtival.backend.global.exception.BaseException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,7 +36,7 @@ public class AuthenticationKeyTestController {
 		description = "요청한 row 수만큼 인증키 엑셀 import를 수동 실행합니다. (실제 읽기 수 = min(요청값, 엑셀 행 수))"
 	)
 	@PostMapping("/import")
-	public BaseResponse<ImportResult> importAuthenticationKeys(@Valid @RequestBody ImportRequest request) {
+	public ResponseEntity<BaseResponse<ImportResult>> importAuthenticationKeys(@Valid @RequestBody ImportRequest request) {
 		try {
 			long beforeCount = authenticationKeyRepository.count();
 			long startNanos = System.nanoTime();
@@ -45,17 +47,23 @@ public class AuthenticationKeyTestController {
 			long afterCount = authenticationKeyRepository.count();
 			long insertedCount = afterCount - beforeCount;
 
-			return BaseResponse.success(
-				ImportResult.builder()
-					.requestedRows(request.getRowsToImport())
-					.beforeCount(beforeCount)
-					.afterCount(afterCount)
-					.insertedCount(insertedCount)
-					.elapsedMs(elapsedMs)
-					.build()
+				return ResponseEntity.ok(BaseResponse.success(
+					ImportResult.builder()
+						.requestedRows(request.getRowsToImport())
+						.beforeCount(beforeCount)
+						.afterCount(afterCount)
+						.insertedCount(insertedCount)
+						.elapsedMs(elapsedMs)
+						.build()
+				));
+			} catch (BaseException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new BaseException(
+					GlobalErrorCode.INTERNAL_SERVER_ERROR,
+					"인증키 import 실패: " + e.getMessage(),
+				e
 			);
-		} catch (Exception e) {
-			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "인증키 import 실패: " + e.getMessage());
 		}
 	}
 
@@ -64,7 +72,7 @@ public class AuthenticationKeyTestController {
 		description = "테스트를 위해 authentication_key 테이블의 전체 데이터를 삭제합니다."
 	)
 	@DeleteMapping("/all")
-	public BaseResponse<DeleteResult> deleteAllAuthenticationKeys() {
+	public ResponseEntity<BaseResponse<DeleteResult>> deleteAllAuthenticationKeys() {
 		try {
 			long beforeCount = authenticationKeyRepository.count();
 			long startNanos = System.nanoTime();
@@ -74,16 +82,22 @@ public class AuthenticationKeyTestController {
 			long elapsedMs = (System.nanoTime() - startNanos) / 1_000_000;
 			long afterCount = authenticationKeyRepository.count();
 
-			return BaseResponse.success(
-				DeleteResult.builder()
-					.beforeCount(beforeCount)
-					.afterCount(afterCount)
-					.deletedCount(beforeCount - afterCount)
-					.elapsedMs(elapsedMs)
-					.build()
+				return ResponseEntity.ok(BaseResponse.success(
+					DeleteResult.builder()
+						.beforeCount(beforeCount)
+						.afterCount(afterCount)
+						.deletedCount(beforeCount - afterCount)
+						.elapsedMs(elapsedMs)
+						.build()
+				));
+			} catch (BaseException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new BaseException(
+					GlobalErrorCode.INTERNAL_SERVER_ERROR,
+					"인증키 전체 삭제 실패: " + e.getMessage(),
+				e
 			);
-		} catch (Exception e) {
-			return BaseResponse.fail(BaseResponseStatus.INTERNAL_SERVER_ERROR, "인증키 전체 삭제 실패: " + e.getMessage());
 		}
 	}
 

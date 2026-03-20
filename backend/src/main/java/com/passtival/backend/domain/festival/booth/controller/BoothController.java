@@ -1,6 +1,7 @@
 package com.passtival.backend.domain.festival.booth.controller;
 
 import java.util.List;
+import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -66,11 +67,11 @@ public class BoothController {
 		}
 	)
 	@GetMapping("booths/cursor")
-	public BaseResponse<?> getBoothsCursor(
+	public ResponseEntity<BaseResponse<?>> getBoothsCursor(
 		@RequestParam(required = false) Long cursor,
 		@RequestParam(defaultValue = "5") int size
 	) {
-		return BaseResponse.success(boothService.getBooths(cursor, size));
+		return ResponseEntity.ok(BaseResponse.success(boothService.getBooths(cursor, size)));
 	}
 
 	/**
@@ -100,9 +101,9 @@ public class BoothController {
 		}
 	)
 	@GetMapping("/booths/{boothId}")
-	public BaseResponse<BoothDetailResponse> getBoothDetail(@PathVariable Long boothId) {
+	public ResponseEntity<BaseResponse<BoothDetailResponse>> getBoothDetail(@PathVariable Long boothId) {
 		BoothDetailResponse boothDetail = boothService.getBoothDetailById(boothId);
-		return BaseResponse.success(boothDetail);
+		return ResponseEntity.ok(BaseResponse.success(boothDetail));
 	}
 
 	/**
@@ -132,9 +133,9 @@ public class BoothController {
 		}
 	)
 	@GetMapping("/{boothId}/menus")
-	public BaseResponse<List<MenuResponse>> getMenusByBoothId(@PathVariable Long boothId) {
+	public ResponseEntity<BaseResponse<List<MenuResponse>>> getMenusByBoothId(@PathVariable Long boothId) {
 		List<MenuResponse> menus = boothService.getMenusByBoothId(boothId);
-		return BaseResponse.success(menus);
+		return ResponseEntity.ok(BaseResponse.success(menus));
 	}
 
 	@Operation(
@@ -161,8 +162,8 @@ public class BoothController {
 		}
 	)
 	@GetMapping("/{boothId}/activities")
-	public BaseResponse<List<ActivityResponse>> getActivitiesByBoothId(@PathVariable Long boothId) {
+	public ResponseEntity<BaseResponse<List<ActivityResponse>>> getActivitiesByBoothId(@PathVariable Long boothId) {
 		List<ActivityResponse> activities = boothService.getActivitiesByBoothId(boothId);
-		return BaseResponse.success(activities);
+		return ResponseEntity.ok(BaseResponse.success(activities));
 	}
 }

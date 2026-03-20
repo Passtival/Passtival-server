@@ -1,5 +1,6 @@
 package com.passtival.backend.domain.festival.performance.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,11 +56,11 @@ public class PerformanceController {
 		}
 	)
 	@GetMapping("/performances/{performanceId}")
-	public BaseResponse<PerformanceDetailResponse> getPerformanceById(
+	public ResponseEntity<BaseResponse<PerformanceDetailResponse>> getPerformanceById(
 		@PathVariable Long performanceId
 	) {
 		PerformanceDetailResponse detail = performanceService.getPerformanceById(performanceId);
-		return BaseResponse.success(detail);
+		return ResponseEntity.ok(BaseResponse.success(detail));
 	}
 
 	@Operation(
@@ -77,8 +78,8 @@ public class PerformanceController {
 		}
 	)
 	@GetMapping("/performances/closest")
-	public BaseResponse<?> getPerformancesByClosestTime() {
-		return BaseResponse.success(performanceService.getPerformancesByClosestTime());
+	public ResponseEntity<BaseResponse<?>> getPerformancesByClosestTime() {
+		return ResponseEntity.ok(BaseResponse.success(performanceService.getPerformancesByClosestTime()));
 	}
 
 }

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 
 import com.passtival.backend.domain.matching.model.response.MatchingResponse;
 import com.passtival.backend.domain.matching.service.MatchingService;
@@ -38,9 +39,9 @@ public class MatchingController {
 	)
 	@PostMapping()
 	@PreAuthorize("hasRole('USER')")
-	public BaseResponse<Void> applyMatching(@AuthenticationPrincipal CustomMemberDetails memberDetails) {
+	public ResponseEntity<BaseResponse<Void>> applyMatching(@AuthenticationPrincipal CustomMemberDetails memberDetails) {
 		matchingService.applyMatching(memberDetails.getMemberId());
-		return BaseResponse.success(null);
+		return ResponseEntity.ok(BaseResponse.success(null));
 	}
 
 	/**
@@ -56,9 +57,9 @@ public class MatchingController {
 		security = @SecurityRequirement(name = "jwtAuth"))
 	@GetMapping("/result")
 	@PreAuthorize("hasRole('USER')")
-	public BaseResponse<MatchingResponse> getMatchingResult(
+	public ResponseEntity<BaseResponse<MatchingResponse>> getMatchingResult(
 		@AuthenticationPrincipal CustomMemberDetails memberDetails) {
 		MatchingResponse matchingResponse = matchingService.getMatchingResult(memberDetails.getMemberId());
-		return BaseResponse.success(matchingResponse);
+		return ResponseEntity.ok(BaseResponse.success(matchingResponse));
 	}
 }

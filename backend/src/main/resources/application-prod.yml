@@ -67,6 +67,15 @@ admin:
 
 MATCHING_BLOCK: ${MATCHING_BLOCK}
 
+# Actuator 설정 [Prod]
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
 
 seed:
   auth-keys-path: "file:/app/deploy/authentication-keys.xlsx"

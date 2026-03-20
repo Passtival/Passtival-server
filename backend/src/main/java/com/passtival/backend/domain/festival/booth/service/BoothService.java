@@ -1,5 +1,6 @@
 package com.passtival.backend.domain.festival.booth.service;
 
+import com.passtival.backend.global.exception.code.FestivalErrorCode;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +19,6 @@ import com.passtival.backend.domain.festival.booth.model.response.CursorPageResp
 import com.passtival.backend.domain.festival.booth.repository.BoothRepository;
 import com.passtival.backend.domain.festival.menu.model.entity.Menu;
 import com.passtival.backend.domain.festival.menu.model.response.MenuResponse;
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
 import lombok.RequiredArgsConstructor;
@@ -37,7 +37,7 @@ public class BoothService {
 		List<Booth> booths = boothRepository.findPageByCursor(cursorId, pageable);
 
 		if (booths.isEmpty()) {
-			throw new BaseException(BaseResponseStatus.BOOTH_NOT_FOUND); // 부스 없음 예외
+			throw new BaseException(FestivalErrorCode.BOOTH_NOT_FOUND); // 부스 없음 예외
 		}
 
 		Long nextCursor = booths.get(booths.size() - 1).getLocation_id();
@@ -56,7 +56,7 @@ public class BoothService {
 	public BoothDetailResponse getBoothDetailById(Long boothId) {
 		Optional<Booth> optBooth = boothRepository.findById(boothId);
 		if (optBooth.isEmpty()) {
-			throw new BaseException(BaseResponseStatus.BOOTH_NOT_FOUND);
+			throw new BaseException(FestivalErrorCode.BOOTH_NOT_FOUND);
 		}
 		return BoothDetailResponse.of(optBooth.get());
 	}
@@ -65,7 +65,7 @@ public class BoothService {
 	public List<MenuResponse> getMenusByBoothId(Long boothId) {
 		Optional<Booth> boothOpt = boothRepository.findById(boothId);
 		if (boothOpt.isEmpty()) {
-			throw new BaseException(BaseResponseStatus.BOOTH_NOT_FOUND);
+			throw new BaseException(FestivalErrorCode.BOOTH_NOT_FOUND);
 		}
 
 		List<Menu> menus = boothOpt.get().getMenus();
@@ -84,7 +84,7 @@ public class BoothService {
 	public List<ActivityResponse> getActivitiesByBoothId(Long boothId) {
 		Optional<Booth> boothOpt = boothRepository.findById(boothId);
 		if (boothOpt.isEmpty()) {
-			throw new BaseException(BaseResponseStatus.BOOTH_NOT_FOUND);
+			throw new BaseException(FestivalErrorCode.BOOTH_NOT_FOUND);
 		}
 
 		List<Activity> activities = boothOpt.get().getActivities();

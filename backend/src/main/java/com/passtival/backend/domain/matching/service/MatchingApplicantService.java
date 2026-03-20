@@ -1,5 +1,7 @@
 package com.passtival.backend.domain.matching.service;
 
+import com.passtival.backend.global.exception.code.MemberErrorCode;
+import com.passtival.backend.global.exception.code.MatchingErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,7 +12,6 @@ import com.passtival.backend.domain.matching.model.response.MatchingApplicantRes
 import com.passtival.backend.domain.matching.repository.MatchingApplicantRepository;
 import com.passtival.backend.domain.member.model.entity.Member;
 import com.passtival.backend.domain.member.repository.MemberRepository;
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ public class MatchingApplicantService {
 	@Transactional(isolation = Isolation.REPEATABLE_READ)
 	public void patchProfile(Long memberId, MatchingApplicantPatchRequest request) {
 		MatchingApplicant matchingApplicant = matchingApplicantRepository.findById(memberId)
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new BaseException(MemberErrorCode.MEMBER_NOT_FOUND));
 
 		// 1. 사전 검증 - 모든 변경사항을 먼저 검증
 		validateAllChanges(matchingApplicant, request);
@@ -86,10 +87,10 @@ public class MatchingApplicantService {
 	private void validateFinalState(MatchingApplicant matchingApplicant) {
 
 		if (matchingApplicant.getGender() == null) {
-			throw new BaseException(BaseResponseStatus.GENDER_REQUIRED);
+			throw new BaseException(MatchingErrorCode.GENDER_REQUIRED);
 		}
 		if (isContactInfoEmpty(matchingApplicant)) {
-			throw new BaseException(BaseResponseStatus.CONTACT_INFO_REQUIRED);
+			throw new BaseException(MatchingErrorCode.CONTACT_INFO_REQUIRED);
 		}
 	}
 
@@ -101,7 +102,7 @@ public class MatchingApplicantService {
 	private void validatePhoneNumber(String phoneNumber, Long currentMemberId) {
 		if (phoneNumber != null && !phoneNumber.isEmpty() &&
 			matchingApplicantRepository.existsByPhoneNumberAndMemberIdNot(phoneNumber, currentMemberId)) {
-			throw new BaseException(BaseResponseStatus.DUPLICATE_PHONE_NUMBER);
+			throw new BaseException(MatchingErrorCode.DUPLICATE_PHONE_NUMBER);
 		}
 	}
 
@@ -113,7 +114,7 @@ public class MatchingApplicantService {
 	private void validateInstagramId(String instagramId, Long currentMemberId) {
 		if (instagramId != null && !instagramId.isEmpty() &&
 			matchingApplicantRepository.existsByInstagramIdAndMemberIdNot(instagramId, currentMemberId)) {
-			throw new BaseException(BaseResponseStatus.DUPLICATE_INSTAGRAM_ID);
+			throw new BaseException(MatchingErrorCode.DUPLICATE_INSTAGRAM_ID);
 		}
 	}
 
@@ -135,7 +136,7 @@ public class MatchingApplicantService {
 	 */
 	public MatchingApplicant getMemberById(Long memberId) {
 		return matchingApplicantRepository.findById(memberId)
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new BaseException(MemberErrorCode.MEMBER_NOT_FOUND));
 	}
 
 	/**
@@ -145,7 +146,7 @@ public class MatchingApplicantService {
 	 */
 	public MatchingApplicantResponse getProfile(Long memberId) {
 		MatchingApplicant matchingApplicant = matchingApplicantRepository.findById(memberId)
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new BaseException(MemberErrorCode.MEMBER_NOT_FOUND));
 
 		return MatchingApplicantResponse.builder()
 			.MemberId(matchingApplicant.getMemberId())
@@ -162,7 +163,7 @@ public class MatchingApplicantService {
 
 		// 1. Member 엔티티 조회
 		Member member = memberRepository.findById(memberId)
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new BaseException(MemberErrorCode.MEMBER_NOT_FOUND));
 
 		// 2. MatchingApplicant가 존재 여부 확인
 		if (matchingApplicantRepository.existsByMemberId(memberId)) {

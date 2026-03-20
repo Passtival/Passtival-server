@@ -1,5 +1,6 @@
 package com.passtival.backend.domain.lostfound.service;
 
+import com.passtival.backend.global.exception.code.LostFoundErrorCode;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -7,7 +8,6 @@ import org.springframework.stereotype.Service;
 import com.passtival.backend.domain.lostfound.model.entity.FoundItem;
 import com.passtival.backend.domain.lostfound.model.response.FoundItemResponse;
 import com.passtival.backend.domain.lostfound.repository.LnfRepository;
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class LnfService {
 
 	public FoundItemResponse getFoundItemById(Long id) {
 		FoundItem foundItem = lnfRepository.findById(id)
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.FOUND_ITEM_NOT_FOUND));
+			.orElseThrow(() -> new BaseException(LostFoundErrorCode.FOUND_ITEM_NOT_FOUND));
 		return FoundItemResponse.of(foundItem);
 	}
 
@@ -30,7 +30,7 @@ public class LnfService {
 		List<FoundItem> foundItems = lnfRepository.findAllByOrderByCreatedAtDesc();
 
 		if (foundItems.isEmpty()) {
-			throw new BaseException(BaseResponseStatus.FOUND_ITEM_NOT_FOUND);
+			throw new BaseException(LostFoundErrorCode.FOUND_ITEM_NOT_FOUND);
 		}
 
 		return foundItems.stream()

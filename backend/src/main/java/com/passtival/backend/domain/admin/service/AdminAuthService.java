@@ -1,11 +1,11 @@
 package com.passtival.backend.domain.admin.service;
 
+import com.passtival.backend.global.exception.code.AdminErrorCode;
 import org.springframework.stereotype.Service;
 
 import com.passtival.backend.domain.admin.model.entity.Admin;
 import com.passtival.backend.domain.admin.model.request.AdminLoginRequest;
 import com.passtival.backend.domain.admin.repository.AdminRepository;
-import com.passtival.backend.global.common.BaseResponseStatus;
 import com.passtival.backend.global.exception.BaseException;
 import com.passtival.backend.global.security.model.token.TokenResponse;
 import com.passtival.backend.global.security.util.JwtUtil;
@@ -22,11 +22,11 @@ public class AdminAuthService {
 	public TokenResponse login(AdminLoginRequest requestDto) {
 		// 관리자 조회
 		Admin admin = adminRepository.findByLoginId(requestDto.getAdminId())
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.ADMIN_LOGIN_FAILED));
+			.orElseThrow(() -> new BaseException(AdminErrorCode.ADMIN_LOGIN_FAILED));
 
 		// 인증키(다른 로그인 기준 password) 검증
 		if (!requestDto.getAuthKey().equals(admin.getPassword())) {
-			throw new BaseException(BaseResponseStatus.ADMIN_LOGIN_FAILED);
+			throw new BaseException(AdminErrorCode.ADMIN_LOGIN_FAILED);
 		}
 
 		// JWT 토큰 생성
