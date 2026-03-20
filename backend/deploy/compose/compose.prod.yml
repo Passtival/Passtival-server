@@ -45,6 +45,8 @@ services:
       SPRING_PROFILES_ACTIVE: prod
     ports:
       - "127.0.0.1:8080:8080"
+    volumes:
+      - /home/ubuntu/deploy/backend:/app/deploy:ro
 
   # 권장안(B): 기본은 backend 단독(외부 DB/RDS 연결).
   # 현재 임시로 MySQL이 필요하면 --profile with-mysql 로 함께 실행.
