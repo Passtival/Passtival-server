@@ -37,7 +37,9 @@ Passtival-server/
 - 배포 서버: `~/deploy/.env` (실행 시 `ENV_FILE_PATH=../.env` 지정)
 - 마운트 경로: 로컬 기본 `./deploy`, 운영 `/home/ubuntu/deploy/backend` (실행 시 `DEPLOY_MOUNT_PATH` 지정)
 - 이미지 태그: `IMAGE_TAG` (운영은 GitHub Actions에서 커밋 SHA 전달)
-- 필수 예시: `DOCKER_USERNAME`, `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `SEED_AUTH_KEYS_PATH`, JWT/OAuth/AWS 관련 키들
+- 필수 예시: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `SEED_AUTH_KEYS_PATH`, JWT/OAuth/AWS 관련 키들
+- `DOCKER_USERNAME`은 `.env`에 두지 않고 배포 실행 시 외부 주입합니다(GitHub Actions/향후 SSM).
+- `DOCKER_PASSWORD`는 런타임 env가 아니라 GitHub Actions Docker 로그인 secret 용도로만 사용합니다.
 - 권장값: `SEED_AUTH_KEYS_PATH=file:/app/deploy/authentication-keys.xlsx` (로컬은 `classpath:static/authentication-keys.xlsx` 가능)
 
 ## 5. 배포 준비
@@ -54,7 +56,7 @@ Passtival-server/
 배포 서버(`~/deploy/.env` 명시):
 
 ```bash
-ENV_FILE_PATH=../.env DEPLOY_MOUNT_PATH=/home/ubuntu/deploy/backend IMAGE_TAG=<GITHUB_SHA> DEPLOY_MODE=prod ./run.sh
+DOCKER_USERNAME=<DOCKERHUB_USERNAME> ENV_FILE_PATH=../.env DEPLOY_MOUNT_PATH=/home/ubuntu/deploy/backend IMAGE_TAG=<GITHUB_SHA> DEPLOY_MODE=prod ./run.sh
 ```
 
 상태 확인:

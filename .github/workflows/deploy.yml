@@ -58,4 +58,4 @@ jobs:
             cd ~/deploy/backend
             chmod +x run.sh
             test -f ../.env
-            ENV_FILE_PATH=../.env DEPLOY_MOUNT_PATH=/home/ubuntu/deploy/backend IMAGE_TAG=${{ github.sha }} DEPLOY_MODE=prod ./run.sh
+            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} ENV_FILE_PATH=../.env DEPLOY_MOUNT_PATH=/home/ubuntu/deploy/backend IMAGE_TAG=${{ github.sha }} DEPLOY_MODE=prod ./run.sh

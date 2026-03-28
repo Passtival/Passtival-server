@@ -25,6 +25,12 @@ if [[ "$DEPLOY_MODE" != "local" && "$DEPLOY_MODE" != "prod" ]]; then
   exit 1
 fi
 
+if [[ "$DEPLOY_MODE" == "prod" && -z "${DOCKER_USERNAME:-}" ]]; then
+  echo "❌ [운영 모드에서는 DOCKER_USERNAME 환경변수가 필요합니다.]"
+  echo "   예시: DOCKER_USERNAME=<dockerhub-user> DEPLOY_MODE=prod ./run.sh"
+  exit 1
+fi
+
 echo "📄 [사용중인 env 파일: $ENV_FILE_PATH]"
 echo "🧭 [실행 모드: $DEPLOY_MODE]"
 echo "🧹 [존재하는 컨테이너 중지 및 삭제]"

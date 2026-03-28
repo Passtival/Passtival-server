@@ -1,6 +1,6 @@
 services:
   backend:
-    image: ${DOCKER_USERNAME}/passtival-spring:${IMAGE_TAG:-latest}
+    image: ${DOCKER_USERNAME:-local}/passtival-spring:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: Dockerfile
