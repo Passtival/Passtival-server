@@ -1,94 +1,88 @@
 # 🐬 Docker 가이드
-` 추가할 내용, 정정 사항이 있으면 PR을 통해 알려주세요!`
-### 1. **Docker 환경 사용법**
+`추가할 내용, 정정 사항이 있으면 PR을 통해 알려주세요!`
 
-Docker를 사용하여 Passtival 서버를 실행하는 방법을 설명합니다.   
-Docker는 컨테이너화된 애플리케이션을 쉽게 배포하고 관리할 수 있는 플랫폼입니다.
----
+## 1. Docker 환경 사용법
+Passtival 백엔드의 운영 배포는 `backend/docker-compose.yml` 단일 파일을 기준으로 수행합니다.
 
-### 2. **Docker 설치**   
-Docker를 설치하려면 [Docker 공식 웹사이트](https://www.docker.com/get-started)에서 설치 가이드를 참고하세요.   
-    운영 체제에 맞는 Docker Desktop을 다운로드 하고 설치합니다.
-    설치 후 Docker가 정상적으로 작동하는지 확인하려면 다음 명령어를 실행합니다:
+- Compose는 애플리케이션(`backend`) 컨테이너만 관리합니다.
+- MySQL은 Compose 외부(별도 운영 인프라)에서 관리합니다.
+- 애플리케이션은 `DB_URL` 환경변수로 외부 DB에 연결합니다.
+- Compose는 `ENV_FILE_PATH`를 통해 env 파일 경로를 외부 주입합니다(기본값 `.env`).
+- Compose는 `DEPLOY_MOUNT_PATH`로 `/app/deploy` 마운트 경로를 외부 주입합니다(기본값 `./deploy`).
+- Compose 이미지 태그는 `IMAGE_TAG`로 주입합니다(기본값 `latest`).
+- 실행 스크립트는 `DEPLOY_MODE`로 동작을 분리합니다(`local` 기본, `prod` 운영).
 
-    docker --version
-    docker compose version
+## 2. Docker 설치
+[Docker 공식 웹사이트](https://www.docker.com/get-started)의 가이드를 참고해 설치합니다.
 
----
-### 3. **프로젝트 구조**
-프로젝트 구조는 다음과 같습니다.
+```bash
+docker --version
+docker compose version
+```
 
-    Passtival-server/
-    ├── backend/
-    │   ├── Dockerfile
-    │   ├── docker-compose.dev.yml
-    │   ├── docker-compose.prod.yml
-    │   ├── .env.example
-    │   └── src/
-    
-> .env 파일은 .env.example을 복사해서 개인 환경에 맞게 설정하세요.
----
+## 3. 프로젝트 구조
+```text
+Passtival-server/
+├── backend/
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   ├── run.sh
+│   └── src/
+```
 
-### 4. .env 설정
-backend/.env.example 파일을 참고하여, 동일한 위치에 .env 파일을 생성합니다:
+## 4. 환경변수 설정
+환경변수 파일은 실행 환경별로 다음 위치를 사용합니다.
 
-    DB_USERNAME=passtival_user
-    DB_PASSWORD=your_password
-    DB_ROOT_PASSWORD=your_root_password
+- 로컬 기본값: `backend/.env`
+- 배포 서버: `~/deploy/.env` (실행 시 `ENV_FILE_PATH=../.env` 지정)
+- 마운트 경로: 로컬 기본 `./deploy`, 운영 `/home/ubuntu/deploy/backend` (실행 시 `DEPLOY_MOUNT_PATH` 지정)
+- 이미지 태그: `IMAGE_TAG` (운영은 GitHub Actions에서 커밋 SHA 전달)
+- 필수 예시: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `SEED_AUTH_KEYS_PATH`, JWT/OAuth/AWS 관련 키들
+- `DOCKER_USERNAME`은 `.env`에 두지 않고 배포 실행 시 외부 주입합니다(GitHub Actions/향후 SSM).
+- `DOCKER_PASSWORD`는 런타임 env가 아니라 GitHub Actions Docker 로그인 secret 용도로만 사용합니다.
+- 권장값: `SEED_AUTH_KEYS_PATH=file:/app/deploy/authentication-keys.xlsx` (로컬은 `classpath:static/authentication-keys.xlsx` 가능)
 
-    REDIS_HOST=redis
-    REDIS_PORT=6379
-    REDIS_PASSWORD=your_redis_password
+## 5. 배포 준비
+- GitHub Actions에서 애플리케이션 이미지를 빌드/푸시합니다.
+- 서버에는 `docker-compose.yml`, `run.sh`, `~/deploy/.env` 파일이 준비되어 있어야 합니다.
 
-    JWT_SECRET_KEY=your_jwt_secret
-    JWT_ACCESS_EXPIRATION=3600000
-    JWT_REFRESH_EXPIRATION=1209600000
+## 6. Docker Compose 실행
+로컬(`.env` 기본값):
 
-    SPRING_PROFILES_ACTIVE=dev
----
+```bash
+./run.sh
+```
 
-### 5. 어플리케이션 빌드
-Docker는 .jar 파일을 사용하므로 먼저 Spring Boot 프로젝트를 빌드해야 합니다:
+배포 서버(`~/deploy/.env` 명시):
 
-    cd backend
-    ./gradlew clean build -x test
-
----
-
-### 6. Docker Compose 실행
-로컬 개발 환경 실행 (dev):
-
-    docker compose -f docker-compose.dev.yml up -d
+```bash
+DOCKER_USERNAME=<DOCKERHUB_USERNAME> ENV_FILE_PATH=../.env DEPLOY_MOUNT_PATH=/home/ubuntu/deploy/backend IMAGE_TAG=<GITHUB_SHA> DEPLOY_MODE=prod ./run.sh
+```
 
 상태 확인:
 
-    docker ps
+```bash
+docker compose --env-file "${ENV_FILE_PATH:-.env}" -f docker-compose.yml ps
+```
 
-### 7. Docker Compose 종료
-종료하려면 다음 명령어를 실행합니다:
+## 7. Docker Compose 종료
+```bash
+docker compose --env-file "${ENV_FILE_PATH:-.env}" -f docker-compose.yml down
+```
 
-    docker compose -f docker-compose.dev.yml down
-
-### 8. Docker 기타 명령어
-
-
+## 8. Docker 기타 명령어
 | 명령어 | 설명 |
 |--------|------|
-| `docker compose up -d` | 백그라운드(detached)로 컨테이너 실행 |
-| `docker compose down` | 모든 컨테이너, 네트워크, 볼륨 중지 및 제거 |
-| `docker compose restart` | 모든 컨테이너 재시작 |
-| `docker compose ps` | 현재 실행 중인 컨테이너 목록 확인 |
-| `docker compose logs -f` | 모든 컨테이너의 로그 실시간 출력 (follow 모드) |
-| `docker compose logs -f <서비스명>` | 특정 서비스의 실시간 로그 출력 |
-| `docker compose build` | `Dockerfile`을 기반으로 이미지 수동 빌드 |
-| `docker images` | 현재 로컬에 저장된 이미지 목록 확인 |
-| `docker ps -a` | 모든 컨테이너 (중지된 것 포함) 목록 확인 |
+| `docker compose --env-file "${ENV_FILE_PATH:-.env}" -f docker-compose.yml up -d` | 백그라운드(detached)로 컨테이너 실행 (`DEPLOY_MOUNT_PATH` 미지정 시 `./deploy`, `IMAGE_TAG` 미지정 시 `latest`) |
+| `docker compose --env-file "${ENV_FILE_PATH:-.env}" -f docker-compose.yml down` | 컨테이너 중지 및 제거 |
+| `docker compose --env-file "${ENV_FILE_PATH:-.env}" -f docker-compose.yml restart` | 컨테이너 재시작 |
+| `docker compose --env-file "${ENV_FILE_PATH:-.env}" -f docker-compose.yml ps` | 현재 실행 중인 컨테이너 목록 확인 |
+| `docker compose --env-file "${ENV_FILE_PATH:-.env}" -f docker-compose.yml logs -f backend` | backend 로그 실시간 출력 |
+| `docker compose --env-file "${ENV_FILE_PATH:-.env}" -f docker-compose.yml build` | `Dockerfile`을 기반으로 이미지 빌드 |
+| `docker images` | 현재 로컬 이미지 목록 확인 |
+| `docker ps -a` | 전체 컨테이너 목록 확인(중지 포함) |
 | `docker stop <컨테이너ID>` | 특정 컨테이너 중지 |
 | `docker rm <컨테이너ID>` | 특정 컨테이너 삭제 |
-| `docker exec -it <컨테이너명> bash` | 컨테이너 내부로 bash 셸 접속 |
-| `docker exec -it <컨테이너명> redis-cli -a <비밀번호>` | Redis CLI 접속 (비밀번호 포함) |
-| `docker exec -it <컨테이너명> mysql -u root -p` | MySQL 접속 (비밀번호는 입력 후 직접 입력) |
-| `docker volume ls` | 도커 볼륨 목록 확인 |
-| `docker volume rm <볼륨명>` | 특정 도커 볼륨 삭제 |
+| `docker exec -it <컨테이너명> bash` | 컨테이너 내부 bash 접속 |
 | `docker network ls` | 도커 네트워크 목록 확인 |
-| `docker system prune` | 안 쓰는 이미지/컨테이너/네트워크 일괄 정리 (주의!) |
+| `docker system prune` | 미사용 리소스 정리(주의) |
