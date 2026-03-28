@@ -1,0 +1,13 @@
+services:
+  backend:
+    image: ${DOCKER_USERNAME}/passtival-spring:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: passtival-spring-app
+    ports:
+      - "127.0.0.1:8080:8080"
+    env_file:
+      - ${ENV_FILE_PATH:-.env}
+    volumes:
+      - ${DEPLOY_MOUNT_PATH:-./deploy}:/app/deploy
