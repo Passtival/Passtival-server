@@ -70,6 +70,9 @@ public class SecurityConfig {
 			// Swagger UI 및 OpenAPI 문서 (공개)
 			.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
 
+			// 배포 헬스체크 경로 (공개)
+			.requestMatchers("/actuator/health/**").permitAll()
+
 			// 회원가입 완료 API (공개) (소셜 로그인 후 호출)
 			.requestMatchers("/api/me/profile").authenticated()
 			//소셜 로그인 허용
