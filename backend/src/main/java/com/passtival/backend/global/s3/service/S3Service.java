@@ -3,7 +3,9 @@ package com.passtival.backend.global.s3.service;
 import java.net.URL;
 import java.time.Duration;
 import java.util.Date;
+import java.util.UUID;
 
+import com.passtival.backend.global.s3.dto.PresignedUrlResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -25,26 +27,38 @@ public class S3Service {
 	@Value("${cloud.aws.s3.presigned-url.expiration-minutes:10}")
 	private int expirationMinutes;
 
-	public String generatePresignedUrl(String fileName) {
-		// S3 객체 키 생성
-		String objectKey = "images/found/" + fileName;
+    // CloudFront 도메인
+    @Value("${cloud.aws.cloudfront.domain}")
+    private String cloudFrontDomain;
 
-		// Presigned Url 만료 시간 설정
-		Date expiration = new Date(System.currentTimeMillis() + Duration.ofMinutes(expirationMinutes).toMillis());
+    // Presigned URL 생성 (업로드용 - public)
+    public PresignedUrlResponse generatePresignedUrl(String directory, Long id, String originalFileName) {
 
-		// Presigned URL 요청 생성
-		GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, objectKey)
-			.withMethod(HttpMethod.PUT)
-			.withExpiration(expiration);
+        // UUID 파일명
+        String uniqueFileName = UUID.randomUUID() + "_" + originalFileName;
 
-		// Presigned URL 생성
-		URL presignedUrl = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
+        // objectKey
+        String objectKey = String.format("public/%s/%d/%s", directory, id, uniqueFileName);
 
-		return presignedUrl.toString();
-	}
+        // 만료 시간
+        Date expiration = new Date(System.currentTimeMillis()
+                + Duration.ofMinutes(expirationMinutes).toMillis());
 
-	public String getUploadUrl(String fileName) {
-		return generatePresignedUrl(fileName);
-	}
+        GeneratePresignedUrlRequest request =
+                new GeneratePresignedUrlRequest(bucketName, objectKey)
+                        .withMethod(HttpMethod.PUT)
+                        .withExpiration(expiration);
+
+        URL presignedUrl = amazonS3.generatePresignedUrl(request);
+
+        // CloudFront URL
+        String fileUrl = cloudFrontDomain + "/" + objectKey;
+
+        return new PresignedUrlResponse(
+                presignedUrl.toString(),
+                objectKey,
+                fileUrl
+        );
+    }
 
 }

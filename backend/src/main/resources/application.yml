@@ -41,6 +41,9 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+  docker:
+    compose:
+      enabled: false
 
 server:
   forward-headers-strategy: native
@@ -56,6 +59,8 @@ cloud:
       bucket: ${AWS_S3_BUCKET}
       presigned-url:
         expiration-minutes: 10 # presigned URL 만료 시간 (분 단위)
+    cloudfront:
+      domain: ${CLOUDFRONT_DOMAIN}
 
 discord:
   webhook:
