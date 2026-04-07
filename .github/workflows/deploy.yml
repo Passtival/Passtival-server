@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - main # main에 푸시될 때 실행
+  pull_request:
+    branches:
+      - main
+      - dev
   workflow_dispatch:
 
 permissions:
@@ -32,6 +36,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: gradle
 
       - name: 배포 설정값 검증
         run: |
@@ -50,20 +55,34 @@ jobs:
           chmod +x gradlew
           ./gradlew build -x test
 
+      - name: Docker Buildx 설정
+        if: >
+          (github.event_name == 'push' && github.ref == 'refs/heads/main')
+          || github.event_name == 'workflow_dispatch'
+        uses: docker/setup-buildx-action@v3
+
       - name: Docker Hub 로그인
-        uses: docker/login-action@v2
+        if: >
+          (github.event_name == 'push' && github.ref == 'refs/heads/main')
+          || github.event_name == 'workflow_dispatch'
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: 빌드 및 Docker 이미지 푸시
-        run: |
-          docker build \
-            -t ${{ secrets.DOCKER_USERNAME }}/passtival-spring:${{ github.sha }} \
-            -t ${{ secrets.DOCKER_USERNAME }}/passtival-spring:latest \
-            ./backend
-          docker push ${{ secrets.DOCKER_USERNAME }}/passtival-spring:${{ github.sha }}
-          docker push ${{ secrets.DOCKER_USERNAME }}/passtival-spring:latest
+        if: >
+          (github.event_name == 'push' && github.ref == 'refs/heads/main')
+          || github.event_name == 'workflow_dispatch'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/passtival-spring:${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/passtival-spring:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: AWS 자격 증명 구성 (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
