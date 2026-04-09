@@ -71,6 +71,8 @@ cloud:
       bucket: ${AWS_S3_BUCKET}
       presigned-url:
         expiration-minutes: 10 # presigned URL 만료 시간 (분 단위)
+    cloudfront:
+      domain: ${CLOUDFRONT_DOMAIN}
 
 discord:
   webhook:
