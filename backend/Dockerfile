@@ -13,4 +13,4 @@ ENV LC_ALL=ko_KR.UTF-8
 
 COPY build/libs/backend-0.0.1-SNAPSHOT.jar app.jar
 
-ENTRYPOINT ["java", "-Dfile.encoding=UTF-8", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Dfile.encoding=UTF-8", "-jar", "app.jar"]

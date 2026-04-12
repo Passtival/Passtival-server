@@ -70,6 +70,9 @@ public class SecurityConfig {
 			// Swagger UI 및 OpenAPI 문서 (공개)
 			.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
 
+			// 배포 헬스체크 경로 (공개)
+			.requestMatchers("/actuator/health/**").permitAll()
+
 			// 회원가입 완료 API (공개) (소셜 로그인 후 호출)
 			.requestMatchers("/api/me/profile").authenticated()
 			//소셜 로그인 허용
@@ -98,7 +101,10 @@ public class SecurityConfig {
 			.requestMatchers("/api/member/**").hasRole("USER")
 			.requestMatchers("/login/oauth2/code/kakao").permitAll()
 
-			// 테스트 API - (공개)
+			// 테스트 인증키 API (공개)
+			.requestMatchers("/api/test/authentication-keys/**").permitAll()
+
+			// 테스트 API (관리자)
 			.requestMatchers("/api/test/**").hasRole("ADMIN")
 
 			// s3 업로드 (공개)

@@ -20,7 +20,8 @@ public class AuthenticationKey {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false, unique = true, length = 5)
+	// @Column(nullable = false, unique = true, length = 5)
+	@Column(nullable = false, unique = false, length = 5) // 대용량 데이터 삽입 테스트용으로 unique 제약 조건 제거
 	private String authenticationKey; // 인증 키 값
 
 	@Setter
