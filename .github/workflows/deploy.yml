@@ -44,6 +44,13 @@ jobs:
           chmod +x gradlew
           ./gradlew build -x test
 
+      - name: 빌드 산출물 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: backend/build/libs/*.jar
+          if-no-files-found: error
+
   deploy:
     # 배포 워크플로는 main 브랜치에 푸시되거나 수동으로 트리거될 때만 실행한다.
     if: >
@@ -69,6 +76,15 @@ jobs:
 
       - name: Docker Buildx 설정
         uses: docker/setup-buildx-action@v3
+
+      - name: 빌드 산출물 다운로드
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jar
+          path: backend/build/libs
+
+      - name: JAR 파일 확인
+        run: ls -al backend/build/libs
 
       - name: Docker Hub 로그인
         uses: docker/login-action@v3
