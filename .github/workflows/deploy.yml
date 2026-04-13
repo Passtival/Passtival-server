@@ -185,18 +185,25 @@ jobs:
             exit 1
           fi
           cd "${DEPLOY_DIR}"
+          export SPRING_PROFILES_ACTIVE="\${SPRING_PROFILES_ACTIVE:-prod}"
           DOCKER_USERNAME='${{ secrets.DOCKER_USERNAME }}' \
           ENV_FILE_PATH="${DEPLOY_ENV_PATH}" \
           DEPLOY_MOUNT_PATH="${DEPLOY_MOUNT_PATH}" \
+          SPRING_PROFILES_ACTIVE="\${SPRING_PROFILES_ACTIVE}" \
           IMAGE_TAG="${GITHUB_SHA}" \
           DEPLOY_MODE=prod \
           ./run.sh
-          curl -fsS \
+          if ! curl -fsS \
             --retry $(( ${HEALTHCHECK_TIMEOUT_SECONDS} / 5 )) \
             --retry-delay 5 \
             --retry-connrefused \
             --max-time 5 \
-            "http://127.0.0.1:8080${HEALTHCHECK_PATH}" >/dev/null
+            "http://127.0.0.1:8080${HEALTHCHECK_PATH}" >/dev/null; then
+            echo "Health check failed: http://127.0.0.1:8080${HEALTHCHECK_PATH}"
+            docker ps -a || true
+            docker logs --tail 200 passtival-spring-app || true
+            exit 1
+          fi
           EOF
           )
 
@@ -267,18 +274,25 @@ jobs:
             exit 1
           fi
           cd "${DEPLOY_DIR}"
+          export SPRING_PROFILES_ACTIVE="\${SPRING_PROFILES_ACTIVE:-prod}"
           DOCKER_USERNAME='${{ secrets.DOCKER_USERNAME }}' \
           ENV_FILE_PATH="${DEPLOY_ENV_PATH}" \
           DEPLOY_MOUNT_PATH="${DEPLOY_MOUNT_PATH}" \
+          SPRING_PROFILES_ACTIVE="\${SPRING_PROFILES_ACTIVE}" \
           IMAGE_TAG="${GITHUB_SHA}" \
           DEPLOY_MODE=prod \
           ./run.sh
-          curl -fsS \
+          if ! curl -fsS \
             --retry $(( ${HEALTHCHECK_TIMEOUT_SECONDS} / 5 )) \
             --retry-delay 5 \
             --retry-connrefused \
             --max-time 5 \
-            "http://127.0.0.1:8080${HEALTHCHECK_PATH}" >/dev/null
+            "http://127.0.0.1:8080${HEALTHCHECK_PATH}" >/dev/null; then
+            echo "Health check failed: http://127.0.0.1:8080${HEALTHCHECK_PATH}"
+            docker ps -a || true
+            docker logs --tail 200 passtival-spring-app || true
+            exit 1
+          fi
           EOF
           )
 
