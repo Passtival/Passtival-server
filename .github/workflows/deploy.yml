@@ -150,7 +150,7 @@ jobs:
           RUN_SH_B64: ${{ steps.deploy_files.outputs.run_sh_b64 }}
           COMPOSE_YML_B64: ${{ steps.deploy_files.outputs.compose_yml_b64 }}
         run: |
-          REMOTE_SCRIPT=$(cat <<EOF
+          REMOTE_SCRIPT_B64=$(cat <<EOF | base64 -w 0
           set -euo pipefail
           mkdir -p "${DEPLOY_DIR}"
           printf '%s' '${RUN_SH_B64}' | base64 --decode > "${DEPLOY_DIR}/run.sh"
@@ -180,7 +180,7 @@ jobs:
             --instance-ids "${TARGET_INSTANCE_ID}" \
             --document-name "AWS-RunShellScript" \
             --comment "passtival backend deploy ${GITHUB_SHA} on ${TARGET_INSTANCE_ID}" \
-            --parameters commands="${REMOTE_SCRIPT}" \
+            --parameters commands="printf '%s' '${REMOTE_SCRIPT_B64}' | base64 --decode > /tmp/passtival-deploy.sh && bash /tmp/passtival-deploy.sh" \
             --query "Command.CommandId" \
             --output text)
 
@@ -217,7 +217,7 @@ jobs:
           RUN_SH_B64: ${{ steps.deploy_files.outputs.run_sh_b64 }}
           COMPOSE_YML_B64: ${{ steps.deploy_files.outputs.compose_yml_b64 }}
         run: |
-          REMOTE_SCRIPT=$(cat <<EOF
+          REMOTE_SCRIPT_B64=$(cat <<EOF | base64 -w 0
           set -euo pipefail
           mkdir -p "${DEPLOY_DIR}"
           printf '%s' '${RUN_SH_B64}' | base64 --decode > "${DEPLOY_DIR}/run.sh"
@@ -247,7 +247,7 @@ jobs:
             --instance-ids "${TARGET_INSTANCE_ID}" \
             --document-name "AWS-RunShellScript" \
             --comment "passtival backend deploy ${GITHUB_SHA} on ${TARGET_INSTANCE_ID}" \
-            --parameters commands="${REMOTE_SCRIPT}" \
+            --parameters commands="printf '%s' '${REMOTE_SCRIPT_B64}' | base64 --decode > /tmp/passtival-deploy.sh && bash /tmp/passtival-deploy.sh" \
             --query "Command.CommandId" \
             --output text)
 
