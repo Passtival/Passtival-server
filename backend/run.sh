@@ -53,4 +53,11 @@ else
   "${COMPOSE_CMD[@]}" up --build -d backend
 fi
 
+echo "📦 [컨테이너 내부 프로필 확인]"
+docker exec passtival-spring-app printenv | grep SPRING_PROFILES_ACTIVE || true
+
+echo "🩺 [헬스 체크 확인]"
+curl -i http://127.0.0.1:8080/actuator/health || true
+curl -i http://127.0.0.1:8080/actuator/health/readiness || true
+
 echo "✅ Done."
