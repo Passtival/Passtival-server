@@ -193,14 +193,25 @@ jobs:
           IMAGE_TAG="${GITHUB_SHA}" \
           DEPLOY_MODE=prod \
           ./run.sh
-          if ! curl -fsS \
-            --retry $(( ${HEALTHCHECK_TIMEOUT_SECONDS} / 5 )) \
-            --retry-delay 5 \
-            --retry-connrefused \
-            --max-time 5 \
-            "http://127.0.0.1:8080${HEALTHCHECK_PATH}" >/dev/null; then
-            echo "Health check failed: http://127.0.0.1:8080${HEALTHCHECK_PATH}"
+          HEALTH_URL="http://127.0.0.1:8080${HEALTHCHECK_PATH}"
+          DEADLINE=\$(( \$(date +%s) + ${HEALTHCHECK_TIMEOUT_SECONDS} ))
+          HEALTH_OK=0
+          while [[ \$(date +%s) -lt "\${DEADLINE}" ]]; do
+            STATUS_CODE=\$(curl -sS -o /tmp/passtival-health.out -w '%{http_code}' --max-time 5 "\${HEALTH_URL}" || true)
+            if [[ "\${STATUS_CODE}" == "200" ]]; then
+              HEALTH_OK=1
+              break
+            fi
+            echo "Readiness pending: code=\${STATUS_CODE}"
+            sleep 5
+          done
+          if [[ "\${HEALTH_OK}" -ne 1 ]]; then
+            echo "Health check failed: \${HEALTH_URL}"
+            echo "Last readiness body:"
+            cat /tmp/passtival-health.out || true
+            echo
             docker ps -a || true
+            docker inspect --format 'status={{.State.Status}} exit={{.State.ExitCode}} error={{.State.Error}} started={{.State.StartedAt}} finished={{.State.FinishedAt}}' passtival-spring-app || true
             docker logs --tail 200 passtival-spring-app || true
             exit 1
           fi
@@ -282,14 +293,25 @@ jobs:
           IMAGE_TAG="${GITHUB_SHA}" \
           DEPLOY_MODE=prod \
           ./run.sh
-          if ! curl -fsS \
-            --retry $(( ${HEALTHCHECK_TIMEOUT_SECONDS} / 5 )) \
-            --retry-delay 5 \
-            --retry-connrefused \
-            --max-time 5 \
-            "http://127.0.0.1:8080${HEALTHCHECK_PATH}" >/dev/null; then
-            echo "Health check failed: http://127.0.0.1:8080${HEALTHCHECK_PATH}"
+          HEALTH_URL="http://127.0.0.1:8080${HEALTHCHECK_PATH}"
+          DEADLINE=\$(( \$(date +%s) + ${HEALTHCHECK_TIMEOUT_SECONDS} ))
+          HEALTH_OK=0
+          while [[ \$(date +%s) -lt "\${DEADLINE}" ]]; do
+            STATUS_CODE=\$(curl -sS -o /tmp/passtival-health.out -w '%{http_code}' --max-time 5 "\${HEALTH_URL}" || true)
+            if [[ "\${STATUS_CODE}" == "200" ]]; then
+              HEALTH_OK=1
+              break
+            fi
+            echo "Readiness pending: code=\${STATUS_CODE}"
+            sleep 5
+          done
+          if [[ "\${HEALTH_OK}" -ne 1 ]]; then
+            echo "Health check failed: \${HEALTH_URL}"
+            echo "Last readiness body:"
+            cat /tmp/passtival-health.out || true
+            echo
             docker ps -a || true
+            docker inspect --format 'status={{.State.Status}} exit={{.State.ExitCode}} error={{.State.Error}} started={{.State.StartedAt}} finished={{.State.FinishedAt}}' passtival-spring-app || true
             docker logs --tail 200 passtival-spring-app || true
             exit 1
           fi
